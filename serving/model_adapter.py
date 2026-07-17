@@ -210,13 +210,22 @@ class Target:
     # ---- CLAUDE.md §6 contract ----
     def predict(self, feature_df):
         """feature_df: DataFrame already ordered/filled to self.feature_columns
-           (incl. chemprop_pred). Returns np.ndarray of predicted pIC50."""
-        X = feature_df.reindex(columns=self.feature_columns).fillna(0)
+           (incl. chemprop_pred). Returns np.ndarray of predicted pIC50.
+           Clips to a safe finite range, not just NaN/inf: an extreme
+           out-of-distribution molecule (e.g. a long repeating chain) can
+           push a raw descriptor or the Chemprop forward pass to a value
+           that is technically finite in float64 but overflows float32
+           once AutoGluon's sklearn child models cast to it — sklearn then
+           raises instead of just predicting badly. A molecule this unusual
+           should come back flagged out-of-domain, never crash the request."""
+        X = feature_df.reindex(columns=self.feature_columns)
+        X = X.replace([np.inf, -np.inf], np.nan).fillna(0).clip(-1e6, 1e6)
         return self.predictor.predict(X).to_numpy()
 
     def applicability(self, feature_df):
         """feature_df: same shape as predict(). Returns (in_domain: bool[], z: float[])."""
-        X = feature_df.reindex(columns=self.feature_columns).apply(pd.to_numeric, errors="coerce").fillna(0)
+        X = feature_df.reindex(columns=self.feature_columns).apply(pd.to_numeric, errors="coerce")
+        X = X.replace([np.inf, -np.inf], np.nan).fillna(0).clip(-1e6, 1e6)
         z = AD.ad_z(X.to_numpy(dtype=float), self.ad_mean, self.ad_std)
         return AD.in_domain(z, self.ad_threshold), z
 
