@@ -5,8 +5,8 @@
       "name": "COX-2",
       "pdb_source": "5kir.pdb",
       "reference_ligand_resname": "RCX",
-      "receptor_pdbqt": "/home/asraful/Documents/Prelead Lab/qasr_2/docking_targets/cox2/receptor.pdbqt",
-      "receptor_pdb": "/home/asraful/Documents/Prelead Lab/qasr_2/docking_targets/cox2/receptor_clean.pdb",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
       "center": [
         23.206,
         1.318,

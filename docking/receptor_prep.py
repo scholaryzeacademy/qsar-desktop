@@ -130,8 +130,11 @@ def prepare_receptor(pdb_path, target_id, name=None, ref_resname=None, chain=Non
     profile = {
         "target_id": target_id, "name": name or target_id,
         "pdb_source": os.path.basename(pdb_path), "reference_ligand_resname": ref_name,
-        "receptor_pdbqt": os.path.abspath(rec_pdbqt),
-        "receptor_pdb": os.path.abspath(clean),
+        # store PORTABLE basenames, not absolute paths — resolved at load time
+        # relative to DOCKING_TARGETS_DIR/<target_id>/ (see profile.load_profile),
+        # so the registry keeps working after the project moves or is packaged.
+        "receptor_pdbqt": os.path.basename(rec_pdbqt),
+        "receptor_pdb": os.path.basename(clean),
         "center": center, "box_size": box_size,
         "site_source": "co-crystal_ligand" if ref_resname or ref_name else "auto",
         "validated": False,           # flip to True only after redock RMSD < 2 A

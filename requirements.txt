@@ -1,11 +1,51 @@
-# PhytoScreen — SERVING app requirements (prediction/ADMET/compare).
-# Model training lives in the separate factory; not needed here.
-rdkit
-scikit-learn
-scipy
-pandas
-numpy
-pyyaml
-fastapi
-uvicorn[standard]
-python-multipart
+# PhytoScreen Desktop — CPU-only serving app requirements.
+# Model training lives in the separate factory; not needed here (CLAUDE.md §1).
+#
+# torch MUST be installed from the CPU-only wheel index first, or pip may
+# pull a multi-GB CUDA build you don't need (this app never requires a GPU):
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r requirements.txt
+
+# --- chemistry / featurisation ---
+rdkit==2026.3.3
+
+# --- QSAR model inference (AutoGluon stacked ensemble + Chemprop D-MPNN) ---
+autogluon.tabular==1.5.0
+lightgbm==4.6.0
+catboost==1.2.10
+xgboost==3.3.0
+chemprop==2.3.0
+lightning==2.6.5
+# torch: install separately from the CPU index above before this file
+
+# --- core / web ---
+pandas==2.3.3
+numpy==2.3.5
+scipy==1.16.3
+scikit-learn==1.7.2
+pyyaml==6.0.3
+fastapi==0.139.2
+uvicorn[standard]==0.51.0
+python-multipart==0.0.32
+httpx==0.28.1
+
+# --- desktop shell ---
+pywebview==6.2.1
+
+# --- reporting / bucket files ---
+matplotlib==3.10.9
+openpyxl==3.1.5
+
+# --- docking (AutoDock Vina itself is an external binary, not pip-installable) ---
+meeko==0.7.1
+posebusters==0.6.5
+biopython==1.87
+pdbfixer==1.12.0
+openmm==8.5.2
+gemmi==0.7.5
+
+# --- tests ---
+pytest==9.1.1
+
+# --- optional, run as a separate worker process (see admet_service.py) ---
+# admet-ai

@@ -31,11 +31,7 @@ try:
 except Exception:
     httpx = None
 
-try:
-    from pipeline import standardise_smiles
-except Exception:
-    def standardise_smiles(s):
-        m = Chem.MolFromSmiles(s); return Chem.MolToSmiles(m) if m else None
+from serving.featurize import standardise_smiles
 
 WORKER_URL = os.environ.get("ADMET_SERVICE_URL", "http://127.0.0.1:8100").rstrip("/")
 

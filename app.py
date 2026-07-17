@@ -1,17 +1,21 @@
 """
 ============================================================
-  PhytoScreen — Serving App backend (app.py)
+  PhytoScreen — Desktop serving backend (app.py)
 ============================================================
-  Prediction-first serving app. NO training here. Reads a registry.json
-  copied from the model factory + the .pkl files you copy into models/.
+  Prediction-first serving app. NO training here (CLAUDE.md §1). Loads
+  the real target buckets in models/<target_id>/ (AutoGluon + Chemprop,
+  see serving/model_adapter.py) — the app never touches a registry.json
+  or raw pickle asset.
+
+  One chosen model per target — no multi-model comparison UI (CLAUDE.md
+  §13 guardrail).
 
   Run:
-      pip install rdkit scikit-learn scipy pandas numpy pyyaml \
-                  fastapi "uvicorn[standard]" python-multipart
-      uvicorn app:app --host 0.0.0.0 --port 8000
+      uvicorn app:app --host 127.0.0.1 --port 8000
       open http://localhost:8000/
 
-  Tabs served by one single-page UI: Predict / ADMET / Compare / Docking.
+  Tabs served by one single-page UI: Predict / ADMET / Compare / Docking
+  / Screen / Target Info.
 ============================================================
 """
 import os
@@ -25,8 +29,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional, List
 
-import serve
-import pipeline as P
+from serving import model_adapter as MA
 import analysis as A
 import admet as ADMET
 
@@ -38,7 +41,7 @@ try:
 except Exception:
     _DISEASES = {}
 
-app = FastAPI(title="PhytoScreen", version="2.0")
+app = FastAPI(title="PhytoScreen", version="3.0")
 
 DISCLAIMER = ("Prioritisation aid, not a substitute for assays. Trust predictions only for "
               "in-domain molecules; treat the top of the list as a shortlist.")
@@ -53,140 +56,123 @@ def _num(v):
         return None
 
 
-def confidence_tier(width, in_ad):
-    if not in_ad:
-        return "out", "Outside training chemistry"
-    if width is None:
-        return "med", "Medium confidence"
-    if width <= 1.5:
-        return "high", "High confidence"
-    if width <= 3.0:
-        return "med", "Medium confidence"
-    return "low", "Low confidence (wide range)"
-
-
-def _rows(df, lower_col, in_ad_flag):
-    out, has_pi = [], "PI_low" in df.columns
+def _rows(df):
+    """One dict per row. Out-of-domain rows NEVER carry a potency number —
+       AD gating is enforced here, not just in the UI (CLAUDE.md §2)."""
+    out = []
     for _, r in df.iterrows():
-        width = (r["PI_high"] - r["PI_low"]) if has_pi else None
-        tier, label = confidence_tier(width, in_ad_flag)
-        row = {"smiles": r.get("Standardised_SMILES"), "input_smiles": r.get("Input_SMILES"),
-               "predicted": _num(r.get("Predicted_pIC50")),
-               "lower": _num(r.get(lower_col)) if lower_col in df.columns else None,
-               "pi_low": _num(r.get("PI_low")) if has_pi else None,
-               "pi_high": _num(r.get("PI_high")) if has_pi else None,
-               "ad_distance": _num(r.get("AD_distance")),
-               "in_domain": bool(in_ad_flag), "confidence": tier, "confidence_label": label}
-        if "Rank" in df.columns:
-            row["rank"] = int(r["Rank"])
-        out.append(row)
+        in_ad = bool(r["In_AD"])
+        out.append({
+            "input_smiles": r.get("Input_SMILES"),
+            "smiles": r.get("Standardised_SMILES"),
+            "parsed_ok": bool(r.get("Parsed_OK")),
+            "predicted_pIC50": _num(r.get("Predicted_pIC50")) if in_ad else None,
+            "in_domain": in_ad,
+            "ad_z": _num(r.get("AD_z")),
+            "confidence": r.get("Confidence"),
+            "confidence_label": r.get("Confidence_Label"),
+            "confidence_basis": r.get("Confidence_Basis"),
+        })
     return out
 
 
-def _predict(target_id, smiles, model_name):
-    try:
-        asset, rec = serve.load_model(target_id)
-    except KeyError:
-        raise HTTPException(404, f"Unknown target '{target_id}'")
-    except (RuntimeError, FileNotFoundError) as e:
-        raise HTTPException(409, str(e))
+def _predict(target_id, smiles):
     if not smiles:
         raise HTTPException(400, "No SMILES provided.")
-    in_dom, out_dom, sort_col, rec, model_name = serve.rank(target_id, smiles, model_name=model_name)
-    conf = P._conformal_for(asset, model_name)
-    lvl = int(round(conf["confidence"] * 100)) if conf else 90
-    lower_col = f"Lower_{lvl}"
-    bad = out_dom[~out_dom["Parsed_OK"]] if "Parsed_OK" in out_dom.columns else out_dom.iloc[0:0]
-    out_real = out_dom[out_dom["Parsed_OK"]] if "Parsed_OK" in out_dom.columns else out_dom
-    m = rec.get("metrics_by_model", {}).get(model_name, {})
-    return {"target": {"id": rec["target_id"], "name": rec["name"], "status": rec["status"]},
-            "model": model_name, "is_best": model_name == asset["best_name"],
-            "interval_status": rec.get("interval_status", "approximate"), "confidence_pct": lvl,
-            "model_metrics": {"test_r2": m.get("test_r2"), "spearman": m.get("spearman"),
-                              "top_pick_pct": m.get("top_pick_pct"), "coverage": m.get("conformal_coverage")},
-            "counts": {"in_domain": int(len(in_dom)), "out_of_domain": int(len(out_real)),
-                       "skipped": int(len(bad)), "submitted": int(len(smiles))},
-            "in_domain": _rows(in_dom, lower_col, True), "out_of_domain": _rows(out_real, lower_col, False),
-            "skipped": [str(s) for s in bad.get("Input_SMILES", pd.Series([])).tolist()],
-            "ranked_by": sort_col, "disclaimer": DISCLAIMER}
+    try:
+        target = MA.load_target(target_id)
+    except MA.BucketError as e:
+        raise HTTPException(409, str(e))
+    except KeyError:
+        raise HTTPException(404, f"Unknown target '{target_id}'")
+
+    df = target.predict_smiles(smiles)
+    unparsed = df[~df["Parsed_OK"]]
+    parsed = df[df["Parsed_OK"]]
+    in_dom = parsed[parsed["In_AD"]].sort_values("Predicted_pIC50", ascending=False).reset_index(drop=True)
+    in_dom.insert(0, "Rank", range(1, len(in_dom) + 1))
+    out_dom = parsed[~parsed["In_AD"]].reset_index(drop=True)
+
+    in_rows = _rows(in_dom)
+    for i, row in enumerate(in_rows):
+        row["rank"] = i + 1
+
+    return {
+        "target": {"id": target.target_id, "name": target.name},
+        "model": target.metrics.get("Best_Model") or target.metrics.get("best_model"),
+        "model_metrics": {
+            "test_r2": target.metrics.get("R2_Test"),
+            "test_rmse": target.metrics.get("RMSE_Test"),
+            "pearson_r": target.metrics.get("Pearson_r"),
+            "ad_coverage_pct": target.metrics.get("AD_Coverage_pct"),
+            "tropsha_pass": target.metrics.get("Tropsha_Pass"),
+            "y_random_delta_r2": target.metrics.get("Y_Random_DeltaR2"),
+        },
+        "counts": {"in_domain": int(len(in_dom)), "out_of_domain": int(len(out_dom)),
+                   "skipped": int(len(unparsed)), "submitted": int(len(smiles))},
+        "in_domain": in_rows,
+        "out_of_domain": _rows(out_dom),
+        "skipped": [str(s) for s in unparsed["Input_SMILES"].tolist()],
+        "ranked_by": "predicted_pIC50",
+        "disclaimer": DISCLAIMER,
+    }
 
 
 # ---------------- models ----------------
 class PredictBody(BaseModel):
     target_id: str
     smiles: List[str]
-    model: Optional[str] = None
 
 
 class MultiBody(BaseModel):
     smiles: List[str]
     target_ids: Optional[List[str]] = None
     disease_id: Optional[str] = None
-    model: Optional[str] = None
 
 
 @app.get("/api/health")
 def health():
-    reg = serve.load_registry()
-    avail = sum(1 for r in reg.values() if serve.asset_available(r))
+    ids = MA.list_target_ids()
     try:
         dock_ready = bool(DOCK_AVAIL and DOCK_AVAIL.status()["ready"])
     except Exception:
         dock_ready = False
-    return {"models_in_registry": len(reg), "models_available": avail,
+    return {"targets_in_bucket_dir": len(ids), "targets_dir": MA.TARGETS_DIR,
             "admet_ai": ADMET.learned_status()["available"],
             "docking": "ready" if dock_ready else "not_ready", "disclaimer": DISCLAIMER}
 
 
 @app.get("/api/targets")
 def targets():
-    reg = serve.load_registry()
     out = []
-    for tid, r in reg.items():
-        m = r.get("metrics", {})
-        avail = serve.asset_available(r)
-        out.append({"target_id": tid, "name": r.get("name"), "status": r.get("status"),
-                    "best_model": r.get("best_model"), "n_compounds": r.get("n_compounds"),
-                    "spearman": m.get("spearman_mean"), "interval_status": r.get("interval_status"),
-                    "available": avail, "usable": avail and r.get("status") in ("live", "experimental")})
-    out.sort(key=lambda x: (not x["usable"], x["status"] != "live", x["name"] or ""))
+    for meta in MA.list_targets_meta():
+        m = meta["metrics"]
+        out.append({"target_id": meta["target_id"], "name": meta["target_id"],
+                    "best_model": m.get("Best_Model") or m.get("best_model"),
+                    "n_compounds": m.get("Total_N") or (m.get("counts") or {}).get("total"),
+                    "test_r2": m.get("R2_Test"), "test_rmse": m.get("RMSE_Test"),
+                    "ad_coverage_pct": m.get("AD_Coverage_pct"), "tropsha_pass": m.get("Tropsha_Pass")})
+    out.sort(key=lambda x: x["target_id"])
     return {"targets": out}
-
-
-@app.get("/api/targets/{tid}/models")
-def models(tid: str):
-    try:
-        asset, rec = serve.load_model(tid)
-    except KeyError:
-        raise HTTPException(404, f"Unknown target '{tid}'")
-    except (RuntimeError, FileNotFoundError) as e:
-        raise HTTPException(409, str(e))
-    bm = rec.get("metrics_by_model", asset.get("metrics_by_model", {}))
-    return {"best_model": asset["best_name"],
-            "models": [{"name": n, "is_best": n == asset["best_name"], **bm.get(n, {})}
-                       for n in P.list_models(asset)]}
 
 
 @app.post("/api/predict")
 def predict(body: PredictBody):
-    return _predict(body.target_id, [s.strip() for s in body.smiles if s and s.strip()], body.model)
+    return _predict(body.target_id, [s.strip() for s in body.smiles if s and s.strip()])
 
 
 @app.post("/api/predict_csv")
-async def predict_csv(target_id: str = Form(...), file: UploadFile = File(...),
-                      model: Optional[str] = Form(None)):
+async def predict_csv(target_id: str = Form(...), file: UploadFile = File(...)):
     import io
     df = pd.read_csv(io.BytesIO(await file.read()))
     col = "SMILES" if "SMILES" in df.columns else ("smiles" if "smiles" in df.columns else df.columns[0])
     smiles = [str(s).strip() for s in df[col].dropna().tolist() if str(s).strip()]
-    return _predict(target_id, smiles, model)
+    return _predict(target_id, smiles)
 
 
 @app.get("/api/diseases")
 def diseases():
-    reg = serve.load_registry()
-    usable = {tid for tid, r in reg.items()
-              if serve.asset_available(r) and r.get("status") in ("live", "experimental")}
+    usable = set(MA.list_target_ids())
     return {"diseases": [{"disease_id": did, "name": d.get("name"), "note": d.get("note"),
                           "targets": d.get("targets", []),
                           "available_targets": [t for t in d.get("targets", []) if t in usable]}
@@ -202,14 +188,14 @@ def predict_multi(body: MultiBody):
         d = _DISEASES.get(body.disease_id)
         if not d:
             raise HTTPException(404, f"Unknown disease '{body.disease_id}'")
-        targets = d["targets"]
+        target_ids = d["targets"]
     elif body.target_ids:
-        targets = body.target_ids
+        target_ids = body.target_ids
     else:
         raise HTTPException(400, "Provide target_ids or disease_id.")
-    result = A.analyse(smiles, targets, model=body.model)
+    result = A.analyse(smiles, target_ids)
     if not result["targets"]:
-        raise HTTPException(409, f"No usable targets among {targets}.")
+        raise HTTPException(409, f"No usable targets among {target_ids}.")
     return result
 
 
