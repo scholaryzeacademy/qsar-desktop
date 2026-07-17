@@ -32,6 +32,7 @@ from typing import Optional, List
 from serving import model_adapter as MA
 import analysis as A
 import admet as ADMET
+import factory_browser
 
 _here = os.path.dirname(os.path.abspath(__file__))
 try:
@@ -42,6 +43,7 @@ except Exception:
     _DISEASES = {}
 
 app = FastAPI(title="PhytoScreen", version="3.0")
+app.include_router(factory_browser.router)
 
 DISCLAIMER = ("Prioritisation aid, not a substitute for assays. Trust predictions only for "
               "in-domain molecules; treat the top of the list as a shortlist.")
@@ -358,6 +360,86 @@ def docking_job(jid: str):
     if job["status"] == "error":
         r["error"] = job.get("error")
     return r
+
+
+# ---------------- screen (the full STEP 1-8 pipeline, CLAUDE.md §7.1) ----------------
+from serving import screen as SCREEN
+
+_SCREEN_JOBS = {}
+
+
+class ScreenBody(BaseModel):
+    target_id: str
+    smiles: List[str]
+
+
+@app.post("/api/screen/submit")
+def screen_submit(body: ScreenBody):
+    import uuid
+    smiles = [s.strip() for s in body.smiles if s and s.strip()]
+    if not smiles:
+        raise HTTPException(400, "No SMILES provided.")
+    if body.target_id not in MA.list_target_ids():
+        raise HTTPException(404, f"Unknown target '{body.target_id}'")
+    jid = uuid.uuid4().hex[:12]
+    _SCREEN_JOBS[jid] = {"status": "queued", "step": 0, "step_label": "Queued",
+                         "done": None, "total": None, "result": None, "error": None}
+    _run_screen_job(jid, body.target_id, smiles)
+    return {"job_id": jid}
+
+
+def _run_screen_job(jid, target_id, smiles):
+    import threading
+
+    def on_progress(step, label, done=None, total=None):
+        job = _SCREEN_JOBS[jid]
+        job["step"] = step; job["step_label"] = label; job["done"] = done; job["total"] = total
+
+    def work():
+        job = _SCREEN_JOBS[jid]
+        job["status"] = "running"
+        try:
+            result = SCREEN.run(target_id, smiles, progress=on_progress)
+            job["result"] = result
+            job["status"] = "done"
+        except Exception as e:
+            job["status"] = "error"; job["error"] = str(e)
+    threading.Thread(target=work, daemon=True).start()
+
+
+@app.get("/api/screen/job/{jid}")
+def screen_job(jid: str):
+    job = _SCREEN_JOBS.get(jid)
+    if not job:
+        raise HTTPException(404, "unknown job")
+    r = {"status": job["status"], "step": job["step"], "step_label": job["step_label"],
+        "total_steps": 8, "done": job["done"], "total": job["total"]}
+    if job["status"] == "done":
+        r["result"] = job["result"]
+    if job["status"] == "error":
+        r["error"] = job.get("error")
+    return r
+
+
+@app.get("/api/screen/job/{jid}/export.csv")
+def screen_export_csv(jid: str):
+    from fastapi.responses import StreamingResponse
+    import io
+    job = _SCREEN_JOBS.get(jid)
+    if not job or job["status"] != "done":
+        raise HTTPException(404, "job not found or not finished")
+    rows = job["result"]["shortlist"]
+    df = pd.DataFrame([{
+        "rank": r["rank"], "input_smiles": r["input_smiles"], "smiles": r["smiles"],
+        "predicted_pIC50": r["qsar"]["predicted_pIC50"], "in_domain": r["qsar"]["in_domain"],
+        "qsar_confidence": r["qsar"]["confidence"],
+        "vina_score": (r["docking"] or {}).get("vina_score"),
+        "docking_confidence": (r["docking"] or {}).get("confidence"),
+        "fused_score": r["fused_score"], "caveats": "; ".join(r["caveats"]),
+    } for r in rows])
+    buf = io.StringIO(); df.to_csv(buf, index=False); buf.seek(0)
+    return StreamingResponse(iter([buf.getvalue()]), media_type="text/csv",
+                             headers={"Content-Disposition": f'attachment; filename="screen_{jid}.csv"'})
 
 
 # ---------------- single-page UI ----------------

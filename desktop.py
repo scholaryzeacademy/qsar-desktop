@@ -39,17 +39,12 @@ def _wait_up(port, timeout=30):
 
 
 def build_app():
-    """Import the serving app and attach the factory-bucket browser router."""
+    """Import the serving app (factory_browser is mounted inside app.py itself)."""
     # ensure the app's own folder is importable when frozen by PyInstaller
     here = os.path.dirname(os.path.abspath(__file__))
     if here not in sys.path:
         sys.path.insert(0, here)
     import app as serving          # the existing app.py (unchanged)
-    try:
-        import factory_browser
-        serving.app.include_router(factory_browser.router)
-    except Exception as e:
-        print(f"[desktop] factory browser not mounted: {e}")
     return serving.app
 
 

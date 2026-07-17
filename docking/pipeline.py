@@ -47,18 +47,23 @@ def dock_compound(profile, smiles, engine=None, rescorer=None, n_poses=9,
         if rescorer.available() and profile.get("receptor_pdb"):
             gnina = rescorer.rescore(profile["receptor_pdb"], best.mol)
             result["gnina"] = gnina
-        # interaction profiling + optional 2D diagram
+        # interaction profiling + optional 2D diagram: PLIP (gold-standard
+        # typing) when installed, else the built-in distance-based detector;
+        # rendered LigPlot+-style (H-bond/pi-stacking/hydrophobic/salt-bridge/
+        # halogen, polar/non-polar residue halos, legend — see CLAUDE.md §8).
         if profile.get("receptor_pdb") and os.path.exists(profile["receptor_pdb"]):
             try:
+                from . import interaction_diagram as ID
                 from . import interactions as I
-                inter = I.detect_interactions(best.mol, profile["receptor_pdb"])
+                inter, source = ID.detect_interactions(profile["receptor_pdb"], best.mol)
                 result["interactions"] = inter
+                result["interaction_source"] = source
                 if reference_interactions is not None:
                     result["residue_overlap_pct"] = I.residue_overlap(inter, reference_interactions)
                 if make_diagram:
                     ref_res = {h["residue"] for h in (reference_interactions or [])}
-                    result["interaction_png"] = I.interaction_diagram_png(
-                        best.mol, inter, title=f"{smiles[:30]}", ref_residues=ref_res)
+                    result["interaction_png"] = ID.diagram_png(
+                        best.mol, inter, title=f"{smiles[:30]}", source=source, ref_residues=ref_res)
             except Exception as e:
                 result["interaction_error"] = str(e)
 

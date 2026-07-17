@@ -76,7 +76,7 @@
   .empty .big{font-size:40px;opacity:.25;margin-bottom:8px}
   .toolbar{padding:10px 20px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:space-between}
   .link{background:#f1f5f9;border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-size:12.5px;
-       font-weight:600;color:var(--accent-d);cursor:pointer}
+       font-weight:600;color:var(--accent-d);cursor:pointer;text-decoration:none;display:inline-block}
   details{margin:10px 20px}summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--mut)}
   .heat{border-radius:6px;padding:5px 7px;font-weight:600;font-size:12.5px;display:inline-block;min-width:64px;text-align:center}
   .muted{color:var(--mut)}
@@ -93,31 +93,73 @@
   .ep .pct{color:var(--mut);font-size:11px}
   .coming{max-width:640px;margin:40px auto;text-align:center}
   .coming ul{display:inline-block;text-align:left;color:var(--mut);font-size:13.5px}
+  /* screen steps */
+  .steps{display:flex;flex-direction:column;gap:6px;max-width:460px;margin:0 auto;padding:30px 0}
+  .step{display:flex;align-items:center;gap:10px;font-size:13px;padding:6px 10px;border-radius:8px}
+  .step .n{width:22px;height:22px;border-radius:50%;background:#e2e8f0;color:var(--mut);font-size:11px;
+       font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .step.on{background:#f0fdfa} .step.on .n{background:var(--accent);color:#fff}
+  .step.done .n{background:var(--high);color:#fff}
+  .caveat{display:block;font-size:11.5px;color:#b45309;margin-top:2px}
+  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;padding:16px 20px}
+  .kv div{background:#f8fafc;border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .kv .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
+  .kv .v{font-size:16px;font-weight:700;margin-top:2px}
+  .plotgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;padding:16px 20px}
+  .plotgrid figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .plotgrid img{width:100%;display:block}
+  .plotgrid figcaption{font-size:11.5px;color:var(--mut);padding:6px 10px}
+  .filerow{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid #f1f5f9;font-size:12.5px}
+  .filerow .p{font-family:ui-monospace,Menlo,Consolas,monospace}
+  .filerow .a{color:var(--mut);font-size:11.5px}
+  .cat{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent-d);font-weight:700;
+       padding:10px 12px 4px}
 </style>
 </head>
 <body>
   <div class="top">
     <div class="brand"><span class="mark"></span> PhytoScreen</div>
     <nav>
-      <button data-tab="predict" class="on">Predict</button>
+      <button data-tab="screen" class="on">Screen</button>
+      <button data-tab="predict">Predict</button>
       <button data-tab="admet">ADMET</button>
       <button data-tab="compare">Compare</button>
       <button data-tab="docking">Docking</button>
+      <button data-tab="target">Target Info</button>
     </nav>
     <div class="hstat" id="hstat"></div>
   </div>
 
+  <!-- ============ SCREEN (the headline pipeline) ============ -->
+  <section class="view on" id="v-screen">
+    <div class="layout">
+      <aside class="card">
+        <h2>Screen compounds</h2>
+        <p class="sub">Full pipeline: parse &rarr; featurise &rarr; AD &rarr; QSAR &rarr; ADMET &rarr; docking &rarr; ranked shortlist.</p>
+        <label>Target</label>
+        <select id="s-target"></select>
+        <div class="hint" id="s-tinfo"></div>
+        <label>Input</label>
+        <div class="seg"><button class="on" data-m="paste" data-g="s">Paste</button><button data-m="csv" data-g="s">CSV file</button></div>
+        <div id="s-paste" style="margin-top:8px"><textarea id="s-smiles" placeholder="One SMILES per line"></textarea></div>
+        <div id="s-csv" style="margin-top:8px;display:none"><input type="file" id="s-file" accept=".csv"><div class="hint">Needs a SMILES column.</div></div>
+        <button class="go" id="s-run">Run screen</button>
+      </aside>
+      <main class="card" id="s-out">
+        <div class="empty"><div class="big">&#9889;</div>Select a target and enter molecules to run the full 8-step pipeline.</div>
+      </main>
+    </div>
+  </section>
+
   <!-- ============ PREDICT ============ -->
-  <section class="view on" id="v-predict">
+  <section class="view" id="v-predict">
     <div class="layout">
       <aside class="card">
         <h2>Predict potency</h2>
-        <p class="sub">Rank molecules against one target.</p>
+        <p class="sub">QSAR only, one target's shipped model.</p>
         <label>Target</label>
         <select id="p-target"></select>
         <div class="hint" id="p-tinfo"></div>
-        <label>Model</label>
-        <select id="p-model"></select>
         <label>Input</label>
         <div class="seg"><button class="on" data-m="paste" data-g="p">Paste</button><button data-m="csv" data-g="p">CSV file</button></div>
         <div id="p-paste" style="margin-top:8px"><textarea id="p-smiles" placeholder="One SMILES per line"></textarea></div>
@@ -135,7 +177,7 @@
     <div class="layout">
       <aside class="card">
         <h2>ADMET profile</h2>
-        <p class="sub">Drug-likeness & structural alerts. Target-independent.</p>
+        <p class="sub">Drug-likeness &amp; structural alerts. Target-independent.</p>
         <label>Input</label>
         <div class="seg"><button class="on" data-m="paste" data-g="a">Paste</button><button data-m="csv" data-g="a">CSV file</button></div>
         <div id="a-paste" style="margin-top:8px"><textarea id="a-smiles" placeholder="One SMILES per line"></textarea></div>
@@ -155,7 +197,7 @@
         <h2>Compare targets</h2>
         <p class="sub">Screen against a disease group or several targets.</p>
         <label>Disease</label>
-        <select id="c-disease"><option value="">â none â</option></select>
+        <select id="c-disease"><option value="">&mdash; none &mdash;</option></select>
         <label>Or pick targets</label>
         <div class="checks" id="c-targets"></div>
         <label>Input</label>
@@ -172,13 +214,28 @@
 
   <!-- ============ DOCKING ============ -->
   <section class="view" id="v-docking">
-    <div class="card coming" id="d-out"><div class="empty">Loadingâ¦</div></div>
+    <div class="card coming" id="d-out"><div class="empty">Loading&hellip;</div></div>
+  </section>
+
+  <!-- ============ TARGET INFO ============ -->
+  <section class="view" id="v-target">
+    <div class="layout">
+      <aside class="card">
+        <h2>Target Info</h2>
+        <p class="sub">Validation evidence &amp; full bucket browser for one target.</p>
+        <label>Target</label>
+        <select id="t-target"></select>
+      </aside>
+      <main class="card" id="t-out">
+        <div class="empty"><div class="big">&#128203;</div>Pick a target to see its validation evidence and files.</div>
+      </main>
+    </div>
   </section>
 
 <script>
 const $=s=>document.querySelector(s);
 const api=(u,o)=>fetch(u,o).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');return d;});
-const tierClass={high:'d-high',med:'d-med',low:'d-low',out:'d-out'};
+const tierClass={high:'d-high',med:'d-med',low:'d-low',out:'d-out',na:'d-out'};
 
 /* tabs */
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
@@ -206,24 +263,27 @@ async function getSmiles(g){
   }
   return $(`#${g}-smiles`).value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
 }
-function loading(el){el.innerHTML='<div class="spin" style="display:block">Workingâ¦</div>';}
+function loading(el){el.innerHTML='<div class="spin" style="display:block">Working&hellip;</div>';}
 function fail(el,m){el.innerHTML=`<div class="err">${m}</div>`;}
 
 /* ---------- shared data ---------- */
 let TARGETS=[];
 async function boot(){
   const h=await api('/api/health');
-  $('#hstat').innerHTML=`<b>${h.models_available}</b> models loaded`;
+  $('#hstat').innerHTML=`<b>${h.targets_in_bucket_dir}</b> targets loaded`;
   TARGETS=(await api('/api/targets')).targets;
-  const usable=TARGETS.filter(t=>t.usable);
-  // predict target select
-  const ps=$('#p-target');ps.innerHTML='';
-  usable.forEach(t=>ps.add(new Option(t.name+(t.status==='experimental'?' (experimental)':''),t.target_id)));
-  ps.onchange=onPTarget; if(ps.value) onPTarget();
+  // target selects (Screen / Predict / Target Info)
+  ['s-target','p-target','t-target'].forEach(id=>{
+    const sel=$('#'+id); sel.innerHTML='';
+    TARGETS.forEach(t=>sel.add(new Option(t.target_id,t.target_id)));
+  });
+  $('#s-target').onchange=()=>onTargetInfo('s'); if($('#s-target').value) onTargetInfo('s');
+  $('#p-target').onchange=()=>onTargetInfo('p'); if($('#p-target').value) onTargetInfo('p');
+  $('#t-target').onchange=renderTargetInfo; if($('#t-target').value) renderTargetInfo();
   // compare targets checkboxes
   const cb=$('#c-targets');cb.innerHTML='';
-  usable.forEach(t=>{const l=document.createElement('label');l.className='chk';
-    l.innerHTML=`<input type=checkbox value="${t.target_id}"> ${t.name}`;cb.appendChild(l);});
+  TARGETS.forEach(t=>{const l=document.createElement('label');l.className='chk';
+    l.innerHTML=`<input type=checkbox value="${t.target_id}"> ${t.target_id}`;cb.appendChild(l);});
   const dz=(await api('/api/diseases')).diseases;
   const ds=$('#c-disease');
   dz.forEach(d=>ds.add(new Option(`${d.name} (${d.available_targets.length})`,d.disease_id)));
@@ -232,6 +292,12 @@ async function boot(){
   // docking
   try{ renderDocking(await api('/api/docking/status')); }
   catch(e){ $('#d-out').innerHTML='<div class="empty">Docking status unavailable.</div>'; }
+}
+function onTargetInfo(g){
+  const t=TARGETS.find(x=>x.target_id===$('#'+g+'-target').value)||{};
+  $('#'+g+'-tinfo').innerHTML=t.target_id
+    ? `${t.n_compounds||'?'} compounds &middot; test R&sup2; ${t.test_r2??'&mdash;'} &middot; RMSE ${t.test_rmse??'&mdash;'}`
+    : '';
 }
 
 function chkline(ok,name,desc){
@@ -243,15 +309,15 @@ function dockValidationPanel(details){
   if(!details||!details.length) return '';
   const rows=details.map(d=>{
     const ok=d.validated;
-    const badge=ok?'<span class="badge b-ok">✓ VALIDATED</span>':'<span class="badge b-warn">UNVALIDATED</span>';
-    const rmsd=(d.reference_rmsd!=null)?`<b>${d.reference_rmsd} Å</b> redocking`:'<span class="muted">no redocking</span>';
+    const badge=ok?'<span class="badge b-ok">&#10003; VALIDATED</span>':'<span class="badge b-warn">UNVALIDATED</span>';
+    const rmsd=(d.reference_rmsd!=null)?`<b>${d.reference_rmsd} &Aring;</b> redocking`:'<span class="muted">no redocking</span>';
     const enr=(d.enrichment_auc!=null)?`<b>AUC ${d.enrichment_auc}</b> enrichment${d.enrichment_ef20!=null?` (EF@20% ${d.enrichment_ef20}${d.enrichment_n?`, n=${d.enrichment_n}`:''})`:''}`:'<span class="muted">no enrichment test</span>';
     return `<div style="padding:9px 12px;border:1px solid var(--line);border-radius:9px;margin-bottom:8px;background:${ok?'#f0fdfa':'#fffbeb'}">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><b>${d.name||d.target_id}</b> ${badge}</div>
-      <div style="font-size:12.5px;color:#334155">${rmsd} &nbsp;·&nbsp; ${enr}</div></div>`;
+      <div style="font-size:12.5px;color:#334155">${rmsd} &nbsp;&middot;&nbsp; ${enr}</div></div>`;
   }).join('');
   return `<div style="margin:6px 0 4px"><h5 style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent-d)">Per-target validation</h5>${rows}
-    <div class="muted" style="font-size:11.5px;margin-top:2px">Redocking &lt; 2 Å confirms the pose geometry; enrichment AUC measures separation of known actives from decoys. Trust scores only for validated targets.</div></div>`;
+    <div class="muted" style="font-size:11.5px;margin-top:2px">Redocking &lt; 2 &Aring; confirms the pose geometry; enrichment AUC measures separation of known actives from decoys. Trust scores only for validated targets.</div></div>`;
 }
 function renderDocking(dk){
   const el=$('#d-out');
@@ -263,7 +329,7 @@ function renderDocking(dk){
       <p class="sub">AutoDock Vina + PoseBusters physical-validity gate.</p>
       ${dockValidationPanel(dk.target_details||[])}
       <label style="margin-top:14px">Docking-ready target</label>
-      <select id="dk-target">${opts||'<option value="">â no prepared targets â</option>'}</select>
+      <select id="dk-target">${opts||'<option value="">&mdash; no prepared targets &mdash;</option>'}</select>
       <label style="margin-top:12px">SMILES (one per line)</label>
       <textarea id="dk-smiles" style="min-height:100px"></textarea>
       <button class="go" id="dk-run">Dock compounds</button>
@@ -277,7 +343,7 @@ function renderDocking(dk){
   const bins=Object.entries(dk.binaries||{}).map(([n,ok])=>chkline(ok,n,dk.binary_desc[n])).join('');
   el.innerHTML=`<div style="max-width:680px;margin:20px auto;text-align:left">
     <div style="text-align:center"><div class="big" style="font-size:40px;opacity:.25">&#9881;</div>
-    <h2>Docking â not yet enabled on this server</h2>
+    <h2>Docking &mdash; not yet enabled on this machine</h2>
     <p class="sub" style="text-align:center">${dk.note||''}</p></div>
     <h5 style="margin:16px 0 4px;color:var(--accent-d);font-size:11px;text-transform:uppercase">Python packages</h5>${pkgs}
     <h5 style="margin:16px 0 4px;color:var(--accent-d);font-size:11px;text-transform:uppercase">Engine binaries</h5>${bins}
@@ -291,7 +357,7 @@ async function dockRun(){
   const target=$('#dk-target').value;
   if(!target){ out.innerHTML='<div class="err">No prepared target.</div>'; return; }
   if(!smiles.length){ out.innerHTML='<div class="err">Enter SMILES.</div>'; return; }
-  out.innerHTML='<div class="muted">Submittingâ¦</div>';
+  out.innerHTML='<div class="muted">Submitting&hellip;</div>';
   try{
     const r=await api('/api/docking/submit',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({target_id:target,smiles})});
@@ -304,7 +370,7 @@ async function pollDocking(out,jid,total){
     let s; try{ s=await api('/api/docking/job/'+jid); }catch(e){ out.innerHTML='<div class="err">Job lost.</div>'; return; }
     if(s.status==='done'){ renderDockResults(out,s.results); return; }
     if(s.status==='error'){ out.innerHTML=`<div class="err">${s.error||'failed'}</div>`; return; }
-    out.innerHTML=`<div class="muted">Docking ${s.done}/${s.total}â¦ (minutes per compound)</div>`;
+    out.innerHTML=`<div class="muted">Docking ${s.done}/${s.total}&hellip; (minutes per compound)</div>`;
   }
 }
 function renderDockResults(out,results){
@@ -316,27 +382,88 @@ function renderDockResults(out,results){
     const g=r.gnina||{};
     const canView=!!r.interaction_png;
     h+=`<tr class="${canView?'clickrow':''}" ${canView?`onclick="toggleDock(${i})"`:''}>
-      <td>${canView?'<span id="dar'+i+'">▸</span>':''}</td>
+      <td>${canView?'<span id="dar'+i+'">&#9656;</span>':''}</td>
       <td class="smi">${r.smiles||''}</td>
-      <td><span class="chip"><span class="dot ${cls[r.confidence]||'d-out'}"></span>${r.confidence||'—'}</span></td>
-      <td>${r.vina_score??'—'}</td>
-      ${hasCNN?`<td>${g.cnn_score??'—'}</td><td>${g.cnn_affinity??'—'}</td>`:''}
+      <td><span class="chip"><span class="dot ${cls[r.confidence]||'d-out'}"></span>${r.confidence||'&mdash;'}</span></td>
+      <td>${r.vina_score??'&mdash;'}</td>
+      ${hasCNN?`<td>${g.cnn_score??'&mdash;'}</td><td>${g.cnn_affinity??'&mdash;'}</td>`:''}
       <td class="muted">${r.status==='ok'?(r.n_valid+' valid pose(s)'):(r.reason||r.status||'')}</td></tr>`;
     if(canView){
       const ov=(r.residue_overlap_pct!=null)?`<div class="muted" style="margin:4px 0 8px">Shares ${r.residue_overlap_pct}% of the reference drug's contact residues.</div>`:'';
-      h+=`<tr id="dkd${i}" style="display:none"><td></td><td colspan="${cols-1}" style="padding:0"><div class="detail">${ov}<img src="data:image/png;base64,${r.interaction_png}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff"/></div></td></tr>`;
+      const src=r.interaction_source?`<div class="muted" style="margin:4px 0 8px">Interaction detection: ${r.interaction_source}.</div>`:'';
+      h+=`<tr id="dkd${i}" style="display:none"><td></td><td colspan="${cols-1}" style="padding:0"><div class="detail">${ov}${src}<img src="data:image/png;base64,${r.interaction_png}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff"/></div></td></tr>`;
     }
   });
   out.innerHTML=h+`</tbody></table>`;
 }
 function toggleDock(i){const r=document.getElementById('dkd'+i),a=document.getElementById('dar'+i);const open=r.style.display==='none';r.style.display=open?'table-row':'none';if(a)a.textContent=open?'▾':'▸';}
-async function onPTarget(){
-  const t=TARGETS.find(x=>x.target_id===$('#p-target').value)||{};
-  $('#p-tinfo').innerHTML=`<span class="badge ${t.status==='live'?'b-live':'b-exp'}">${(t.status||'').toUpperCase()}</span> ${t.n_compounds||'?'} compounds Â· Ï ${t.spearman??'â'}`;
-  const d=await api(`/api/targets/${t.target_id}/models`);
-  const ms=$('#p-model');ms.innerHTML='';
-  d.models.forEach(m=>ms.add(new Option(m.name+(m.is_best?'  â best':''),m.name)));
+
+/* ---------- SCREEN ---------- */
+$('#s-run').onclick=async()=>{
+  const el=$('#s-out');
+  try{
+    const smiles=await getSmiles('s'); if(!smiles.length)throw new Error('Enter at least one SMILES.');
+    const target_id=$('#s-target').value; if(!target_id)throw new Error('Pick a target.');
+    el.innerHTML=stepsHtml(0,'Submitting&hellip;');
+    const r=await api('/api/screen/submit',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({target_id,smiles})});
+    await pollScreen(el,r.job_id);
+  }catch(e){fail(el,e.message);}
+};
+const SCREEN_STEPS=['Parse & standardise SMILES','Featurise (RDKit 2D + MACCS + Morgan)',
+  'Applicability-domain check','QSAR potency prediction','ADMET profiling','Docking',
+  'Rank & fuse evidence','Finalise & export'];
+function stepsHtml(step,note){
+  const rows=SCREEN_STEPS.map((label,i)=>{
+    const n=i+1, cls=n<step?'done':(n===step?'on':'');
+    return `<div class="step ${cls}"><span class="n">${n<step?'&#10003;':n}</span><span>${label}</span></div>`;
+  }).join('');
+  return `<div class="steps"><div style="text-align:center;color:var(--mut);font-size:12.5px;margin-bottom:6px">${note||''}</div>${rows}</div>`;
 }
+async function pollScreen(el,jid){
+  while(true){
+    let s; try{ s=await api('/api/screen/job/'+jid); }catch(e){ fail(el,'Job lost: '+e.message); return; }
+    if(s.status==='error'){ fail(el,s.error||'Screen failed.'); return; }
+    if(s.status==='done'){ window.__screen_jid=jid; renderScreen(el,s.result); return; }
+    const note=(s.step===6&&s.total)?`Docking ${s.done||0}/${s.total}&hellip;`:(s.step_label||'Working&hellip;');
+    el.innerHTML=stepsHtml(s.step||0,`Step ${s.step||0}/8 &mdash; ${note}`);
+    await new Promise(r=>setTimeout(r,900));
+  }
+}
+function renderScreen(el,d){
+  window.__screen=d;
+  const c=d.counts;
+  let h=`<div class="rhead"><div class="name">${d.target_id}</div>
+    <div class="stat">Submitted<b>${c.submitted}</b></div>
+    <div class="stat">Parsed<b>${c.parsed}</b></div>
+    <div class="stat">Skipped<b>${c.skipped}</b></div>
+    <div class="stat">Docking<b>${d.docking_used?'used':'skipped'}</b></div></div>`;
+  h+=`<div class="disc">${d.methods_note}</div>`;
+  if(d.docking_note && !d.docking_used) h+=`<div class="notice">${d.docking_note}</div>`;
+  if(!d.shortlist.length){ h+=`<div class="empty">No molecules could be parsed.</div>`; el.innerHTML=h; return; }
+  h+=`<div class="tablewrap"><table><thead><tr><th>#</th><th>Compound</th><th>QSAR pIC50</th><th>Confidence</th>
+    ${d.docking_used?'<th>Vina</th><th>Dock conf.</th>':''}<th>Fused score</th><th>Caveats</th></tr></thead><tbody>`;
+  d.shortlist.forEach((r,i)=>{
+    const canView=!!(r.docking&&r.docking.interaction_png);
+    h+=`<tr class="${canView?'clickrow':''}" ${canView?`onclick="toggleScreen(${i})"`:''}>
+      <td>${r.rank}${canView?' <span id="sar'+i+'">&#9656;</span>':''}</td>
+      <td class="smi">${r.smiles}</td>
+      <td>${r.qsar.in_domain?('<b>'+r.qsar.predicted_pIC50+'</b>'):'<span class="muted">out-of-domain</span>'}</td>
+      <td><span class="chip"><span class="dot ${tierClass[r.qsar.confidence]||'d-out'}"></span>${r.qsar.confidence_label||''}</span></td>
+      ${d.docking_used?`<td>${r.docking?(r.docking.vina_score??'&mdash;'):'&mdash;'}</td><td>${r.docking?(r.docking.confidence??'&mdash;'):'&mdash;'}</td>`:''}
+      <td>${r.fused_score??'&mdash;'}</td>
+      <td>${r.caveats.map(c=>`<span class="caveat">${c}</span>`).join('')||'&mdash;'}</td></tr>`;
+    if(canView){
+      h+=`<tr id="sdd${i}" style="display:none"><td></td><td colspan="6" style="padding:0"><div class="detail">
+        <img src="data:image/png;base64,${r.docking.interaction_png}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff"/></div></td></tr>`;
+    }
+  });
+  h+=`</tbody></table></div>`;
+  h+=`<div class="toolbar"><span class="muted">${d.skipped.length?('Skipped: '+d.skipped.join(', ')):''}</span>
+      <a class="link" href="/api/screen/job/${window.__screen_jid||''}/export.csv" download>Download CSV</a></div>`;
+  el.innerHTML=h;
+}
+function toggleScreen(i){const r=document.getElementById('sdd'+i),a=document.getElementById('sar'+i);const open=r.style.display==='none';r.style.display=open?'table-row':'none';if(a)a.textContent=open?'▾':'▸';}
 
 /* ---------- PREDICT ---------- */
 $('#p-run').onclick=async()=>{
@@ -345,7 +472,7 @@ $('#p-run').onclick=async()=>{
     const smiles=await getSmiles('p'); if(!smiles.length)throw new Error('Enter at least one SMILES.');
     loading(el);
     const d=await api('/api/predict',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({target_id:$('#p-target').value,model:$('#p-model').value,smiles})});
+      body:JSON.stringify({target_id:$('#p-target').value,smiles})});
     renderPredict(el,d);
   }catch(e){fail(el,e.message);}
 };
@@ -353,26 +480,25 @@ function renderPredict(el,d){
   const m=d.model_metrics,c=d.counts;
   let h=`<div class="rhead">
     <div class="name">${d.target.name}</div>
-    <div class="stat">Model<b>${d.model}${d.is_best?' â':''}</b></div>
-    <div class="stat">Ranking Ï<b>${m.spearman??'â'}</b></div>
-    <div class="stat">Test RÂ²<b>${m.test_r2??'â'}</b></div>
-    <div class="stat">Intervals<b>${d.interval_status}</b></div>
+    <div class="stat">Model<b>${d.model||'&mdash;'}</b></div>
+    <div class="stat">Test R&sup2;<b>${m.test_r2??'&mdash;'}</b></div>
+    <div class="stat">Test RMSE<b>${m.test_rmse??'&mdash;'}</b></div>
+    <div class="stat">Tropsha<b>${m.tropsha_pass===true?'pass':(m.tropsha_pass===false?'fail':'&mdash;')}</b></div>
     <div class="stat">In-domain<b>${c.in_domain}/${c.submitted}</b></div></div>`;
   h+=`<div class="disc">${d.disclaimer}</div>`;
   if(d.in_domain.length){
-    h+=`<div class="tablewrap"><table><thead><tr><th>#</th><th>Compound</th><th>Predicted</th><th>Lower ${d.confidence_pct}%</th><th>Range</th><th>Confidence</th></tr></thead><tbody>`;
+    h+=`<div class="tablewrap"><table><thead><tr><th>#</th><th>Compound</th><th>Predicted pIC50</th><th>AD z</th><th>Confidence</th></tr></thead><tbody>`;
     d.in_domain.forEach(r=>h+=`<tr><td>${r.rank}</td><td class="smi">${r.smiles||''}</td>
-      <td><b>${r.predicted??'â'}</b></td><td>${r.lower??'â'}</td>
-      <td class="muted">${r.pi_low??'â'} â ${r.pi_high??'â'}</td>
+      <td><b>${r.predicted_pIC50??'&mdash;'}</b></td><td class="muted">${r.ad_z??'&mdash;'}</td>
       <td><span class="chip"><span class="dot ${tierClass[r.confidence]}"></span>${r.confidence_label}</span></td></tr>`);
     h+=`</tbody></table></div>`;
-    h+=`<div class="toolbar"><span class="muted">${c.out_of_domain} out-of-domain Â· ${c.skipped} skipped</span>
+    h+=`<div class="toolbar"><span class="muted">${c.out_of_domain} out-of-domain &middot; ${c.skipped} skipped</span>
         <span class="link" onclick='dlPredict()'>Download CSV</span></div>`;
   }else{h+=`<div class="empty">No molecules fell inside this model's domain.</div>`;}
   el.innerHTML=h; window.__pred=d;
 }
-function dlPredict(){const d=window.__pred;const rows=[['rank','smiles','predicted','lower','pi_low','pi_high','confidence']];
-  d.in_domain.forEach(r=>rows.push([r.rank,r.smiles,r.predicted,r.lower,r.pi_low,r.pi_high,r.confidence_label]));
+function dlPredict(){const d=window.__pred;const rows=[['rank','smiles','predicted_pIC50','ad_z','confidence']];
+  d.in_domain.forEach(r=>rows.push([r.rank,r.smiles,r.predicted_pIC50,r.ad_z,r.confidence_label]));
   dl(rows,`${d.target.id||'predict'}_ranked.csv`);}
 function dl(rows,name){const csv=rows.map(r=>r.map(x=>`"${x??''}"`).join(',')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();}
@@ -390,7 +516,7 @@ $('#a-run').onclick=async()=>{
 };
 async function pollAdmet(el,jid,total){
   const bar=n=>`<div class="empty"><div style="max-width:360px;margin:0 auto">
-    <div class="muted" style="margin-bottom:8px">Profiling ${total} compounds in the ADMET-AI workerâ¦</div>
+    <div class="muted" style="margin-bottom:8px">Profiling ${total} compounds in the ADMET-AI worker&hellip;</div>
     <div style="height:8px;background:#e2e8f0;border-radius:6px;overflow:hidden">
       <div style="height:100%;width:${n}%;background:var(--accent);transition:width .3s"></div></div>
     <div class="muted" style="margin-top:6px">${n}%</div></div></div>`;
@@ -407,8 +533,8 @@ function renderAdmet(el,d){
   const learnedOn = d.learned && d.learned.available;
   let h='';
   if(!learnedOn)
-    h+=`<div class="notice">${(d.learned&&d.learned.note)||'Learned ADMET endpoints unavailable â showing drug-likeness layer only.'}</div>`;
-  h+=`<div class="disc">Drug-likeness flags are informational â natural products often violate them while remaining bioactive. They are never used to filter compounds.${learnedOn?' Learned endpoints from ADMET-AI.':''}</div>`;
+    h+=`<div class="notice">${(d.learned&&d.learned.note)||'Learned ADMET endpoints unavailable &mdash; showing drug-likeness layer only.'}</div>`;
+  h+=`<div class="disc">Drug-likeness flags are informational &mdash; natural products often violate them while remaining bioactive. They are never used to filter compounds.${learnedOn?' Learned endpoints from ADMET-AI.':''}</div>`;
   h+=`<div class="tablewrap"><table><thead><tr><th></th><th>Compound</th><th>MW</th><th>LogP</th><th>QED</th><th>Lipinski</th><th>Alerts</th>${learnedOn?'<th>Tox flags</th>':''}</tr></thead><tbody>`;
   d.profiles.forEach((p,i)=>{
     if(!p.parsed_ok){h+=`<tr><td></td><td class="smi">${p.input_smiles}</td><td colspan="${learnedOn?6:5}" class="muted">could not parse</td></tr>`;return;}
@@ -416,7 +542,7 @@ function renderAdmet(el,d){
     const nflag=(learnedOn&&p.learned.flags)?p.learned.flags.length:0;
     const canExpand=learnedOn&&p.learned.groups;
     h+=`<tr class="${canExpand?'clickrow':''}" ${canExpand?`onclick="toggleEp(${i})"`:''}>
-      <td>${canExpand?'<span id="ar'+i+'">â¸</span>':''}</td>
+      <td>${canExpand?'<span id="ar'+i+'">&#9656;</span>':''}</td>
       <td class="smi">${p.standardised_smiles}</td><td>${pc.mw}</td><td>${pc.logp}</td><td>${pc.qed}</td>
       <td><span class="badge ${fl.lipinski_pass?'b-ok':'b-warn'}">${fl.lipinski_violations} viol</span></td>
       <td><span class="badge ${p.n_alerts?'b-warn':'b-ok'}">${p.n_alerts}</span></td>
@@ -433,7 +559,7 @@ function epDetail(groups){
       e.percentile!=null?`<span class="pct">${e.percentile}%ile</span>`:''}</span>`).join('')+`</div>`).join('');
 }
 function toggleEp(i){const r=$('#epd'+i),a=$('#ar'+i);const open=r.style.display==='none';
-  r.style.display=open?'table-row':'none'; if(a)a.textContent=open?'â¾':'â¸';}
+  r.style.display=open?'table-row':'none'; if(a)a.textContent=open?'▾':'▸';}
 
 /* ---------- COMPARE ---------- */
 $('#c-run').onclick=async()=>{
@@ -453,7 +579,7 @@ function heatColor(v,inDom){if(!inDom||v==null)return '#f1f5f9';
   const t=Math.max(0,Math.min(1,(v-4.5)/3.5));
   return `rgba(${Math.round(220-176*t)},${Math.round(120+42*t)},${Math.round(90+5*t)},${0.20+0.28*t})`;}
 function renderCompare(el,d,view){
-  const tid=d.targets.map(t=>t.target_id),nm=t=>{const x=d.targets.find(y=>y.target_id===t);return x?x.name:t;};
+  const tid=d.targets.map(t=>t.target_id),nm=t=>t;
   let h=`<div class="disc">${d.disclaimer}</div>`;
   h+=`<div style="padding:0 20px"><div class="seg" style="max-width:560px">
     ${['matrix','ranking','selective','multi','best','admet'].map(v=>
@@ -465,25 +591,25 @@ function renderCompare(el,d,view){
     body=`<table><thead><tr><th>Compound</th>${tid.map(t=>`<th>${nm(t)}</th>`).join('')}<th>In-dom</th></tr></thead><tbody>`;
     d.matrix.forEach(r=>{body+=`<tr><td class="smi">${r.smiles||r.input_smiles}</td>`;
       tid.forEach(t=>{const c=r.cells[t];
-        body+=c.in_domain&&c.lower!=null?`<td><span class="heat" style="background:${heatColor(c.pred,true)}">${c.pred} <span class="muted">(${c.lower})</span></span></td>`
-          :`<td class="muted" style="font-style:italic">${c.pred??'â'}</td>`;});
+        body+=c.in_domain&&c.pred!=null?`<td><span class="heat" style="background:${heatColor(c.pred,true)}">${c.pred}</span></td>`
+          :`<td class="muted" style="font-style:italic">${c.pred??'&mdash;'}</td>`;});
       body+=`<td>${r.coverage.in_domain_targets}/${r.coverage.total_targets}</td></tr>`;});
     body+=`</tbody></table>`;
   }else if(view==='ranking'){
-    body=`<table><thead><tr><th>#</th><th>Compound</th><th>Targets hit</th><th>Mean lower</th><th>Coverage</th></tr></thead><tbody>`;
-    body+=d.consensus_ranking.map(r=>`<tr><td>${r.consensus_rank}</td><td class="smi">${r.smiles}</td><td>${r.n_active}</td><td><b>${r.mean_lower}</b></td><td>${r.coverage}</td></tr>`).join('')||`<tr><td colspan=5 class="muted">No in-domain compounds.</td></tr>`;
+    body=`<table><thead><tr><th>#</th><th>Compound</th><th>Targets hit</th><th>Mean predicted</th><th>Coverage</th></tr></thead><tbody>`;
+    body+=d.consensus_ranking.map(r=>`<tr><td>${r.consensus_rank}</td><td class="smi">${r.smiles}</td><td>${r.n_active}</td><td><b>${r.mean_pred}</b></td><td>${r.coverage}</td></tr>`).join('')||`<tr><td colspan=5 class="muted">No in-domain compounds.</td></tr>`;
     body+=`</tbody></table>`;
   }else if(view==='selective'){
-    body=d.selective_candidates.length?`<table><thead><tr><th>Compound</th><th>Selective for</th><th>Lower</th><th>Gap</th></tr></thead><tbody>`+
-      d.selective_candidates.map(r=>`<tr><td class="smi">${r.smiles}</td><td>${nm(r.target)}</td><td>${r.lower}</td><td><b>${r.gap}</b></td></tr>`).join('')+`</tbody></table>`
-      :`<div class="empty">No compound was selective (â¥${d.selective_gap} log gap) for one target.</div>`;
+    body=d.selective_candidates.length?`<table><thead><tr><th>Compound</th><th>Selective for</th><th>Predicted</th><th>Gap</th></tr></thead><tbody>`+
+      d.selective_candidates.map(r=>`<tr><td class="smi">${r.smiles}</td><td>${nm(r.target)}</td><td>${r.pred}</td><td><b>${r.gap}</b></td></tr>`).join('')+`</tbody></table>`
+      :`<div class="empty">No compound was selective (&ge;${d.selective_gap} log gap) for one target.</div>`;
   }else if(view==='multi'){
-    body=d.multi_target_candidates.length?`<table><thead><tr><th>Compound</th><th>Active on</th><th># active</th><th>Mean lower</th></tr></thead><tbody>`+
-      d.multi_target_candidates.map(r=>`<tr><td class="smi">${r.smiles}</td><td>${r.active_targets.map(nm).join(', ')}</td><td><b>${r.n_active}</b></td><td>${r.mean_lower}</td></tr>`).join('')+`</tbody></table>`
-      :`<div class="empty">No multi-target candidates (active on â¥2 targets at pIC50â¥${d.active_cut}).</div>`;
+    body=d.multi_target_candidates.length?`<table><thead><tr><th>Compound</th><th>Active on</th><th># active</th><th>Mean predicted</th></tr></thead><tbody>`+
+      d.multi_target_candidates.map(r=>`<tr><td class="smi">${r.smiles}</td><td>${r.active_targets.map(nm).join(', ')}</td><td><b>${r.n_active}</b></td><td>${r.mean_pred}</td></tr>`).join('')+`</tbody></table>`
+      :`<div class="empty">No multi-target candidates (active on &ge;2 targets at pIC50&ge;${d.active_cut}).</div>`;
   }else if(view==='best'){
     body=tid.map(t=>`<div style="padding:6px 0"><div style="font-weight:700;padding:6px 12px">${nm(t)}</div><table><tbody>`+
-      ((d.best_per_target[t]||[]).map((x,i)=>`<tr><td style="width:30px">${i+1}</td><td class="smi">${x.smiles}</td><td style="width:70px">${x.lower}</td></tr>`).join('')||`<tr><td class="muted">no in-domain compound</td></tr>`)+`</tbody></table></div>`).join('');
+      ((d.best_per_target[t]||[]).map((x,i)=>`<tr><td style="width:30px">${i+1}</td><td class="smi">${x.smiles}</td><td style="width:70px">${x.pred}</td></tr>`).join('')||`<tr><td class="muted">no in-domain compound</td></tr>`)+`</tbody></table></div>`).join('');
   }else if(view==='admet'){
     body=`<table><thead><tr><th>Compound</th><th>MW</th><th>LogP</th><th>QED</th><th>Lipinski</th><th>Alerts</th></tr></thead><tbody>`+
       Object.entries(d.admet).map(([s,p])=>p.parsed_ok?`<tr><td class="smi">${s}</td><td>${p.physicochemical.mw}</td><td>${p.physicochemical.logp}</td><td>${p.physicochemical.qed}</td><td><span class="badge ${p.drug_likeness_flags.lipinski_pass?'b-ok':'b-warn'}">${p.drug_likeness_flags.lipinski_violations}</span></td><td><span class="badge ${p.n_alerts?'b-warn':'b-ok'}">${p.n_alerts}</span></td></tr>`:'').join('')+`</tbody></table>`;
@@ -491,7 +617,53 @@ function renderCompare(el,d,view){
   h+=`<div class="tablewrap" style="margin-top:12px">${body}</div>`;
   el.innerHTML=h;
 }
-boot().catch(e=>$('#hstat').textContent='backend error');
+
+/* ---------- TARGET INFO ---------- */
+async function renderTargetInfo(){
+  const tid=$('#t-target').value; if(!tid) return;
+  const el=$('#t-out'); loading(el);
+  try{
+    const [metrics,bucket,dock]=await Promise.all([
+      api(`/api/factory/target/${tid}/metrics`),
+      api(`/api/factory/bucket/${tid}`),
+      api('/api/docking/status').catch(()=>({target_details:[]})),
+    ]);
+    const m=metrics.metrics||{};
+    const dd=(dock.target_details||[]).find(d=>d.target_id===tid);
+    let h=`<div class="rhead"><div class="name">${tid}</div>
+      <div class="stat">Best model<b>${m.Best_Model||m.best_model||'&mdash;'}</b></div>
+      <div class="stat">Tropsha<b>${m.Tropsha_Pass===true?'pass':(m.Tropsha_Pass===false?'fail':'&mdash;')}</b></div>
+      <div class="stat">Docking<b>${dd?(dd.validated?'VALIDATED':'UNVALIDATED'):'n/a'}</b></div></div>`;
+    h+=`<div class="kv">
+      <div><div class="l">Test R&sup2;</div><div class="v">${m.R2_Test??'&mdash;'}</div></div>
+      <div><div class="l">Test RMSE</div><div class="v">${m.RMSE_Test??'&mdash;'}</div></div>
+      <div><div class="l">Pearson r</div><div class="v">${m.Pearson_r??'&mdash;'}</div></div>
+      <div><div class="l">AD coverage</div><div class="v">${m.AD_Coverage_pct!=null?m.AD_Coverage_pct+'%':'&mdash;'}</div></div>
+      <div><div class="l">Y-random &Delta;R&sup2;</div><div class="v">${m.Y_Random_DeltaR2??'&mdash;'}</div></div>
+      <div><div class="l">Compounds (fit/test)</div><div class="v">${m.Fit_N??'?'}/${m.Test_N??'?'}</div></div>
+    </div>`;
+    if(!Object.keys(m).length) h+=`<div class="notice" style="margin:0 20px 12px">No metrics file found for this target's bucket.</div>`;
+    if(dd) h+=`<div style="padding:0 20px 4px">${dockValidationPanel([dd])}</div>`;
+    const plots=(bucket.files||[]).filter(f=>f.category==='Plots');
+    if(plots.length){
+      h+=`<div class="cat">QSAR validation plots</div><div class="plotgrid">`+
+        plots.map(f=>`<figure><img src="/api/factory/download/${tid}?path=${encodeURIComponent(f.path)}" loading="lazy">
+          <figcaption>${f.annotation||f.name}</figcaption></figure>`).join('')+`</div>`;
+    }
+    h+=`<div class="cat">Bucket files (${bucket.n_files})</div>`;
+    let cat='';
+    (bucket.files||[]).forEach(f=>{
+      if(f.category!==cat){ cat=f.category; h+=`<div class="cat">${cat}</div>`; }
+      h+=`<div class="filerow"><div><span class="p">${f.path}</span><div class="a">${f.annotation||''}</div></div>
+        <a class="link" href="/api/factory/download/${tid}?path=${encodeURIComponent(f.path)}" download>${(f.bytes/1024).toFixed(0)} KB</a></div>`;
+    });
+    h+=`<div class="toolbar"><span class="muted">Every file in this target's bucket, annotated.</span>
+        <a class="link" href="/api/factory/download_all/${tid}">Download whole bucket (.zip)</a></div>`;
+    el.className='card'; el.innerHTML=h;
+  }catch(e){ fail(el,e.message); }
+}
+
+boot().catch(e=>{ $('#hstat').textContent='backend error'; console.error(e); });
 </script>
 </body>
 </html>

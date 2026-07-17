@@ -86,6 +86,11 @@ def list_target_ids():
     return out
 
 
+def get_metrics(target_id):
+    """Cheap metrics-only read for a single target (no model loading)."""
+    return _load_metrics(_bucket_dir(target_id), target_id)
+
+
 def list_targets_meta():
     """Cheap listing for UI/API use: reads run_metadata.json/metrics.xlsx only
        — does NOT load the AutoGluon predictor or Chemprop checkpoint, so

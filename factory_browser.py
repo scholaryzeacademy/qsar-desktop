@@ -1,48 +1,60 @@
 """
 ============================================================
-  FACTORY BUCKET BROWSER  (factory_browser.py)
+  TARGET BUCKET BROWSER  (factory_browser.py)
 ============================================================
-  Backend endpoints that let the desktop app browse every per-target
-  output bucket produced by the model factory and download any file
-  (plots, xlsx, csv, model, report) — each annotated with what it is.
+  Backend endpoints powering the "Target Info" tab (CLAUDE.md §7.5):
+  browse every per-target bucket produced by the model factory, show
+  headline QSAR metrics + docking validation, and download any file
+  (plots, xlsx, csv, model, report) — each annotated — or the whole
+  bucket as a zip. This IS the "make the rigor visible" requirement:
+  the university must be able to see and download everything.
 
-  Point FACTORY_OUTPUT at the factory's output_root (default ./factory_output).
-  Mount this router onto the main FastAPI app.
+  Points at TARGETS_DIR (same env var as serving/model_adapter.py,
+  default ./models) — the real bucket layout, not a hypothetical one.
 ============================================================
 """
 import os, mimetypes
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 
-FACTORY_OUTPUT = os.environ.get("FACTORY_OUTPUT", "factory_output")
+from serving import model_adapter as MA
 
 router = APIRouter(prefix="/api/factory", tags=["factory"])
 
-# human-readable annotation for each known file (so the UI can label downloads)
+# human-readable annotation for each known file (path relative to the
+# target's bucket root), so the UI can label downloads meaningfully.
 FILE_ANNOTATIONS = {
-    "model/best_model.joblib": "Trained best model (with feature list + applicability-domain parameters)",
-    "model/hyperparameters.json": "Tuned hyper-parameters of the best model",
-    "model/selected_features.csv": "Selected feature list (order matters for prediction)",
-    "results/metrics.xlsx": "Headline performance metrics of the best model",
-    "results/model_leaderboard.xlsx": "All base models compared (cross-validated + test)",
-    "results/test_predictions.xlsx": "Actual vs predicted for the held-out test set (+ residuals, in/out of domain)",
-    "results/validation_summary.xlsx": "Y-randomization, Tropsha criteria, applicability-domain checks",
-    "data/train_data.csv": "Training compounds used to fit the model",
-    "data/test_data.csv": "Held-out test compounds",
-    "data/split_assignments.csv": "Scaffold and train/test assignment for every compound",
-    "plots/actual_vs_predicted.png": "Actual vs predicted scatter (test set)",
-    "plots/model_comparison.png": "Cross-validated R² of every base model (best highlighted)",
-    "plots/residuals.png": "Residual plot (test set)",
-    "plots/y_randomization.png": "Y-randomization distribution vs the real model",
-    "plots/applicability_domain.png": "Applicability-domain coverage of the test set",
-    "plots/feature_importance.png": "Top-20 most important features",
-    "REPORT.md": "Publication-ready methods & results write-up",
-    "README.txt": "What this bucket contains",
+    "chosen_model/predictor.pkl": "The trained AutoGluon predictor (stacked ensemble)",
+    "chosen_model/learner.pkl": "AutoGluon learner (preprocessing + label metadata)",
+    "chosen_model/version.txt": "AutoGluon version used to train this model",
+    "chosen_model/metadata.json": "Training environment (package versions, OS)",
+    "selected_features.csv": "Selected feature list, in order — required to featurise new molecules correctly",
+    "metrics.xlsx": "Headline performance metrics of the shipped model",
+    "model_leaderboard.xlsx": "All AutoGluon base models compared (cross-validated + test)",
+    "test_predictions.xlsx": "Actual vs predicted for the held-out test set (+ residuals)",
+    "oof_predictions.xlsx": "Out-of-fold cross-validated predictions",
+    "feature_importance.xlsx": "Feature importance ranking",
+    "config_used.yaml": "Exact configuration used for this training run",
+    "run_metadata.json": "Full run metadata: metrics, Tropsha detail, split counts, timestamp",
+    "run_log.txt": "Raw training log",
+    "_DONE.json": "Marks this target's pipeline run as complete",
+    "Data/fit.csv": "Training feature matrix used to fit the shipped model",
+    "Data/test.csv": "Held-out test feature matrix",
+    "Data/full_cleaned.csv": "Full curated dataset before the fit/test split",
+    "Plots/01_Actual_vs_Predicted.png": "Actual vs predicted scatter (test set)",
+    "Plots/02_Residuals_vs_Predicted.png": "Residuals vs predicted (test set)",
+    "Plots/03_Residual_Distribution.png": "Residual distribution",
+    "Plots/04_Residual_QQ.png": "Residual Q-Q plot",
+    "Plots/05_Model_Comparison.png": "Cross-validated performance of every base model",
+    "Plots/06_Y_Randomization.png": "Y-randomisation distribution vs the real model",
+    "Plots/07_Feature_Importance.png": "Top features by importance",
+    "Plots/08_Applicability_Domain.png": "Applicability-domain coverage of the test set",
+    "Plots/09_Target_Distribution.png": "Distribution of the training activity values",
 }
 
 
 def _bucket_root():
-    return os.path.abspath(FACTORY_OUTPUT)
+    return os.path.abspath(MA.TARGETS_DIR)
 
 
 def _safe(target_id, relpath):
@@ -58,27 +70,28 @@ def _safe(target_id, relpath):
 def list_targets():
     root = _bucket_root()
     if not os.path.isdir(root):
-        return {"output_root": root, "targets": []}
+        return {"targets_dir": root, "targets": []}
     out = []
-    for tid in sorted(os.listdir(root)):
-        bdir = os.path.join(root, tid)
-        if not os.path.isdir(bdir) or tid.startswith("_") or tid.startswith("ALL_TARGETS"):
-            continue
-        metrics = {}
-        mx = os.path.join(bdir, "results", "metrics.xlsx")
-        if os.path.exists(mx):
-            try:
-                import pandas as pd
-                metrics = pd.read_excel(mx).iloc[0].to_dict()
-            except Exception:
-                pass
-        out.append({"target_id": tid,
-                    "has_model": os.path.exists(os.path.join(bdir, "model", "best_model.joblib")),
-                    "best_model": metrics.get("Model"),
-                    "test_R2": metrics.get("R2"), "spearman": metrics.get("Spearman"),
-                    "ad_coverage_pct": metrics.get("AD_Coverage_pct"),
-                    "tropsha_pass": bool(metrics.get("Tropsha_Pass")) if "Tropsha_Pass" in metrics else None})
-    return {"output_root": root, "targets": out}
+    for meta in MA.list_targets_meta():
+        m = meta["metrics"]
+        out.append({
+            "target_id": meta["target_id"],
+            "has_model": os.path.exists(os.path.join(root, meta["target_id"], "chosen_model", "predictor.pkl")),
+            "best_model": m.get("Best_Model") or m.get("best_model"),
+            "test_r2": m.get("R2_Test"), "pearson_r": m.get("Pearson_r"), "test_rmse": m.get("RMSE_Test"),
+            "ad_coverage_pct": m.get("AD_Coverage_pct"),
+            "tropsha_pass": m.get("Tropsha_Pass") if "Tropsha_Pass" in m else None,
+            "has_metrics": bool(m),
+        })
+    return {"targets_dir": root, "targets": out}
+
+
+@router.get("/target/{target_id}/metrics")
+def target_metrics(target_id: str):
+    bdir = os.path.join(_bucket_root(), target_id)
+    if not os.path.isdir(bdir):
+        raise HTTPException(404, f"no bucket for '{target_id}'")
+    return {"target_id": target_id, "metrics": MA.get_metrics(target_id)}
 
 
 @router.get("/bucket/{target_id}")
@@ -89,7 +102,7 @@ def list_bucket(target_id: str):
     files = []
     for dirpath, _, names in os.walk(bdir):
         if os.path.basename(dirpath) == "_cache":
-            continue
+            continue   # internal cache (chemprop checkpoint + raw preds), not a deliverable
         for n in sorted(names):
             full = os.path.join(dirpath, n)
             rel = os.path.relpath(full, bdir).replace(os.sep, "/")

@@ -1,31 +1,35 @@
-# PhytoScreen Desktop (increment 1)
+# PhytoScreen Desktop
 
-Turns the web serving app into a native Windows desktop app (PyWebview + PyInstaller)
-WITHOUT losing any feature, and adds:
-  * Models tab data: /api/factory/* browses every per-target factory bucket and
-    downloads any file, each annotated, or the whole bucket as a zip.
-  * PLIP-based (with fallback) LigPlot+-style 2D interaction diagram for docking.
+A local, offline, CPU-only desktop app for prioritising compounds against a
+validated biological target — QSAR potency (Chemprop + AutoGluon), ADMET
+profiling, and structure-based docking, wrapped in a native window
+(PyWebview + PyInstaller). See `CLAUDE.md` for the full spec.
 
-## New files
-  desktop.py                     native-window launcher (starts backend, opens window)
-  factory_browser.py             FastAPI router: browse + download factory buckets
-  docking/interaction_diagram.py PLIP detection + LigPlot-style 2D diagram
+## Layout
 
-## Wiring (two small edits to existing files)
-1. Docking diagram upgrade — in docking/pipeline.py, replace the interaction
-   call so it uses the new PLIP+LigPlot renderer:
-       from . import interaction_diagram as ID
-       inter, source = ID.detect_interactions(profile["receptor_pdb"], best.mol)
-       result["interactions"] = inter
-       if make_diagram:
-           result["interaction_png"] = ID.diagram_png(best.mol, inter,
-               title=smiles[:30], source=source,
-               ref_residues={h["residue"] for h in (reference_interactions or [])})
-   (The old interactions.py stays as the fallback detector.)
+    desktop.py              native-window launcher (starts backend, opens window)
+    app.py                  FastAPI backend — mounts predict/admet/docking/screen
+                             + the factory_browser router (Target Info tab)
+    serving/                the only code that knows the model-bucket format
+      model_adapter.py        loads a target bucket (AutoGluon + Chemprop), predicts
+      featurize.py             SMILES -> the exact training feature space
+      applicability.py         AD z-score gating
+      confidence.py            honest confidence tiers (target test RMSE, not a
+                                fabricated per-compound interval)
+      screen.py                the STEP 1-8 Screen pipeline orchestration
+    analysis.py              multi-target / disease comparison
+    admet.py / admet_service.py / admet_endpoints.py   ADMET deterministic
+                             layer + isolated ADMET-AI worker process
+    factory_browser.py      /api/factory/* — browse + download every file in
+                             a target's bucket (Target Info tab)
+    docking/                 receptor prep, ligand prep, Vina engine, PoseBusters
+                             gate, pose consensus, RMSD, PLIP+LigPlot-style 2D
+                             interaction diagrams (falls back to a built-in
+                             distance-based detector if PLIP isn't installed)
+    static/index.html        single-page UI: Screen / Predict / ADMET / Compare
+                             / Docking / Target Info
+    models/<target_id>/      per-target buckets (read-only input; see CLAUDE.md §5)
+    docking_targets/<id>/    prepared receptors (read-only input)
+    docking_registry.json    docking targets + validation (portable relative paths)
 
-2. Models tab — add a "Models" nav button + view to static/index.html that calls
-   /api/factory/targets, /api/factory/bucket/{id}, and offers download links to
-   /api/factory/download/{id}?path=... and /api/factory/download_all/{id}.
-   (Snippet in MODELS_TAB_SNIPPET.html.)
-
-See BUILD_WINDOWS.md for the .exe build.
+Run in dev: `python desktop.py`. See `BUILD_WINDOWS.md` for the `.exe` build.
