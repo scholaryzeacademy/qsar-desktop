@@ -1,35 +1,57 @@
-# Docking module (SCAFFOLD)
+# Docking module
 
-Structure-based docking: **Vina + AutoDock4 → PoseBusters validity gate →
-atom-map-safe consensus**. The Docking tab activates automatically once the
-tools are installed and at least one target profile exists.
+Structure-based docking: **Vina → PoseBusters validity gate → pose
+consensus (self-consistency + optional GNINA CNN second opinion) → PLIP
+(or a built-in distance-based fallback) interaction diagram**. AutoDock4
+has been removed (GPL; GNINA is now the independent second opinion — see
+`engines.py`). The Docking tab activates automatically once Vina is on
+PATH and at least one target has a validated profile in
+`docking_registry.json`.
 
-## What is validated vs scaffold
-| Piece | File | Status |
-|---|---|---|
-| Tool detection | availability.py | tested |
-| Ligand prep (SMILES→3D→PDBQT) | ligand_prep.py | tested (RDKit+Meeko) |
-| PoseBusters validity gate | validity.py | tested |
-| Atom-map-safe RMSD | rmsd.py | tested (the anti-corruption fix) |
-| Consensus + confidence | consensus.py | tested (logic, mock poses) |
-| Profile store + grid box | profile.py | tested |
-| Vina / AutoDock4 engines | engines.py | **scaffold** (need binaries) |
-| Receptor prep | receptor_prep.py | **scaffold** (need pdbfixer/meeko/fpocket) |
-| Orchestration + redock | pipeline.py | **scaffold** (needs engines) |
+## Files
+| File | Role |
+|---|---|
+| `availability.py` | detects which tools/binaries are present |
+| `ligand_prep.py` | SMILES -> 3D conformer -> PDBQT (RDKit + Meeko) |
+| `validity.py` | PoseBusters physical-validity gate |
+| `rmsd.py` | atom-map-safe RMSD (refuses to compare non-identical molecules) |
+| `consensus.py` | pose selection + confidence (validity + self-consistency + GNINA) |
+| `engines.py` | `VinaEngine` (docking) + `GninaRescorer` (optional CNN second opinion) |
+| `profile.py` | registry load/save; resolves receptor paths portably (see below) |
+| `receptor_prep.py` | one-time receptor prep: extract ligand, strip, repair (PDBFixer), PDBQT |
+| `pipeline.py` | `dock_compound` (per-compound) + `redock_reference` (per-target validation) |
+| `interactions.py` | built-in distance-based interaction detector (fallback) |
+| `interaction_diagram.py` | PLIP detection (if installed) + LigPlot-style 2D diagram renderer |
 
-## To enable
-1. `pip install posebusters meeko gemmi` ; install Vina + AutoDock4/AutoGrid4 on PATH.
-2. Implement the scaffolded steps in `receptor_prep.py` and `AutoDock4Engine.dock`
-   (Vina is written; AD4 parsing is stubbed).
-3. Build a `docking_registry.json` of prepared targets (see profile.py).
-4. **Validate before trusting:** re-dock each target's co-crystallised ligand and
-   confirm RMSD < ~2 Å (redock_reference). Do not ship a target that fails this.
+## Registry path portability
+`docking_registry.json` stores receptor filenames as **basenames**
+(`receptor.pdbqt`, `receptor_clean.pdb`), resolved at load time relative to
+`DOCKING_TARGETS_DIR/<target_id>/` (default `./docking_targets`). Earlier
+versions of this file stored absolute paths baked in at prep time, which
+broke the moment the project folder moved — `profile.load_profile()` still
+accepts a legacy absolute path if it happens to still exist, but always
+prefers the portable resolution.
+
+## Validating a new target before trusting it
+1. `receptor_prep.prepare_receptor(...)` — extracts the co-crystal ligand,
+   strips to protein-only, repairs (PDBFixer), builds the grid box, writes
+   the receptor PDBQT, and appends a profile to the registry with
+   `"validated": false`.
+2. `pipeline.redock_reference(...)` — re-docks the same reference ligand and
+   computes RMSD to its crystal pose. **< ~2 Å** is the trust threshold.
+3. Run an enrichment test (actives + decoys) — AUC / EF@20%.
+4. Only flip `"validated": true` (and record `reference_rmsd` /
+   `enrichment_auc` / `enrichment_ef20`) once both pass — see `scripts/` for
+   the one-off scripts used to validate the `cox2` target already in this
+   registry. The UI shows a VALIDATED/UNVALIDATED badge with the real
+   numbers; never trust a docking score for an unvalidated target.
 
 ## Design notes (do not "fix" these)
-- PoseBusters is a **gate**, not a third engine: each engine's poses are filtered
-  before comparison.
-- Cross-engine RMSD uses `rmsd.safe_rmsd`, which **refuses** to compare poses that
-  aren't the same molecule — this prevents the silent atom-mapping corruption that
-  otherwise destroys the consensus signal.
-- Vina+AD4 consensus is a **pose-agreement confidence** signal, not a scoring
-  upgrade; real ranking lift comes from ML rescoring (future).
+- PoseBusters is a **gate**, not a scoring engine: poses are filtered before
+  ranking, not ranked by validity.
+- `rmsd.safe_rmsd` **refuses** to compare poses that aren't the same
+  molecule (checked via the heavy-atom graph) — this prevents silent
+  atom-mapping corruption that would otherwise wreck the consensus/
+  confidence signal.
+- Without GNINA, confidence is capped at `medium` (no second opinion) — see
+  `consensus.assign_confidence`. This is intentional, not a missing feature.

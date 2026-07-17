@@ -62,13 +62,22 @@ def main():
     url = f"http://{HOST}:{port}/"
     try:
         import webview
-    except Exception:
+        window = webview.create_window("PhytoScreen", url, width=1280, height=860, min_size=(1000, 700))
+        webview.start()          # blocks until the window closes
+        return
+    except ImportError:
         print(f"[desktop] pywebview not installed. Open {url} in a browser, or `pip install pywebview`.")
-        # keep the server alive so the printed URL works
-        while True:
-            time.sleep(1)
-    window = webview.create_window("PhytoScreen", url, width=1280, height=860, min_size=(1000, 700))
-    webview.start()          # blocks until the window closes
+    except Exception as e:
+        # pywebview IS installed but no usable GUI backend was found at runtime
+        # (e.g. no GTK/Qt on this machine) -- this shouldn't happen on a real
+        # Windows install (pywebview uses the built-in Edge WebView2 backend
+        # there), but degrade to the same URL fallback rather than crash if
+        # it ever does, per CLAUDE.md: a missing optional piece must never
+        # take down the app.
+        print(f"[desktop] could not open a native window ({e}). Open {url} in a browser instead.")
+    # keep the server alive so the printed URL works
+    while True:
+        time.sleep(1)
 
 
 if __name__ == "__main__":
