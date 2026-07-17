@@ -1,0 +1,23 @@
+# ============================================================
+#   DISEASE / TARGET GROUPS
+#   Group targets so a user can screen against a whole disease at once.
+#   'targets' are target_ids from the model registry. Unknown/failed
+#   targets are ignored automatically at query time.
+# ============================================================
+
+diseases:
+
+  - id: alzheimers
+    name: "Alzheimer's disease"
+    targets: [ache, bche]
+    note: "Cholinesterase inhibition. Multi-target ligands (AChE + BChE together) are often desirable."
+
+  - id: inflammation
+    name: "Inflammation / pain"
+    targets: [cox2]
+    note: "Cyclooxygenase inhibition. Add cox1 to assess COX-2 selectivity when available."
+
+  # Add more diseases by listing their target_ids, e.g.:
+  # - id: diabetes_t2
+  #   name: "Type-2 diabetes"
+  #   targets: [dpp4, sglt2, pparg]

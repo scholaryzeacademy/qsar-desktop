@@ -1,0 +1,11 @@
+# PhytoScreen — SERVING app requirements (prediction/ADMET/compare).
+# Model training lives in the separate factory; not needed here.
+rdkit
+scikit-learn
+scipy
+pandas
+numpy
+pyyaml
+fastapi
+uvicorn[standard]
+python-multipart

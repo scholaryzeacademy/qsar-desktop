@@ -1,0 +1,115 @@
+{
+  "n_docked": 16,
+  "n_failed": 0,
+  "n_active": 6,
+  "n_decoy": 10,
+  "auc": 0.817,
+  "ef_top": 2.67,
+  "top_frac": 0.2,
+  "active_ranks": [
+    1,
+    2,
+    3,
+    4,
+    7,
+    15
+  ],
+  "ranking": [
+    {
+      "rank": 1,
+      "name": "celecoxib",
+      "label": "active",
+      "score": -11.83
+    },
+    {
+      "rank": 2,
+      "name": "valdecoxib",
+      "label": "active",
+      "score": -10.15
+    },
+    {
+      "rank": 3,
+      "name": "rofecoxib",
+      "label": "active",
+      "score": -10.07
+    },
+    {
+      "rank": 4,
+      "name": "etoricoxib",
+      "label": "active",
+      "score": -9.61
+    },
+    {
+      "rank": 5,
+      "name": "warfarin",
+      "label": "decoy",
+      "score": -9.09
+    },
+    {
+      "rank": 6,
+      "name": "chlorpheniramine",
+      "label": "decoy",
+      "score": -8.63
+    },
+    {
+      "rank": 7,
+      "name": "lumiracoxib",
+      "label": "active",
+      "score": -8.4
+    },
+    {
+      "rank": 8,
+      "name": "diphenhydramine",
+      "label": "decoy",
+      "score": -7.98
+    },
+    {
+      "rank": 9,
+      "name": "atenolol",
+      "label": "decoy",
+      "score": -7.84
+    },
+    {
+      "rank": 10,
+      "name": "propranolol",
+      "label": "decoy",
+      "score": -7.5
+    },
+    {
+      "rank": 11,
+      "name": "furosemide",
+      "label": "decoy",
+      "score": -7.17
+    },
+    {
+      "rank": 12,
+      "name": "salbutamol",
+      "label": "decoy",
+      "score": -7.09
+    },
+    {
+      "rank": 13,
+      "name": "ranitidine",
+      "label": "decoy",
+      "score": -6.36
+    },
+    {
+      "rank": 14,
+      "name": "caffeine",
+      "label": "decoy",
+      "score": -6.35
+    },
+    {
+      "rank": 15,
+      "name": "meloxicam",
+      "label": "active",
+      "score": -6.2
+    },
+    {
+      "rank": 16,
+      "name": "metformin",
+      "label": "decoy",
+      "score": -5.03
+    }
+  ]
+}

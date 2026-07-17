@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PhytoScreen</title>
+<style>
+  :root{
+    --bg:#eef2f6; --panel:#fff; --ink:#0f172a; --mut:#64748b; --line:#e2e8f0;
+    --accent:#0d9488; --accent-d:#0f766e; --head:#0f172a;
+    --high:#16a34a; --med:#d97706; --low:#dc2626; --out:#94a3b8;
+    --shadow:0 1px 2px rgba(15,23,42,.06),0 4px 16px rgba(15,23,42,.05);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:14.5px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  /* header */
+  .top{position:sticky;top:0;z-index:20;background:var(--head);color:#fff;
+       display:flex;align-items:center;gap:26px;padding:0 24px;height:58px;box-shadow:var(--shadow)}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:.2px}
+  .brand .mark{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--accent),#22d3ee)}
+  nav{display:flex;gap:4px;height:100%}
+  nav button{background:none;border:0;color:#94a3b8;font:inherit;font-weight:600;padding:0 16px;
+       height:100%;cursor:pointer;border-bottom:2px solid transparent}
+  nav button:hover{color:#e2e8f0}
+  nav button.on{color:#fff;border-bottom-color:var(--accent)}
+  .hstat{margin-left:auto;font-size:12px;color:#94a3b8}
+  .hstat b{color:#5eead4}
+  /* layout */
+  .view{display:none;padding:22px 24px}
+  .view.on{display:block}
+  .layout{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;max-width:1280px;margin:0 auto}
+  @media(max-width:880px){.layout{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow)}
+  aside.card{padding:18px;position:sticky;top:78px}
+  main.card{padding:0;overflow:hidden;min-height:60vh}
+  h2{margin:0 0 3px;font-size:16px}
+  .sub{color:var(--mut);font-size:12.5px;margin:0 0 16px}
+  label{display:block;font-weight:600;font-size:12px;color:#334155;margin:14px 0 5px;text-transform:uppercase;letter-spacing:.03em}
+  label:first-of-type{margin-top:0}
+  select,textarea,input[type=file]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;
+       font-size:14px;background:#fff;color:var(--ink)}
+  textarea{min-height:120px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+  .seg{display:flex;background:#f1f5f9;border-radius:9px;padding:3px;gap:3px}
+  .seg button{flex:1;border:0;background:none;padding:7px;border-radius:7px;font:inherit;font-weight:600;
+       font-size:12.5px;color:var(--mut);cursor:pointer}
+  .seg button.on{background:#fff;color:var(--accent-d);box-shadow:var(--shadow)}
+  .go{width:100%;margin-top:18px;background:var(--accent);color:#fff;border:0;border-radius:10px;
+       padding:12px;font-size:15px;font-weight:700;cursor:pointer}
+  .go:hover{background:var(--accent-d)} .go:disabled{opacity:.5;cursor:default}
+  .checks{max-height:180px;overflow:auto;border:1px solid var(--line);border-radius:9px;padding:8px}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 2px}
+  .hint{font-size:12px;color:var(--mut);margin-top:6px}
+  .err{margin:14px 18px;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:10px 14px;border-radius:9px}
+  .spin{display:none;padding:60px;text-align:center;color:var(--mut)}
+  /* results */
+  .rhead{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px 26px;align-items:center}
+  .rhead .name{font-weight:700;font-size:15px}
+  .stat{font-size:12px;color:var(--mut)} .stat b{display:block;color:var(--ink);font-size:15px;font-weight:700}
+  .disc{margin:14px 20px;background:#f0fdfa;border:1px solid #99f6e4;color:#0f766e;font-size:12.5px;padding:9px 13px;border-radius:9px}
+  .tablewrap{max-height:calc(100vh - 260px);overflow:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  thead th{position:sticky;top:0;background:#f8fafc;z-index:1;font-size:10.5px;text-transform:uppercase;
+       letter-spacing:.04em;color:var(--mut);text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  td{padding:9px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+  tr:hover td{background:#fafcff}
+  .smi{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break:break-all;color:#334155}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;white-space:nowrap}
+  .dot{width:9px;height:9px;border-radius:50%}
+  .d-high{background:var(--high)}.d-med{background:var(--med)}.d-low{background:var(--low)}.d-out{background:var(--out)}
+  .badge{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px}
+  .b-live{background:#dcfce7;color:#15803d}.b-exp{background:#fef3c7;color:#b45309}
+  .b-ok{background:#dcfce7;color:#15803d}.b-warn{background:#fef3c7;color:#b45309}
+  .empty{padding:70px 30px;text-align:center;color:var(--mut)}
+  .empty .big{font-size:40px;opacity:.25;margin-bottom:8px}
+  .toolbar{padding:10px 20px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:space-between}
+  .link{background:#f1f5f9;border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-size:12.5px;
+       font-weight:600;color:var(--accent-d);cursor:pointer}
+  details{margin:10px 20px}summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--mut)}
+  .heat{border-radius:6px;padding:5px 7px;font-weight:600;font-size:12.5px;display:inline-block;min-width:64px;text-align:center}
+  .muted{color:var(--mut)}
+  .notice{margin:14px 20px;background:#fef3c7;border:1px solid #fde68a;color:#92400e;font-size:12.5px;padding:9px 13px;border-radius:9px}
+  tr.clickrow{cursor:pointer} tr.clickrow:hover td{background:#f0fdfa}
+  .detail{background:#f8fafc;padding:14px 20px;border-bottom:1px solid var(--line)}
+  .grp{margin-bottom:12px}
+  .grp h5{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent-d)}
+  .ep{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);
+      border-radius:8px;padding:5px 10px;margin:0 6px 6px 0;font-size:12.5px}
+  .ep .v{font-weight:700}
+  .t-good{border-left:3px solid var(--high)} .t-warn{border-left:3px solid var(--med)}
+  .t-bad{border-left:3px solid var(--low)} .t-neutral{border-left:3px solid var(--out)}
+  .ep .pct{color:var(--mut);font-size:11px}
+  .coming{max-width:640px;margin:40px auto;text-align:center}
+  .coming ul{display:inline-block;text-align:left;color:var(--mut);font-size:13.5px}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="brand"><span class="mark"></span> PhytoScreen</div>
+    <nav>
+      <button data-tab="predict" class="on">Predict</button>
+      <button data-tab="admet">ADMET</button>
+      <button data-tab="compare">Compare</button>
+      <button data-tab="docking">Docking</button>
+    </nav>
+    <div class="hstat" id="hstat"></div>
+  </div>
+
+  <!-- ============ PREDICT ============ -->
+  <section class="view on" id="v-predict">
+    <div class="layout">
+      <aside class="card">
+        <h2>Predict potency</h2>
+        <p class="sub">Rank molecules against one target.</p>
+        <label>Target</label>
+        <select id="p-target"></select>
+        <div class="hint" id="p-tinfo"></div>
+        <label>Model</label>
+        <select id="p-model"></select>
+        <label>Input</label>
+        <div class="seg"><button class="on" data-m="paste" data-g="p">Paste</button><button data-m="csv" data-g="p">CSV file</button></div>
+        <div id="p-paste" style="margin-top:8px"><textarea id="p-smiles" placeholder="One SMILES per line"></textarea></div>
+        <div id="p-csv" style="margin-top:8px;display:none"><input type="file" id="p-file" accept=".csv"><div class="hint">Needs a SMILES column.</div></div>
+        <button class="go" id="p-run">Rank compounds</button>
+      </aside>
+      <main class="card" id="p-out">
+        <div class="empty"><div class="big">&#9776;</div>Select a target and enter molecules to rank.</div>
+      </main>
+    </div>
+  </section>
+
+  <!-- ============ ADMET ============ -->
+  <section class="view" id="v-admet">
+    <div class="layout">
+      <aside class="card">
+        <h2>ADMET profile</h2>
+        <p class="sub">Drug-likeness & structural alerts. Target-independent.</p>
+        <label>Input</label>
+        <div class="seg"><button class="on" data-m="paste" data-g="a">Paste</button><button data-m="csv" data-g="a">CSV file</button></div>
+        <div id="a-paste" style="margin-top:8px"><textarea id="a-smiles" placeholder="One SMILES per line"></textarea></div>
+        <div id="a-csv" style="margin-top:8px;display:none"><input type="file" id="a-file" accept=".csv"></div>
+        <button class="go" id="a-run">Profile compounds</button>
+      </aside>
+      <main class="card" id="a-out">
+        <div class="empty"><div class="big">&#9878;</div>Enter molecules to compute their ADMET profile.</div>
+      </main>
+    </div>
+  </section>
+
+  <!-- ============ COMPARE ============ -->
+  <section class="view" id="v-compare">
+    <div class="layout">
+      <aside class="card">
+        <h2>Compare targets</h2>
+        <p class="sub">Screen against a disease group or several targets.</p>
+        <label>Disease</label>
+        <select id="c-disease"><option value="">â none â</option></select>
+        <label>Or pick targets</label>
+        <div class="checks" id="c-targets"></div>
+        <label>Input</label>
+        <div class="seg"><button class="on" data-m="paste" data-g="c">Paste</button><button data-m="csv" data-g="c">CSV file</button></div>
+        <div id="c-paste" style="margin-top:8px"><textarea id="c-smiles" placeholder="One SMILES per line"></textarea></div>
+        <div id="c-csv" style="margin-top:8px;display:none"><input type="file" id="c-file" accept=".csv"></div>
+        <button class="go" id="c-run">Compare</button>
+      </aside>
+      <main class="card" id="c-out">
+        <div class="empty"><div class="big">&#9636;</div>Choose a disease or targets, then enter molecules.</div>
+      </main>
+    </div>
+  </section>
+
+  <!-- ============ DOCKING ============ -->
+  <section class="view" id="v-docking">
+    <div class="card coming" id="d-out"><div class="empty">Loadingâ¦</div></div>
+  </section>
+
+<script>
+const $=s=>document.querySelector(s);
+const api=(u,o)=>fetch(u,o).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');return d;});
+const tierClass={high:'d-high',med:'d-med',low:'d-low',out:'d-out'};
+
+/* tabs */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  $('#v-'+b.dataset.tab).classList.add('on');
+});
+/* input segmented toggles */
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{
+  const g=b.dataset.g;
+  document.querySelectorAll(`.seg button[data-g=${g}]`).forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  $(`#${g}-paste`).style.display=b.dataset.m==='paste'?'block':'none';
+  $(`#${g}-csv`).style.display=b.dataset.m==='csv'?'block':'none';
+});
+/* read SMILES from paste or csv (client-side, first/SMILES column) */
+async function getSmiles(g){
+  const csvOn=document.querySelector(`.seg button[data-g=${g}].on`).dataset.m==='csv';
+  if(csvOn){
+    const f=$(`#${g}-file`).files[0]; if(!f) throw new Error('Choose a CSV file.');
+    const lines=(await f.text()).split(/\r?\n/).filter(x=>x.trim());
+    let idx=0; const head=lines[0].split(',').map(s=>s.trim().replace(/^"|"$/g,''));
+    const si=head.findIndex(h=>h.toLowerCase()==='smiles'); let start=0;
+    if(si>=0){idx=si;start=1;}
+    return lines.slice(start).map(l=>l.split(',')[idx].trim().replace(/^"|"$/g,'')).filter(Boolean);
+  }
+  return $(`#${g}-smiles`).value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+}
+function loading(el){el.innerHTML='<div class="spin" style="display:block">Workingâ¦</div>';}
+function fail(el,m){el.innerHTML=`<div class="err">${m}</div>`;}
+
+/* ---------- shared data ---------- */
+let TARGETS=[];
+async function boot(){
+  const h=await api('/api/health');
+  $('#hstat').innerHTML=`<b>${h.models_available}</b> models loaded`;
+  TARGETS=(await api('/api/targets')).targets;
+  const usable=TARGETS.filter(t=>t.usable);
+  // predict target select
+  const ps=$('#p-target');ps.innerHTML='';
+  usable.forEach(t=>ps.add(new Option(t.name+(t.status==='experimental'?' (experimental)':''),t.target_id)));
+  ps.onchange=onPTarget; if(ps.value) onPTarget();
+  // compare targets checkboxes
+  const cb=$('#c-targets');cb.innerHTML='';
+  usable.forEach(t=>{const l=document.createElement('label');l.className='chk';
+    l.innerHTML=`<input type=checkbox value="${t.target_id}"> ${t.name}`;cb.appendChild(l);});
+  const dz=(await api('/api/diseases')).diseases;
+  const ds=$('#c-disease');
+  dz.forEach(d=>ds.add(new Option(`${d.name} (${d.available_targets.length})`,d.disease_id)));
+  ds.onchange=()=>{const d=dz.find(x=>x.disease_id===ds.value);
+    document.querySelectorAll('#c-targets input').forEach(c=>c.checked=d?d.available_targets.includes(c.value):false);};
+  // docking
+  try{ renderDocking(await api('/api/docking/status')); }
+  catch(e){ $('#d-out').innerHTML='<div class="empty">Docking status unavailable.</div>'; }
+}
+
+function chkline(ok,name,desc){
+  return `<div style="display:flex;gap:8px;align-items:center;padding:3px 0;font-size:13px">
+    <span class="dot ${ok?'d-high':'d-out'}"></span><b style="min-width:150px">${name}</b>
+    <span class="muted">${desc||''}</span></div>`;
+}
+function dockValidationPanel(details){
+  if(!details||!details.length) return '';
+  const rows=details.map(d=>{
+    const ok=d.validated;
+    const badge=ok?'<span class="badge b-ok">✓ VALIDATED</span>':'<span class="badge b-warn">UNVALIDATED</span>';
+    const rmsd=(d.reference_rmsd!=null)?`<b>${d.reference_rmsd} Å</b> redocking`:'<span class="muted">no redocking</span>';
+    const enr=(d.enrichment_auc!=null)?`<b>AUC ${d.enrichment_auc}</b> enrichment${d.enrichment_ef20!=null?` (EF@20% ${d.enrichment_ef20}${d.enrichment_n?`, n=${d.enrichment_n}`:''})`:''}`:'<span class="muted">no enrichment test</span>';
+    return `<div style="padding:9px 12px;border:1px solid var(--line);border-radius:9px;margin-bottom:8px;background:${ok?'#f0fdfa':'#fffbeb'}">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><b>${d.name||d.target_id}</b> ${badge}</div>
+      <div style="font-size:12.5px;color:#334155">${rmsd} &nbsp;·&nbsp; ${enr}</div></div>`;
+  }).join('');
+  return `<div style="margin:6px 0 4px"><h5 style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent-d)">Per-target validation</h5>${rows}
+    <div class="muted" style="font-size:11.5px;margin-top:2px">Redocking &lt; 2 Å confirms the pose geometry; enrichment AUC measures separation of known actives from decoys. Trust scores only for validated targets.</div></div>`;
+}
+function renderDocking(dk){
+  const el=$('#d-out');
+  if(dk.ready){
+    el.className='card'; el.style.padding='0';
+    const opts=(dk.docking_targets||[]).map(t=>`<option value="${t}">${t}</option>`).join('');
+    el.innerHTML=`<div style="padding:20px;max-width:720px;margin:0 auto">
+      <h2>Structure-based docking</h2>
+      <p class="sub">AutoDock Vina + PoseBusters physical-validity gate.</p>
+      ${dockValidationPanel(dk.target_details||[])}
+      <label style="margin-top:14px">Docking-ready target</label>
+      <select id="dk-target">${opts||'<option value="">â no prepared targets â</option>'}</select>
+      <label style="margin-top:12px">SMILES (one per line)</label>
+      <textarea id="dk-smiles" style="min-height:100px"></textarea>
+      <button class="go" id="dk-run">Dock compounds</button>
+      <div id="dk-out" style="margin-top:14px"></div></div>`;
+    $('#dk-run').onclick=dockRun;
+    return;
+  }
+  // NOT ready -> show exactly what's installed vs missing + guidance
+  el.className='card coming';
+  const pkgs=Object.entries(dk.packages||{}).map(([n,ok])=>chkline(ok,n,dk.package_desc[n])).join('');
+  const bins=Object.entries(dk.binaries||{}).map(([n,ok])=>chkline(ok,n,dk.binary_desc[n])).join('');
+  el.innerHTML=`<div style="max-width:680px;margin:20px auto;text-align:left">
+    <div style="text-align:center"><div class="big" style="font-size:40px;opacity:.25">&#9881;</div>
+    <h2>Docking â not yet enabled on this server</h2>
+    <p class="sub" style="text-align:center">${dk.note||''}</p></div>
+    <h5 style="margin:16px 0 4px;color:var(--accent-d);font-size:11px;text-transform:uppercase">Python packages</h5>${pkgs}
+    <h5 style="margin:16px 0 4px;color:var(--accent-d);font-size:11px;text-transform:uppercase">Engine binaries</h5>${bins}
+    <div class="notice" style="margin:16px 0">Install the missing items, prepare receptor profiles, then this tab activates automatically.</div>
+    <h5 style="margin:12px 0 4px;color:var(--accent-d);font-size:11px;text-transform:uppercase">Planned pipeline</h5>
+    <ul class="muted" style="font-size:13px">${(dk.planned||[]).map(p=>`<li>${p}</li>`).join('')}</ul></div>`;
+}
+async function dockRun(){
+  const out=$('#dk-out');
+  const smiles=$('#dk-smiles').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const target=$('#dk-target').value;
+  if(!target){ out.innerHTML='<div class="err">No prepared target.</div>'; return; }
+  if(!smiles.length){ out.innerHTML='<div class="err">Enter SMILES.</div>'; return; }
+  out.innerHTML='<div class="muted">Submittingâ¦</div>';
+  try{
+    const r=await api('/api/docking/submit',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({target_id:target,smiles})});
+    await pollDocking(out,r.job_id,r.total);
+  }catch(e){ out.innerHTML=`<div class="err">${e.message}</div>`; }
+}
+async function pollDocking(out,jid,total){
+  while(true){
+    await new Promise(r=>setTimeout(r,2000));
+    let s; try{ s=await api('/api/docking/job/'+jid); }catch(e){ out.innerHTML='<div class="err">Job lost.</div>'; return; }
+    if(s.status==='done'){ renderDockResults(out,s.results); return; }
+    if(s.status==='error'){ out.innerHTML=`<div class="err">${s.error||'failed'}</div>`; return; }
+    out.innerHTML=`<div class="muted">Docking ${s.done}/${s.total}â¦ (minutes per compound)</div>`;
+  }
+}
+function renderDockResults(out,results){
+  const cls={high:'d-high',medium:'d-med',low:'d-low',none:'d-out'};
+  const hasCNN=(results||[]).some(r=>r.gnina&&r.gnina.cnn_score!=null);
+  const cols=hasCNN?7:5;
+  let h=`<table><thead><tr><th></th><th>Compound</th><th>Confidence</th><th>Vina</th>${hasCNN?'<th>CNN score</th><th>CNN affinity</th>':''}<th>Status</th></tr></thead><tbody>`;
+  (results||[]).forEach((r,i)=>{
+    const g=r.gnina||{};
+    const canView=!!r.interaction_png;
+    h+=`<tr class="${canView?'clickrow':''}" ${canView?`onclick="toggleDock(${i})"`:''}>
+      <td>${canView?'<span id="dar'+i+'">▸</span>':''}</td>
+      <td class="smi">${r.smiles||''}</td>
+      <td><span class="chip"><span class="dot ${cls[r.confidence]||'d-out'}"></span>${r.confidence||'—'}</span></td>
+      <td>${r.vina_score??'—'}</td>
+      ${hasCNN?`<td>${g.cnn_score??'—'}</td><td>${g.cnn_affinity??'—'}</td>`:''}
+      <td class="muted">${r.status==='ok'?(r.n_valid+' valid pose(s)'):(r.reason||r.status||'')}</td></tr>`;
+    if(canView){
+      const ov=(r.residue_overlap_pct!=null)?`<div class="muted" style="margin:4px 0 8px">Shares ${r.residue_overlap_pct}% of the reference drug's contact residues.</div>`:'';
+      h+=`<tr id="dkd${i}" style="display:none"><td></td><td colspan="${cols-1}" style="padding:0"><div class="detail">${ov}<img src="data:image/png;base64,${r.interaction_png}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff"/></div></td></tr>`;
+    }
+  });
+  out.innerHTML=h+`</tbody></table>`;
+}
+function toggleDock(i){const r=document.getElementById('dkd'+i),a=document.getElementById('dar'+i);const open=r.style.display==='none';r.style.display=open?'table-row':'none';if(a)a.textContent=open?'▾':'▸';}
+async function onPTarget(){
+  const t=TARGETS.find(x=>x.target_id===$('#p-target').value)||{};
+  $('#p-tinfo').innerHTML=`<span class="badge ${t.status==='live'?'b-live':'b-exp'}">${(t.status||'').toUpperCase()}</span> ${t.n_compounds||'?'} compounds Â· Ï ${t.spearman??'â'}`;
+  const d=await api(`/api/targets/${t.target_id}/models`);
+  const ms=$('#p-model');ms.innerHTML='';
+  d.models.forEach(m=>ms.add(new Option(m.name+(m.is_best?'  â best':''),m.name)));
+}
+
+/* ---------- PREDICT ---------- */
+$('#p-run').onclick=async()=>{
+  const el=$('#p-out');
+  try{
+    const smiles=await getSmiles('p'); if(!smiles.length)throw new Error('Enter at least one SMILES.');
+    loading(el);
+    const d=await api('/api/predict',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({target_id:$('#p-target').value,model:$('#p-model').value,smiles})});
+    renderPredict(el,d);
+  }catch(e){fail(el,e.message);}
+};
+function renderPredict(el,d){
+  const m=d.model_metrics,c=d.counts;
+  let h=`<div class="rhead">
+    <div class="name">${d.target.name}</div>
+    <div class="stat">Model<b>${d.model}${d.is_best?' â':''}</b></div>
+    <div class="stat">Ranking Ï<b>${m.spearman??'â'}</b></div>
+    <div class="stat">Test RÂ²<b>${m.test_r2??'â'}</b></div>
+    <div class="stat">Intervals<b>${d.interval_status}</b></div>
+    <div class="stat">In-domain<b>${c.in_domain}/${c.submitted}</b></div></div>`;
+  h+=`<div class="disc">${d.disclaimer}</div>`;
+  if(d.in_domain.length){
+    h+=`<div class="tablewrap"><table><thead><tr><th>#</th><th>Compound</th><th>Predicted</th><th>Lower ${d.confidence_pct}%</th><th>Range</th><th>Confidence</th></tr></thead><tbody>`;
+    d.in_domain.forEach(r=>h+=`<tr><td>${r.rank}</td><td class="smi">${r.smiles||''}</td>
+      <td><b>${r.predicted??'â'}</b></td><td>${r.lower??'â'}</td>
+      <td class="muted">${r.pi_low??'â'} â ${r.pi_high??'â'}</td>
+      <td><span class="chip"><span class="dot ${tierClass[r.confidence]}"></span>${r.confidence_label}</span></td></tr>`);
+    h+=`</tbody></table></div>`;
+    h+=`<div class="toolbar"><span class="muted">${c.out_of_domain} out-of-domain Â· ${c.skipped} skipped</span>
+        <span class="link" onclick='dlPredict()'>Download CSV</span></div>`;
+  }else{h+=`<div class="empty">No molecules fell inside this model's domain.</div>`;}
+  el.innerHTML=h; window.__pred=d;
+}
+function dlPredict(){const d=window.__pred;const rows=[['rank','smiles','predicted','lower','pi_low','pi_high','confidence']];
+  d.in_domain.forEach(r=>rows.push([r.rank,r.smiles,r.predicted,r.lower,r.pi_low,r.pi_high,r.confidence_label]));
+  dl(rows,`${d.target.id||'predict'}_ranked.csv`);}
+function dl(rows,name){const csv=rows.map(r=>r.map(x=>`"${x??''}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();}
+
+/* ---------- ADMET ---------- */
+$('#a-run').onclick=async()=>{
+  const el=$('#a-out');
+  try{const smiles=await getSmiles('a');if(!smiles.length)throw new Error('Enter at least one SMILES.');
+    loading(el);
+    const d=await api('/api/admet',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({target_id:'_',smiles})});
+    if(d.mode==='job'){ await pollAdmet(el,d.job_id,d.total); }
+    else{ renderAdmet(el,d); }
+  }catch(e){fail(el,e.message);}
+};
+async function pollAdmet(el,jid,total){
+  const bar=n=>`<div class="empty"><div style="max-width:360px;margin:0 auto">
+    <div class="muted" style="margin-bottom:8px">Profiling ${total} compounds in the ADMET-AI workerâ¦</div>
+    <div style="height:8px;background:#e2e8f0;border-radius:6px;overflow:hidden">
+      <div style="height:100%;width:${n}%;background:var(--accent);transition:width .3s"></div></div>
+    <div class="muted" style="margin-top:6px">${n}%</div></div></div>`;
+  el.innerHTML=bar(2);
+  while(true){
+    await new Promise(r=>setTimeout(r,1500));
+    let s; try{ s=await api('/api/admet/job/'+jid); }catch(e){ fail(el,'Worker unreachable: '+e.message); return; }
+    if(s.status==='done'){ renderAdmet(el,s); return; }
+    if(s.status==='error'){ fail(el,'ADMET job failed: '+(s.error||'')); return; }
+    el.innerHTML=bar(Math.round(100*(s.done||0)/(s.total||total||1)));
+  }
+}
+function renderAdmet(el,d){
+  const learnedOn = d.learned && d.learned.available;
+  let h='';
+  if(!learnedOn)
+    h+=`<div class="notice">${(d.learned&&d.learned.note)||'Learned ADMET endpoints unavailable â showing drug-likeness layer only.'}</div>`;
+  h+=`<div class="disc">Drug-likeness flags are informational â natural products often violate them while remaining bioactive. They are never used to filter compounds.${learnedOn?' Learned endpoints from ADMET-AI.':''}</div>`;
+  h+=`<div class="tablewrap"><table><thead><tr><th></th><th>Compound</th><th>MW</th><th>LogP</th><th>QED</th><th>Lipinski</th><th>Alerts</th>${learnedOn?'<th>Tox flags</th>':''}</tr></thead><tbody>`;
+  d.profiles.forEach((p,i)=>{
+    if(!p.parsed_ok){h+=`<tr><td></td><td class="smi">${p.input_smiles}</td><td colspan="${learnedOn?6:5}" class="muted">could not parse</td></tr>`;return;}
+    const pc=p.physicochemical,fl=p.drug_likeness_flags;
+    const nflag=(learnedOn&&p.learned.flags)?p.learned.flags.length:0;
+    const canExpand=learnedOn&&p.learned.groups;
+    h+=`<tr class="${canExpand?'clickrow':''}" ${canExpand?`onclick="toggleEp(${i})"`:''}>
+      <td>${canExpand?'<span id="ar'+i+'">â¸</span>':''}</td>
+      <td class="smi">${p.standardised_smiles}</td><td>${pc.mw}</td><td>${pc.logp}</td><td>${pc.qed}</td>
+      <td><span class="badge ${fl.lipinski_pass?'b-ok':'b-warn'}">${fl.lipinski_violations} viol</span></td>
+      <td><span class="badge ${p.n_alerts?'b-warn':'b-ok'}">${p.n_alerts}</span></td>
+      ${learnedOn?`<td><span class="badge ${nflag?'b-warn':'b-ok'}">${nflag}</span></td>`:''}</tr>`;
+    if(canExpand) h+=`<tr id="epd${i}" style="display:none"><td></td><td colspan="${learnedOn?6:5}" style="padding:0"><div class="detail">${epDetail(p.learned.groups)}</div></td></tr>`;
+  });
+  h+=`</tbody></table></div>`;
+  el.innerHTML=h; window.__admet=d;
+}
+function epDetail(groups){
+  const order=['Absorption','Distribution','Metabolism','Excretion','Toxicity','Other'];
+  return order.filter(g=>groups[g]).map(g=>`<div class="grp"><h5>${g}</h5>`+
+    groups[g].map(e=>`<span class="ep t-${e.tone}"><span>${e.label}</span><span class="v">${e.display}</span>${
+      e.percentile!=null?`<span class="pct">${e.percentile}%ile</span>`:''}</span>`).join('')+`</div>`).join('');
+}
+function toggleEp(i){const r=$('#epd'+i),a=$('#ar'+i);const open=r.style.display==='none';
+  r.style.display=open?'table-row':'none'; if(a)a.textContent=open?'â¾':'â¸';}
+
+/* ---------- COMPARE ---------- */
+$('#c-run').onclick=async()=>{
+  const el=$('#c-out');
+  try{
+    const smiles=await getSmiles('c');if(!smiles.length)throw new Error('Enter SMILES.');
+    const checked=[...document.querySelectorAll('#c-targets input:checked')].map(c=>c.value);
+    const disease=$('#c-disease').value;
+    const body={smiles}; if(disease)body.disease_id=disease; else if(checked.length)body.target_ids=checked;
+    else throw new Error('Pick a disease or at least one target.');
+    loading(el);
+    const d=await api('/api/predict_multi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    window.__cmp=d; renderCompare(el,d,'matrix');
+  }catch(e){fail(el,e.message);}
+};
+function heatColor(v,inDom){if(!inDom||v==null)return '#f1f5f9';
+  const t=Math.max(0,Math.min(1,(v-4.5)/3.5));
+  return `rgba(${Math.round(220-176*t)},${Math.round(120+42*t)},${Math.round(90+5*t)},${0.20+0.28*t})`;}
+function renderCompare(el,d,view){
+  const tid=d.targets.map(t=>t.target_id),nm=t=>{const x=d.targets.find(y=>y.target_id===t);return x?x.name:t;};
+  let h=`<div class="disc">${d.disclaimer}</div>`;
+  h+=`<div style="padding:0 20px"><div class="seg" style="max-width:560px">
+    ${['matrix','ranking','selective','multi','best','admet'].map(v=>
+      `<button class="${v===view?'on':''}" onclick="renderCompare(document.getElementById('c-out'),window.__cmp,'${v}')">${
+       ({matrix:'Matrix',ranking:'Ranking',selective:'Selective',multi:'Multi-target',best:'Best/target',admet:'ADMET'})[v]}</button>`).join('')}
+  </div></div>`;
+  let body='';
+  if(view==='matrix'){
+    body=`<table><thead><tr><th>Compound</th>${tid.map(t=>`<th>${nm(t)}</th>`).join('')}<th>In-dom</th></tr></thead><tbody>`;
+    d.matrix.forEach(r=>{body+=`<tr><td class="smi">${r.smiles||r.input_smiles}</td>`;
+      tid.forEach(t=>{const c=r.cells[t];
+        body+=c.in_domain&&c.lower!=null?`<td><span class="heat" style="background:${heatColor(c.pred,true)}">${c.pred} <span class="muted">(${c.lower})</span></span></td>`
+          :`<td class="muted" style="font-style:italic">${c.pred??'â'}</td>`;});
+      body+=`<td>${r.coverage.in_domain_targets}/${r.coverage.total_targets}</td></tr>`;});
+    body+=`</tbody></table>`;
+  }else if(view==='ranking'){
+    body=`<table><thead><tr><th>#</th><th>Compound</th><th>Targets hit</th><th>Mean lower</th><th>Coverage</th></tr></thead><tbody>`;
+    body+=d.consensus_ranking.map(r=>`<tr><td>${r.consensus_rank}</td><td class="smi">${r.smiles}</td><td>${r.n_active}</td><td><b>${r.mean_lower}</b></td><td>${r.coverage}</td></tr>`).join('')||`<tr><td colspan=5 class="muted">No in-domain compounds.</td></tr>`;
+    body+=`</tbody></table>`;
+  }else if(view==='selective'){
+    body=d.selective_candidates.length?`<table><thead><tr><th>Compound</th><th>Selective for</th><th>Lower</th><th>Gap</th></tr></thead><tbody>`+
+      d.selective_candidates.map(r=>`<tr><td class="smi">${r.smiles}</td><td>${nm(r.target)}</td><td>${r.lower}</td><td><b>${r.gap}</b></td></tr>`).join('')+`</tbody></table>`
+      :`<div class="empty">No compound was selective (â¥${d.selective_gap} log gap) for one target.</div>`;
+  }else if(view==='multi'){
+    body=d.multi_target_candidates.length?`<table><thead><tr><th>Compound</th><th>Active on</th><th># active</th><th>Mean lower</th></tr></thead><tbody>`+
+      d.multi_target_candidates.map(r=>`<tr><td class="smi">${r.smiles}</td><td>${r.active_targets.map(nm).join(', ')}</td><td><b>${r.n_active}</b></td><td>${r.mean_lower}</td></tr>`).join('')+`</tbody></table>`
+      :`<div class="empty">No multi-target candidates (active on â¥2 targets at pIC50â¥${d.active_cut}).</div>`;
+  }else if(view==='best'){
+    body=tid.map(t=>`<div style="padding:6px 0"><div style="font-weight:700;padding:6px 12px">${nm(t)}</div><table><tbody>`+
+      ((d.best_per_target[t]||[]).map((x,i)=>`<tr><td style="width:30px">${i+1}</td><td class="smi">${x.smiles}</td><td style="width:70px">${x.lower}</td></tr>`).join('')||`<tr><td class="muted">no in-domain compound</td></tr>`)+`</tbody></table></div>`).join('');
+  }else if(view==='admet'){
+    body=`<table><thead><tr><th>Compound</th><th>MW</th><th>LogP</th><th>QED</th><th>Lipinski</th><th>Alerts</th></tr></thead><tbody>`+
+      Object.entries(d.admet).map(([s,p])=>p.parsed_ok?`<tr><td class="smi">${s}</td><td>${p.physicochemical.mw}</td><td>${p.physicochemical.logp}</td><td>${p.physicochemical.qed}</td><td><span class="badge ${p.drug_likeness_flags.lipinski_pass?'b-ok':'b-warn'}">${p.drug_likeness_flags.lipinski_violations}</span></td><td><span class="badge ${p.n_alerts?'b-warn':'b-ok'}">${p.n_alerts}</span></td></tr>`:'').join('')+`</tbody></table>`;
+  }
+  h+=`<div class="tablewrap" style="margin-top:12px">${body}</div>`;
+  el.innerHTML=h;
+}
+boot().catch(e=>$('#hstat').textContent='backend error');
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+targets:
+
+  - id: cox2
+    chembl_id: CHEMBL230
+    name: "Prostaglandin G/H synthase 2 (COX-2 / PTGS2)"
+    raw_csv: raw/cox2_raw.csv
+
+  - id: cdk2
+    chembl_id: CHEMBL301
+    name: "Cyclin-dependent kinase 2 (CDK2)"
+    raw_csv: raw/cdk2.csv
+
+  - id: motor
+    chembl_id: CHEMBL2842
+    name: "Motor protein"
+    raw_csv: raw/motor.csv
+
+  - id: egfr
+    chembl_id: CHEMBL203
+    name: "Epidermal growth factor receptor (EGFR)"
+    raw_csv: raw/egfr_raw.csv
+
+  - id: vegfr2
+    chembl_id: CHEMBL279
+    name: "Vascular endothelial growth factor receptor 2 (VEGFR2 / KDR)"
+    raw_csv: raw/vgfr.csv

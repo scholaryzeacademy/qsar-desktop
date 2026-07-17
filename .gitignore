@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.log
+*.sh
+_archive/
+MODELS/
+
+# large read-only model-factory output & receptor data — not source code
+models/
+docking_targets/
+.venv/
+*.egg-info/
+dist/
+build/
+*.spec

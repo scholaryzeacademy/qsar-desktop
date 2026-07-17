@@ -1,0 +1,29 @@
+{
+  "targets": [
+    {
+      "target_id": "cox2",
+      "name": "COX-2",
+      "pdb_source": "5kir.pdb",
+      "reference_ligand_resname": "RCX",
+      "receptor_pdbqt": "/home/asraful/Documents/Prelead Lab/qasr_2/docking_targets/cox2/receptor.pdbqt",
+      "receptor_pdb": "/home/asraful/Documents/Prelead Lab/qasr_2/docking_targets/cox2/receptor_clean.pdb",
+      "center": [
+        23.206,
+        1.318,
+        34.259
+      ],
+      "box_size": [
+        22.798,
+        24.188,
+        23.896
+      ],
+      "ad4_grid_maps": null,
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.834,
+      "enrichment_auc": 0.817,
+      "enrichment_ef20": 2.67,
+      "enrichment_n": 16
+    }
+  ]
+}
