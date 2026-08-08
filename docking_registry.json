@@ -24,6 +24,31 @@
       "enrichment_auc": 0.817,
       "enrichment_ef20": 2.67,
       "enrichment_n": 16
+    },
+    {
+      "target_id": "CHEMBL1862_ABL1",
+      "name": "ABL1 (Abelson tyrosine kinase)",
+      "pdb_source": "1IEP_raw.pdb",
+      "reference_ligand_resname": "STI",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        15.614,
+        53.38,
+        15.455
+      ],
+      "box_size": [
+        24.664,
+        32.739,
+        29.526
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.425,
+      "enrichment_auc": 0.562,
+      "enrichment_ef20": 0.0,
+      "enrichment_n": 16,
+      "enrichment_source": "own ChEMBL training data: top/bottom 8 by measured pchembl_value \u2014 'decoys' are this target's weakest measured binders, not confirmed non-binders"
     }
   ]
 }

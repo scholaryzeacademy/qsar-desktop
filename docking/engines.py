@@ -27,13 +27,35 @@ class DockingEngine:
 
 
 # ---------- PDBQT -> RDKit ----------
+def _split_conformers(mol):
+    """Meeko's RDKitMolCreate merges every pose in a multi-MODEL PDBQT into ONE
+       RDKit Mol carrying one conformer per pose (Vina writes poses best-to-worst,
+       so conformer order matches --num_modes rank), rather than one Mol per pose.
+       Split it into independent single-conformer Mols so downstream code (which
+       treats each list entry as one distinct pose — PoseBusters filtering, RMSD
+       self-consistency, the 3D pose export) actually sees all of them instead of
+       silently only ever operating on one. A no-op for already-single-conformer
+       input (e.g. the obabel/SDF fallback below)."""
+    out = []
+    for conf in mol.GetConformers():
+        m2 = Chem.Mol(mol)
+        m2.RemoveAllConformers()
+        m2.AddConformer(Chem.Conformer(conf), assignId=True)
+        out.append(m2)
+    return out
+
+
 def _pdbqt_file_to_rdkit(path):
     try:
         from meeko import PDBQTMolecule, RDKitMolCreate
         pm = PDBQTMolecule.from_file(path, skip_typing=True)
         out = RDKitMolCreate.from_pdbqt_mol(pm)
         mols = out[0] if isinstance(out, tuple) else out
-        return [m for m in mols if m is not None]
+        poses = []
+        for m in mols:
+            if m is not None:
+                poses.extend(_split_conformers(m))
+        return poses
     except Exception:
         sdf = path + ".sdf"
         subprocess.run(["obabel", path, "-O", sdf], check=True,

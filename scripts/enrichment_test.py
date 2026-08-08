@@ -18,12 +18,12 @@ def dock_scores(target_id, rows, vina_only=True):
     from docking import profile as P, pipeline
     from docking.engines import VinaEngine
     prof = P.load_profile(target_id)
-    engines = [VinaEngine()] if vina_only else None
+    engine = VinaEngine() if vina_only else None
     out = []
     for i, r in enumerate(rows, 1):
         print(f"  [{i}/{len(rows)}] {r['name']} ...", flush=True)
         try:
-            res = pipeline.dock_compound(prof, r["smiles"], engines=engines)
+            res = pipeline.dock_compound(prof, r["smiles"], engine=engine)
             pose = res.get("consensus_pose")
             score = pose["score"] if pose else None
         except Exception as e:

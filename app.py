@@ -24,7 +24,7 @@ warnings.filterwarnings("ignore")
 
 import pandas as pd
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional, List
@@ -308,6 +308,19 @@ def docking_targets():
         return {"targets": []}
     reg = DOCK_PROFILE.load_registry()
     return {"targets": [{"target_id": t, "name": r.get("name", t)} for t, r in reg.items()]}
+
+
+@app.get("/api/docking/receptor/{target_id}")
+def docking_receptor(target_id: str):
+    """Raw receptor PDB text, for the 3D pose viewer (protein context around
+       the docked ligand). Same file docking already uses for PoseBusters/PLIP."""
+    if DOCK_PROFILE is None:
+        raise HTTPException(503, "Docking package not available")
+    profile = DOCK_PROFILE.load_profile(target_id)
+    receptor_pdb = profile.get("receptor_pdb")
+    if not receptor_pdb or not os.path.exists(receptor_pdb):
+        raise HTTPException(404, f"no receptor PDB for '{target_id}'")
+    return PlainTextResponse(open(receptor_pdb).read())
 
 
 class DockBody(BaseModel):

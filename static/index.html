@@ -114,7 +114,13 @@
   .filerow .a{color:var(--mut);font-size:11.5px}
   .cat{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent-d);font-weight:700;
        padding:10px 12px 4px}
+  .pose3d{width:100%;height:420px;position:relative;border:1px solid var(--line);border-radius:8px;margin-top:10px;background:#fff}
+  .pose3d-bar{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+  .pose3d-bar button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 11px;
+       font:inherit;font-weight:600;font-size:12px;cursor:pointer;color:var(--ink)}
+  .pose3d-bar button:hover{background:#f8fafc}
 </style>
+<script src="/static/vendor/3Dmol-min.js"></script>
 </head>
 <body>
   <div class="top">
@@ -373,11 +379,17 @@ async function pollDocking(out,jid,total){
     out.innerHTML=`<div class="muted">Docking ${s.done}/${s.total}&hellip; (minutes per compound)</div>`;
   }
 }
+let _dockResults=[];
+let _receptorCache={};
+let _pose3dInited={};
+
 function renderDockResults(out,results){
   const cls={high:'d-high',medium:'d-med',low:'d-low',none:'d-out'};
-  const hasCNN=(results||[]).some(r=>r.gnina&&r.gnina.cnn_score!=null);
-  const cols=hasCNN?7:5;
-  let h=`<table><thead><tr><th></th><th>Compound</th><th>Confidence</th><th>Vina</th>${hasCNN?'<th>CNN score</th><th>CNN affinity</th>':''}<th>Status</th></tr></thead><tbody>`;
+  const hasGnina=(results||[]).some(r=>r.gnina&&r.gnina.cnn_score!=null);
+  const cols=hasGnina?8:5;
+  _dockResults=results||[];
+  _pose3dInited={};
+  let h=`<table><thead><tr><th></th><th>Compound</th><th>Confidence</th><th>Vina affinity (kcal/mol)</th>${hasGnina?'<th>GNINA CNN score</th><th>GNINA CNN affinity</th><th>GNINA affinity (kcal/mol)</th>':''}<th>Status</th></tr></thead><tbody>`;
   (results||[]).forEach((r,i)=>{
     const g=r.gnina||{};
     const canView=!!r.interaction_png;
@@ -386,15 +398,86 @@ function renderDockResults(out,results){
       <td class="smi">${r.smiles||''}</td>
       <td><span class="chip"><span class="dot ${cls[r.confidence]||'d-out'}"></span>${r.confidence||'&mdash;'}</span></td>
       <td>${r.vina_score??'&mdash;'}</td>
-      ${hasCNN?`<td>${g.cnn_score??'&mdash;'}</td><td>${g.cnn_affinity??'&mdash;'}</td>`:''}
+      ${hasGnina?`<td>${g.cnn_score??'&mdash;'}</td><td>${g.cnn_affinity??'&mdash;'}</td><td>${g.gnina_affinity??'&mdash;'}</td>`:''}
       <td class="muted">${r.status==='ok'?(r.n_valid+' valid pose(s)'):(r.reason||r.status||'')}</td></tr>`;
     if(canView){
       const ov=(r.residue_overlap_pct!=null)?`<div class="muted" style="margin:4px 0 8px">Shares ${r.residue_overlap_pct}% of the reference drug's contact residues.</div>`:'';
       const src=r.interaction_source?`<div class="muted" style="margin:4px 0 8px">Interaction detection: ${r.interaction_source}.</div>`:'';
-      h+=`<tr id="dkd${i}" style="display:none"><td></td><td colspan="${cols-1}" style="padding:0"><div class="detail">${ov}${src}<img src="data:image/png;base64,${r.interaction_png}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff"/></div></td></tr>`;
+      const tbl=interactionTable(r.interactions);
+      const pose3d=r.pose_pdb?`<div class="pose3d-bar">
+          <button onclick="event.stopPropagation();toggle3D(${i})">Ball-and-stick 3D pose</button>
+          <button onclick="event.stopPropagation();reset3D(${i})">Reset view</button>
+          <label style="font-size:12px;color:var(--mut);cursor:pointer"><input type="checkbox" onclick="event.stopPropagation();toggleSpin(${i},this.checked)" style="vertical-align:middle"> spin</label>
+          <span class="muted" style="font-size:11px">All atoms shown incl. hydrogens (nonpolar H positions are geometry-estimated, not Vina's own placement).</span>
+        </div><div id="pose3d${i}" class="pose3d" style="display:none"></div>`:'';
+      h+=`<tr id="dkd${i}" style="display:none"><td></td><td colspan="${cols-1}" style="padding:0"><div class="detail">${ov}${src}<img src="data:image/png;base64,${r.interaction_png}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff"/>${tbl}${pose3d}</div></td></tr>`;
     }
   });
   out.innerHTML=h+`</tbody></table>`;
+}
+
+async function toggle3D(i){
+  const el=document.getElementById('pose3d'+i);
+  if(!el) return;
+  const open=el.style.display==='none';
+  el.style.display=open?'block':'none';
+  if(open && !_pose3dInited[i]){
+    _pose3dInited[i]=true;
+    await init3D(i, el);
+  }
+}
+
+async function init3D(i, el){
+  const r=_dockResults[i];
+  if(!r || !r.pose_pdb || typeof $3Dmol==='undefined'){
+    el.innerHTML='<div class="muted" style="padding:10px">3D pose not available.</div>';
+    return;
+  }
+  let receptorPdb=_receptorCache[r.target];
+  if(receptorPdb===undefined){
+    try{ receptorPdb=await (await fetch(`/api/docking/receptor/${r.target}`)).text(); }
+    catch(e){ receptorPdb=null; }
+    _receptorCache[r.target]=receptorPdb;
+  }
+  const viewer=$3Dmol.createViewer(el, {backgroundColor:'white'});
+  el._viewer=viewer;
+  if(receptorPdb){
+    viewer.addModel(receptorPdb, 'pdb');                 // model 0: receptor
+    viewer.setStyle({model:0}, {cartoon:{color:'lightgrey', opacity:0.55}});
+    const resiList=[...new Set((r.interactions||[]).map(h=>{
+      const m=(h.residue||'').match(/(\d+)$/); return m?parseInt(m[1]):null;
+    }).filter(n=>n!=null))];
+    if(resiList.length) viewer.addStyle({model:0, resi:resiList}, {stick:{radius:0.12, colorscheme:'grayCarbon'}});
+  }
+  viewer.addModel(r.pose_pdb, 'pdb');                    // last model: ligand pose
+  const ligIdx=receptorPdb?1:0;
+  viewer.setStyle({model:ligIdx}, {stick:{radius:0.16}, sphere:{scale:0.25}});
+  viewer.zoomTo({model:ligIdx});
+  viewer.render();
+}
+
+function reset3D(i){
+  const el=document.getElementById('pose3d'+i);
+  const v=el&&el._viewer;
+  if(!v) return;
+  const r=_dockResults[i];
+  v.zoomTo({model: r&&_receptorCache[r.target]?1:0});
+  v.render();
+}
+
+function toggleSpin(i, on){
+  const el=document.getElementById('pose3d'+i);
+  const v=el&&el._viewer;
+  if(v) v.spin(on?'y':false);
+}
+
+function interactionTable(interactions){
+  if(!interactions||!interactions.length) return '';
+  const rows=[...interactions].sort((a,b)=>a.distance-b.distance);
+  return `<div class="cat" style="margin-top:10px">Protein-ligand nonbonding interactions (${rows.length})</div>
+    <table><thead><tr><th>Name</th><th>Category</th><th>Type</th><th>Distance (Å)</th></tr></thead><tbody>`+
+    rows.map(r=>`<tr><td>${r.name||r.residue}</td><td>${r.category||''}</td><td>${r.label||r.type||''}</td><td>${r.distance??'&mdash;'}</td></tr>`).join('')+
+    `</tbody></table>`;
 }
 function toggleDock(i){const r=document.getElementById('dkd'+i),a=document.getElementById('dar'+i);const open=r.style.display==='none';r.style.display=open?'table-row':'none';if(a)a.textContent=open?'▾':'▸';}
 
@@ -650,15 +733,12 @@ async function renderTargetInfo(){
         plots.map(f=>`<figure><img src="/api/factory/download/${tid}?path=${encodeURIComponent(f.path)}" loading="lazy">
           <figcaption>${f.annotation||f.name}</figcaption></figure>`).join('')+`</div>`;
     }
-    h+=`<div class="cat">Bucket files (${bucket.n_files})</div>`;
-    let cat='';
-    (bucket.files||[]).forEach(f=>{
-      if(f.category!==cat){ cat=f.category; h+=`<div class="cat">${cat}</div>`; }
-      h+=`<div class="filerow"><div><span class="p">${f.path}</span><div class="a">${f.annotation||''}</div></div>
-        <a class="link" href="/api/factory/download/${tid}?path=${encodeURIComponent(f.path)}" download>${(f.bytes/1024).toFixed(0)} KB</a></div>`;
-    });
-    h+=`<div class="toolbar"><span class="muted">Every file in this target's bucket, annotated.</span>
-        <a class="link" href="/api/factory/download_all/${tid}">Download whole bucket (.zip)</a></div>`;
+    const cleaned=(bucket.files||[]).find(f=>f.path==='Data/full_cleaned.csv');
+    if(cleaned){
+      h+=`<div class="cat">Cleaned dataset</div>
+        <div class="filerow"><div><span class="p">${cleaned.path}</span><div class="a">${cleaned.annotation||''}</div></div>
+        <a class="link" href="/api/factory/download/${tid}?path=${encodeURIComponent(cleaned.path)}" download>${(cleaned.bytes/1024).toFixed(0)} KB</a></div>`;
+    }
     el.className='card'; el.innerHTML=h;
   }catch(e){ fail(el,e.message); }
 }

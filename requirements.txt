@@ -36,16 +36,25 @@ pywebview==6.2.1
 matplotlib==3.10.9
 openpyxl==3.1.5
 
-# --- docking (AutoDock Vina itself is an external binary, not pip-installable) ---
+# --- docking (AutoDock Vina/fpocket/GNINA are external binaries, not pip-installable —
+#     install vina+fpocket via `conda install -c conda-forge vina fpocket`;
+#     GNINA has no conda package — download the binary from
+#     https://github.com/gnina/gnina/releases (v1.1, ~300MB, no bundled CUDA;
+#     later releases bundle CUDA/libtorch and are 1-2GB), chmod +x, put on PATH) ---
 meeko==0.7.1
 posebusters==0.6.5
 biopython==1.87
 pdbfixer==1.12.0
 openmm==8.5.2
 gemmi==0.7.5
+# openbabel MUST be installed before plip (plip's own build script otherwise tries to
+# compile an old pinned openbabel version from source): pip install openbabel==3.2.1
+openbabel==3.2.1
+plip==3.0.0
 
 # --- tests ---
 pytest==9.1.1
 
-# --- optional, run as a separate worker process (see admet_service.py) ---
-# admet-ai
+# --- optional, run as a separate worker process (see admet_service.py):
+#     uvicorn admet_service:app --host 127.0.0.1 --port 8100 ---
+admet-ai==2.0.1

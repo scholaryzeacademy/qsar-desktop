@@ -19,6 +19,23 @@ from .engines import VinaEngine, GninaRescorer
 from .rmsd import safe_rmsd
 
 
+def pose_pdb_with_hydrogens(pose_mol):
+    """PDB block of the docked pose for 3D (ball-and-stick) display, with every
+       hydrogen present — including polar ones like NH2/OH.
+
+       VinaEngine.dock() hands back heavy-atom-only poses (Chem.RemoveHs, since
+       that's what the interaction detector/GNINA rescoring already validated
+       against), so there is no docked H position to reuse here. Chem.AddHs(...,
+       addCoords=True) fills every hydrogen back in with standard bond geometry
+       from the docked heavy-atom positions — the same approach visualization
+       tools (PyMOL/Chimera 'add hydrogens') use on a heavy-atom structure.
+       This is a geometry completion for display, not Vina's own optimised H
+       placement — polar-H orientation here is a reasonable estimate, not the
+       exact rotamer Vina searched."""
+    vis_mol = Chem.AddHs(pose_mol, addCoords=True)
+    return Chem.MolToPDBBlock(vis_mol)
+
+
 def dock_compound(profile, smiles, engine=None, rescorer=None, n_poses=9,
                   rmsd_threshold=2.0, make_diagram=False, reference_interactions=None):
     lig = prepare_ligand(smiles)
@@ -66,6 +83,11 @@ def dock_compound(profile, smiles, engine=None, rescorer=None, n_poses=9,
                         best.mol, inter, title=f"{smiles[:30]}", source=source, ref_residues=ref_res)
             except Exception as e:
                 result["interaction_error"] = str(e)
+        if make_diagram:
+            try:
+                result["pose_pdb"] = pose_pdb_with_hydrogens(best.mol)
+            except Exception as e:
+                result["pose_pdb_error"] = str(e)
 
     result["confidence"] = assign_confidence(sel, gnina)
     result["status"] = "ok" if sel.get("consensus_pose") else "no_pose"

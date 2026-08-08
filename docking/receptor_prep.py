@@ -60,12 +60,22 @@ def extract_reference_ligand(pdb_path, ref_resname=None, chain=None):
 
 
 # ---------- step 2: strip to protein only ----------
-def strip_to_protein(pdb_path, out_pdb):
+def strip_to_protein(pdb_path, out_pdb, chain=None):
+    """Standard residues only (no HETATM/water). If chain is given, keep ONLY
+       that chain — many PDB entries deposit 2+ copies of the same protein in
+       the asymmetric unit (e.g. a crystallographic dimer), and merging them
+       into one 'receptor' both docks against a physically wrong target (two
+       overlapping copies) and can confuse bond-perception in atoms close to
+       the chain-chain interface (RDKit inferring spurious cross-chain bonds)."""
     from Bio.PDB import PDBParser, PDBIO, Select
 
     class ProteinOnly(Select):
         def accept_residue(self, res):
-            return res.id[0] == " "                    # standard residues only (no HETATM/water)
+            if res.id[0] != " ":
+                return False
+            if chain and res.get_parent().id != chain:
+                return False
+            return True
 
     s = PDBParser(QUIET=True).get_structure("x", pdb_path)
     io = PDBIO(); io.set_structure(s)
@@ -123,7 +133,7 @@ def prepare_receptor(pdb_path, target_id, name=None, ref_resname=None, chain=Non
     ref_coords, ref_name, n_ref = extract_reference_ligand(pdb_path, ref_resname, chain)
     center, box_size = grid_box_from_ligand(ref_coords, padding=padding)
 
-    prot = strip_to_protein(pdb_path, os.path.join(tdir, "protein_raw.pdb"))
+    prot = strip_to_protein(pdb_path, os.path.join(tdir, "protein_raw.pdb"), chain=chain)
     clean = repair_receptor(prot, os.path.join(tdir, "receptor_clean.pdb"))
     rec_pdbqt = receptor_to_pdbqt(clean, os.path.join(tdir, "receptor.pdbqt"))
 
