@@ -22,7 +22,8 @@
   .brand .mark{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--accent),#22d3ee)}
   nav{display:flex;gap:4px;height:100%}
   nav button{background:none;border:0;color:#94a3b8;font:inherit;font-weight:600;padding:0 16px;
-       height:100%;cursor:pointer;border-bottom:2px solid transparent}
+       height:100%;cursor:pointer;border-bottom:2px solid transparent;display:inline-flex;align-items:center;
+       transition:color .15s,border-color .15s}
   nav button:hover{color:#e2e8f0}
   nav button.on{color:#fff;border-bottom-color:var(--accent)}
   .hstat{margin-left:auto;font-size:12px;color:#94a3b8}
@@ -32,8 +33,8 @@
   .view.on{display:block}
   .layout{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;max-width:1280px;margin:0 auto}
   @media(max-width:880px){.layout{grid-template-columns:1fr}}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow)}
-  aside.card{padding:18px;position:sticky;top:78px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);transition:box-shadow .15s}
+  aside.card{padding:18px;position:sticky;top:78px;max-height:calc(100vh - 96px);overflow-y:auto;overscroll-behavior:contain}
   main.card{padding:0;overflow:hidden;min-height:60vh}
   h2{margin:0 0 3px;font-size:16px}
   .sub{color:var(--mut);font-size:12.5px;margin:0 0 16px}
@@ -42,14 +43,15 @@
   select,textarea,input[type=file]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;
        font-size:14px;background:#fff;color:var(--ink)}
   textarea{min-height:120px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
-  .seg{display:flex;background:#f1f5f9;border-radius:9px;padding:3px;gap:3px}
-  .seg button{flex:1;border:0;background:none;padding:7px;border-radius:7px;font:inherit;font-weight:600;
+  .seg,.mseg{display:flex;background:#f1f5f9;border-radius:9px;padding:3px;gap:3px}
+  .seg button,.mseg button{flex:1;border:0;background:none;padding:7px;border-radius:7px;font:inherit;font-weight:600;
        font-size:12.5px;color:var(--mut);cursor:pointer}
-  .seg button.on{background:#fff;color:var(--accent-d);box-shadow:var(--shadow)}
+  .seg button.on,.mseg button.on{background:#fff;color:var(--accent-d);box-shadow:var(--shadow)}
   .go{width:100%;margin-top:18px;background:var(--accent);color:#fff;border:0;border-radius:10px;
-       padding:12px;font-size:15px;font-weight:700;cursor:pointer}
+       padding:12px;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s,transform .1s}
+  .go:active{transform:scale(.985)}
   .go:hover{background:var(--accent-d)} .go:disabled{opacity:.5;cursor:default}
-  .checks{max-height:180px;overflow:auto;border:1px solid var(--line);border-radius:9px;padding:8px}
+  .checks{max-height:180px;overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:9px;padding:8px}
   .chk{display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 2px}
   .hint{font-size:12px;color:var(--mut);margin-top:6px}
   .err{margin:14px 18px;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:10px 14px;border-radius:9px}
@@ -59,7 +61,7 @@
   .rhead .name{font-weight:700;font-size:15px}
   .stat{font-size:12px;color:var(--mut)} .stat b{display:block;color:var(--ink);font-size:15px;font-weight:700}
   .disc{margin:14px 20px;background:#f0fdfa;border:1px solid #99f6e4;color:#0f766e;font-size:12.5px;padding:9px 13px;border-radius:9px}
-  .tablewrap{max-height:calc(100vh - 260px);overflow:auto}
+  .tablewrap{max-height:calc(100vh - 260px);overflow:auto;overscroll-behavior:contain}
   table{width:100%;border-collapse:collapse;font-size:13px}
   thead th{position:sticky;top:0;background:#f8fafc;z-index:1;font-size:10.5px;text-transform:uppercase;
        letter-spacing:.04em;color:var(--mut);text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
@@ -76,8 +78,30 @@
   .empty .big{font-size:40px;opacity:.25;margin-bottom:8px}
   .toolbar{padding:10px 20px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:space-between}
   .link{background:#f1f5f9;border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-size:12.5px;
-       font-weight:600;color:var(--accent-d);cursor:pointer;text-decoration:none;display:inline-block}
+       font-weight:600;color:var(--accent-d);cursor:pointer;text-decoration:none;display:inline-block;transition:background .15s,border-color .15s}
+  .link:hover{background:#e9eef5;border-color:#cbd5e1}
   details{margin:10px 20px}summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--mut)}
+  details.adv{margin:14px 0 0;border:1px solid var(--line);border-radius:9px;padding:2px 12px}
+  details.adv summary{margin:10px 0;color:var(--accent-d)}
+  .adv-row{margin:10px 0}
+  .adv-row label{margin:0 0 4px;text-transform:none;font-size:12px;font-weight:600;color:#334155}
+  .adv-row input[type=checkbox]{width:auto;margin-right:6px;vertical-align:middle}
+  .adv-row input[type=number]{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:7px;font-size:13px}
+  .boxgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .boxgrid .bl{grid-column:1/-1;font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.03em;margin-top:4px}
+  .structlist{max-height:200px;overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:9px}
+  .structrow{display:flex;align-items:center;gap:8px;padding:7px 10px;font-size:12.5px;border-bottom:1px solid #f1f5f9;cursor:pointer}
+  .structrow:last-child{border-bottom:0}
+  .structrow:hover{background:#f8fafc}
+  .structrow.on{background:#f0fdfa}
+  .structrow .pdb{font-weight:700;min-width:48px}
+  .structrow .q{color:var(--mut);flex:1}
+  .structrow .default{font-size:10px;background:#dcfce7;color:#15803d;padding:1px 6px;border-radius:20px}
+  .box-handle{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;
+       border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:grab;z-index:9999;display:none}
+  .box-handle:active{cursor:grabbing}
+  .box-handle-move{border-radius:6px;width:20px;height:20px;margin:-10px 0 0 -10px;background:#f59e0b;cursor:move}
+  .box-handle-move:active{cursor:grabbing}
   .heat{border-radius:6px;padding:5px 7px;font-weight:600;font-size:12.5px;display:inline-block;min-width:64px;text-align:center}
   .muted{color:var(--mut)}
   .notice{margin:14px 20px;background:#fef3c7;border:1px solid #fde68a;color:#92400e;font-size:12.5px;padding:9px 13px;border-radius:9px}
@@ -119,6 +143,34 @@
   .pose3d-bar button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 11px;
        font:inherit;font-weight:600;font-size:12px;cursor:pointer;color:var(--ink)}
   .pose3d-bar button:hover{background:#f8fafc}
+  /* ---------- modal (binding-site 3D view, docking validation panel) ---------- */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:1000;
+       display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(2px)}
+  .modal-backdrop.on{display:flex}
+  .modal-box{background:var(--panel);border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,.35);
+       width:min(1100px,94vw);height:min(760px,88vh);display:flex;flex-direction:column;overflow:hidden}
+  .modal-head{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);flex-shrink:0}
+  .modal-head h3{margin:0;font-size:15px;flex:1}
+  .modal-head .sub{margin:0;font-size:12px;color:var(--mut)}
+  .modal-close{background:none;border:0;font-size:20px;line-height:1;cursor:pointer;color:var(--mut);
+       padding:6px 10px;border-radius:8px;flex-shrink:0}
+  .modal-close:hover{background:#f1f5f9;color:var(--ink)}
+  .modal-body{flex:1;overflow:auto;overscroll-behavior:contain;padding:0}
+  /* binding-site modal's specific layout: big canvas + slim control rail */
+  .site-modal-layout{display:flex;height:100%}
+  .site-modal-canvas{flex:1;position:relative;background:#fff}
+  .site-modal-rail{width:230px;flex-shrink:0;border-left:1px solid var(--line);padding:14px;
+       overflow-y:auto;overscroll-behavior:contain;background:#fafcfe}
+  .site-modal-rail label{margin:12px 0 4px}
+  .site-modal-rail label:first-of-type{margin-top:0}
+  .site-readout{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:12px;color:#334155}
+  .site-readout div{display:flex;justify-content:space-between;padding:1px 0}
+  .site-readout b{font-weight:700}
+  @media(max-width:720px){.site-modal-layout{flex-direction:column}.site-modal-rail{width:100%;border-left:0;border-top:1px solid var(--line)}}
+  /* ---------- icons ---------- */
+  .ico{width:15px;height:15px;flex-shrink:0;vertical-align:-3px}
+  nav button .ico{margin-right:6px;opacity:.85}
+  .btn-ico{display:inline-flex;align-items:center;gap:6px}
 </style>
 <script src="/static/vendor/3Dmol-min.js"></script>
 </head>
@@ -126,12 +178,12 @@
   <div class="top">
     <div class="brand"><span class="mark"></span> PhytoScreen</div>
     <nav>
-      <button data-tab="screen" class="on">Screen</button>
-      <button data-tab="predict">Predict</button>
-      <button data-tab="admet">ADMET</button>
-      <button data-tab="compare">Compare</button>
-      <button data-tab="docking">Docking</button>
-      <button data-tab="target">Target Info</button>
+      <button data-tab="screen" class="on"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v6L4 20a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2L15 8V2M9 2h6M8 14h8"/></svg>Screen</button>
+      <button data-tab="predict"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".5" fill="currentColor"/></svg>Predict</button>
+      <button data-tab="admet"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2 8 4-16 2 8h6"/></svg>ADMET</button>
+      <button data-tab="compare"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Compare</button>
+      <button data-tab="docking"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8 7.5C10 10 14 14 16 16.5"/><path d="M6.5 9c1.5 0 3 .5 4 1.5M17.5 15c-1.5 0-3-.5-4-1.5"/></svg>Docking</button>
+      <button data-tab="target"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Target Info</button>
     </nav>
     <div class="hstat" id="hstat"></div>
   </div>
@@ -142,13 +194,26 @@
       <aside class="card">
         <h2>Screen compounds</h2>
         <p class="sub">Full pipeline: parse &rarr; featurise &rarr; AD &rarr; QSAR &rarr; ADMET &rarr; docking &rarr; ranked shortlist.</p>
-        <label>Target</label>
+        <label>Disease (optional, ranks &amp; filters targets)</label>
+        <select id="s-disease"><option value="">&mdash; all targets &mdash;</option></select>
+        <label style="margin-top:12px">Target</label>
         <select id="s-target"></select>
         <div class="hint" id="s-tinfo"></div>
+        <button type="button" id="s-why-btn" class="link" style="cursor:pointer;margin-top:8px">Why this?</button>
+        <div id="s-why-out" style="margin-top:6px"></div>
+        <label style="margin-top:12px">Docking mode</label>
+        <div class="mseg"><button class="on" data-mode="site_specific" data-g="s">Site-specific</button><button data-mode="blind" data-g="s">Blind (whole protein)</button></div>
+        <div id="s-site-summary" class="hint" style="margin-top:8px"></div>
+        <button type="button" id="s-site-btn" class="link btn-ico" style="cursor:pointer;margin-top:6px;display:none">View binding site in 3D</button>
         <label>Input</label>
-        <div class="seg"><button class="on" data-m="paste" data-g="s">Paste</button><button data-m="csv" data-g="s">CSV file</button></div>
+        <div class="seg"><button class="on" data-m="paste" data-g="s">Paste</button><button data-m="csv" data-g="s">CSV file</button><button data-m="sdf" data-g="s">SDF file</button></div>
         <div id="s-paste" style="margin-top:8px"><textarea id="s-smiles" placeholder="One SMILES per line"></textarea></div>
         <div id="s-csv" style="margin-top:8px;display:none"><input type="file" id="s-file" accept=".csv"><div class="hint">Needs a SMILES column.</div></div>
+        <div id="s-sdf" style="margin-top:8px;display:none"><input type="file" id="s-sdffile" accept=".sdf,.mol,.sd"><div class="hint">Structure-data file — parsed server-side with RDKit.</div></div>
+        <details class="adv" id="s-adv">
+          <summary>Advanced Settings</summary>
+          <div class="adv-body" id="s-adv-body"></div>
+        </details>
         <button class="go" id="s-run">Run screen</button>
       </aside>
       <main class="card" id="s-out">
@@ -167,9 +232,10 @@
         <select id="p-target"></select>
         <div class="hint" id="p-tinfo"></div>
         <label>Input</label>
-        <div class="seg"><button class="on" data-m="paste" data-g="p">Paste</button><button data-m="csv" data-g="p">CSV file</button></div>
+        <div class="seg"><button class="on" data-m="paste" data-g="p">Paste</button><button data-m="csv" data-g="p">CSV file</button><button data-m="sdf" data-g="p">SDF file</button></div>
         <div id="p-paste" style="margin-top:8px"><textarea id="p-smiles" placeholder="One SMILES per line"></textarea></div>
         <div id="p-csv" style="margin-top:8px;display:none"><input type="file" id="p-file" accept=".csv"><div class="hint">Needs a SMILES column.</div></div>
+        <div id="p-sdf" style="margin-top:8px;display:none"><input type="file" id="p-sdffile" accept=".sdf,.mol,.sd"><div class="hint">Structure-data file — parsed server-side with RDKit.</div></div>
         <button class="go" id="p-run">Rank compounds</button>
       </aside>
       <main class="card" id="p-out">
@@ -185,9 +251,10 @@
         <h2>ADMET profile</h2>
         <p class="sub">Drug-likeness &amp; structural alerts. Target-independent.</p>
         <label>Input</label>
-        <div class="seg"><button class="on" data-m="paste" data-g="a">Paste</button><button data-m="csv" data-g="a">CSV file</button></div>
+        <div class="seg"><button class="on" data-m="paste" data-g="a">Paste</button><button data-m="csv" data-g="a">CSV file</button><button data-m="sdf" data-g="a">SDF file</button></div>
         <div id="a-paste" style="margin-top:8px"><textarea id="a-smiles" placeholder="One SMILES per line"></textarea></div>
         <div id="a-csv" style="margin-top:8px;display:none"><input type="file" id="a-file" accept=".csv"></div>
+        <div id="a-sdf" style="margin-top:8px;display:none"><input type="file" id="a-sdffile" accept=".sdf,.mol,.sd"></div>
         <button class="go" id="a-run">Profile compounds</button>
       </aside>
       <main class="card" id="a-out">
@@ -201,19 +268,18 @@
     <div class="layout">
       <aside class="card">
         <h2>Compare targets</h2>
-        <p class="sub">Screen against a disease group or several targets.</p>
-        <label>Disease</label>
-        <select id="c-disease"><option value="">&mdash; none &mdash;</option></select>
-        <label>Or pick targets</label>
+        <p class="sub">Screen against several targets.</p>
+        <label>Pick targets</label>
         <div class="checks" id="c-targets"></div>
         <label>Input</label>
-        <div class="seg"><button class="on" data-m="paste" data-g="c">Paste</button><button data-m="csv" data-g="c">CSV file</button></div>
+        <div class="seg"><button class="on" data-m="paste" data-g="c">Paste</button><button data-m="csv" data-g="c">CSV file</button><button data-m="sdf" data-g="c">SDF file</button></div>
         <div id="c-paste" style="margin-top:8px"><textarea id="c-smiles" placeholder="One SMILES per line"></textarea></div>
         <div id="c-csv" style="margin-top:8px;display:none"><input type="file" id="c-file" accept=".csv"></div>
+        <div id="c-sdf" style="margin-top:8px;display:none"><input type="file" id="c-sdffile" accept=".sdf,.mol,.sd"></div>
         <button class="go" id="c-run">Compare</button>
       </aside>
       <main class="card" id="c-out">
-        <div class="empty"><div class="big">&#9636;</div>Choose a disease or targets, then enter molecules.</div>
+        <div class="empty"><div class="big">&#9636;</div>Choose targets, then enter molecules.</div>
       </main>
     </div>
   </section>
@@ -238,10 +304,37 @@
     </div>
   </section>
 
+  <!-- ============ MODAL (binding-site 3D view / docking validation evidence) ============ -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3 id="modal-title">&nbsp;</h3>
+        <button type="button" class="modal-close" id="modal-close-btn" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
 <script>
 const $=s=>document.querySelector(s);
 const api=(u,o)=>fetch(u,o).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');return d;});
 const tierClass={high:'d-high',med:'d-med',low:'d-low',out:'d-out',na:'d-out'};
+
+/* ---------- generic modal (binding-site 3D view / docking validation panel) ---------- */
+let _modalOnClose=null;
+function openModal(title,sub){
+  $('#modal-title').innerHTML=title+(sub?`<div class="sub">${sub}</div>`:'');
+  $('#modal-backdrop').classList.add('on');
+}
+function closeModal(){
+  $('#modal-backdrop').classList.remove('on');
+  $('#modal-body').innerHTML='';
+  if(_modalOnClose){ try{ _modalOnClose(); }catch(e){} }
+  _modalOnClose=null;
+}
+$('#modal-close-btn').onclick=closeModal;
+$('#modal-backdrop').addEventListener('click',e=>{ if(e.target.id==='modal-backdrop') closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && $('#modal-backdrop').classList.contains('on')) closeModal(); });
 
 /* tabs */
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
@@ -253,13 +346,25 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
 document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{
   const g=b.dataset.g;
   document.querySelectorAll(`.seg button[data-g=${g}]`).forEach(x=>x.classList.remove('on'));b.classList.add('on');
-  $(`#${g}-paste`).style.display=b.dataset.m==='paste'?'block':'none';
-  $(`#${g}-csv`).style.display=b.dataset.m==='csv'?'block':'none';
+  ['paste','csv','sdf'].forEach(m=>{ const el=$(`#${g}-${m}`); if(el) el.style.display=(b.dataset.m===m?'block':'none'); });
 });
-/* read SMILES from paste or csv (client-side, first/SMILES column) */
+/* docking-mode toggle (site-specific vs blind) — event-delegated since the
+   Docking tab's copy gets recreated on every renderDocking() refresh, so a
+   one-time querySelectorAll().forEach(onclick=...) at boot would miss it. */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.mseg button'); if(!b) return;
+  const g=b.dataset.g;
+  document.querySelectorAll(`.mseg button[data-g="${g}"]`).forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  _advState[g]=_advState[g]||{customProfile:null,site:null,selected:new Set(),viewer:null};
+  _advState[g].dockingMode=b.dataset.mode;
+  updateSiteSummary(g);
+  renderSitePreview(g);
+});
+/* read SMILES from paste, csv, or sdf (sdf parsed server-side via RDKit) */
 async function getSmiles(g){
-  const csvOn=document.querySelector(`.seg button[data-g=${g}].on`).dataset.m==='csv';
-  if(csvOn){
+  const mode=document.querySelector(`.seg button[data-g=${g}].on`).dataset.m;
+  if(mode==='csv'){
     const f=$(`#${g}-file`).files[0]; if(!f) throw new Error('Choose a CSV file.');
     const lines=(await f.text()).split(/\r?\n/).filter(x=>x.trim());
     let idx=0; const head=lines[0].split(',').map(s=>s.trim().replace(/^"|"$/g,''));
@@ -267,10 +372,515 @@ async function getSmiles(g){
     if(si>=0){idx=si;start=1;}
     return lines.slice(start).map(l=>l.split(',')[idx].trim().replace(/^"|"$/g,'')).filter(Boolean);
   }
+  if(mode==='sdf'){
+    const f=$(`#${g}-sdffile`).files[0]; if(!f) throw new Error('Choose an SDF file.');
+    const fd=new FormData(); fd.append('file',f);
+    const resp=await fetch('/api/parse_sdf',{method:'POST',body:fd});
+    const d=await resp.json();
+    if(!resp.ok) throw new Error(d.detail||'Could not parse SDF file.');
+    return d.smiles;
+  }
   return $(`#${g}-smiles`).value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
 }
 function loading(el){el.innerHTML='<div class="spin" style="display:block">Working&hellip;</div>';}
 function fail(el,m){el.innerHTML=`<div class="err">${m}</div>`;}
+
+/* ---------- Advanced Settings (Automatic stays default everywhere; every
+   field here is opt-in and mirrors app.py's AdvancedDocking model) ---------- */
+let _advState={};   // g -> {customProfile, site:{center,box_size,residues,receptorUrl,ligandUrl}, selected:Set}
+function advBodyHTML(g){
+  return `
+    <div class="adv-row">
+      <label>Manual structure (overrides the automatic recommendation)</label>
+      <div class="structlist" id="${g}-adv-structlist"><div class="hint" style="padding:8px">Pick a target first.</div></div>
+      <div class="hint" id="${g}-adv-structstatus"></div>
+    </div>
+    <div class="adv-row"><label>Exhaustiveness</label><input type="number" id="${g}-adv-exh" min="1" max="64" placeholder="Automatic (8)"></div>
+    <div class="adv-row"><label>Number of poses</label><input type="number" id="${g}-adv-poses" min="1" max="20" placeholder="Automatic (9)"></div>
+    <div class="adv-row"><label style="text-transform:none"><input type="checkbox" id="${g}-adv-gnina" checked> GNINA CNN rescoring (second opinion, if installed)</label></div>
+    <div class="adv-row">
+      <label>Binding box</label>
+      <div class="hint">Automatic (ligand-centered) unless you drag it in "View binding site in 3D" above, or set it from selected residues. Current values shown there, live.</div>
+      <!-- box_center/box_size still live here, just not shown as typeable
+           fields — drag-editing (the gizmo) and 'use selected residues' both
+           write to these same inputs; getAdvanced()/effectiveBox() both
+           still read them. Only the manual-typing UI was removed. -->
+      <div style="display:none">
+        <input type="number" id="${g}-adv-cx"><input type="number" id="${g}-adv-cy"><input type="number" id="${g}-adv-cz">
+        <input type="number" id="${g}-adv-sx"><input type="number" id="${g}-adv-sy"><input type="number" id="${g}-adv-sz">
+      </div>
+    </div>
+    <button type="button" class="link" id="${g}-adv-reset" style="margin:4px 0 10px">Reset to Automatic</button>`;
+}
+function initAdvancedPanel(g){
+  const body=$(`#${g}-adv-body`); if(!body) return;
+  body.innerHTML=advBodyHTML(g);
+  _advState[g]=_advState[g]||{customProfile:null,site:null,selected:new Set(),viewer:null};
+  ['cx','cy','cz','sx','sy','sz'].forEach(k=>$(`#${g}-adv-${k}`).oninput=()=>debouncedSitePreview(g));
+  $(`#${g}-adv-reset`).onclick=()=>{
+    ['exh','poses','cx','cy','cz','sx','sy','sz'].forEach(k=>{const el=$(`#${g}-adv-${k}`); if(el) el.value='';});
+    const gn=$(`#${g}-adv-gnina`); if(gn) gn.checked=true;
+    _advState[g].customProfile=null;
+    _advState[g].selected=new Set();
+    $(`#${g}-adv-structstatus`).innerHTML='';
+    $(`#${g}-adv-structlist`).querySelectorAll('.structrow').forEach(r=>r.classList.remove('on'));
+    $(`#${g}-site-residues`)?.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false);
+    const tid=$(`#${g}-target`)?.value; if(tid) loadBindingSite(g,tid);
+    renderSitePreview(g);
+  };
+}
+async function loadStructureCandidates(g,targetId){
+  const list=$(`#${g}-adv-structlist`); if(!list) return;
+  _advState[g]=_advState[g]||{customProfile:null,site:null,selected:new Set(),viewer:null};
+  _advState[g].customProfile=null;
+  $(`#${g}-adv-structstatus`).innerHTML='';
+  if(!targetId){ list.innerHTML='<div class="hint" style="padding:8px">Pick a target first.</div>'; return; }
+  list.innerHTML='<div class="hint" style="padding:8px">Loading structural evidence&hellip;</div>';
+  // no-QSAR-model targets carry a synthetic 'GENE_<symbol>' id — route to the
+  // gene-only endpoint (same CSV data, just skips the QSAR target_id lookup).
+  const apiUrl=targetId.startsWith('GENE_')
+    ? `/api/genes/${encodeURIComponent(targetId.slice(5))}/structure_candidates`
+    : `/api/targets/${targetId}/structure_candidates`;
+  let d; try{ d=await api(apiUrl); }
+  catch(e){ list.innerHTML='<div class="hint" style="padding:8px">No Version 2 CSV evidence for this target.</div>'; return; }
+  if(!d.candidates||!d.candidates.length){ list.innerHTML='<div class="hint" style="padding:8px">No qualifying structures on record.</div>'; return; }
+  list.innerHTML=d.candidates.map(c=>{
+    const q=[c.resolution!=null?`${c.resolution} &Aring;`:null, c.ligand_RSCC!=null?`RSCC ${c.ligand_RSCC}`:null,
+             c.ligand_RSR!=null?`RSR ${c.ligand_RSR}`:null].filter(Boolean).join(' &middot; ');
+    return `<div class="structrow" data-pdb="${c.pdb_id}" data-resname="${c.resname}" onclick="pickStructure('${g}','${targetId}','${c.pdb_id}','${c.resname}')">
+      <span class="pdb">${c.pdb_id}</span><span class="q">rank #${c.csv_rank??'?'} &middot; ${c.resname} &middot; ${q}</span>
+      ${c.is_current_default?'<span class="default">automatic default</span>':''}</div>`;
+  }).join('');
+}
+async function pickStructure(g,targetId,pdbId,resname){
+  const list=$(`#${g}-adv-structlist`), status=$(`#${g}-adv-structstatus`);
+  const runBtn=$(`#${g}-run`);
+  list.querySelectorAll('.structrow').forEach(r=>r.classList.toggle('on', r.dataset.pdb===pdbId));
+  status.innerHTML=`<div class="muted">Preparing receptor for ${pdbId}&hellip; (strip/repair/PDBQT, ~30&ndash;90s, no redocking validation)</div>`;
+  clearBoxFields(g);   // a new structure's own center/box_size should show, not a leftover override from a previously-picked one
+  if(_advState[g]) _advState[g].selected=new Set();
+  // Building a custom receptor is a real ~30-90s background job — customProfile
+  // (what getAdvanced() actually submits) isn't set until it finishes, so
+  // Run/Dock has to stay disabled meanwhile. Without this, clicking Run right
+  // after picking a structure hits "no automatic default" even though a
+  // structure WAS picked — it just isn't ready yet.
+  if(runBtn){ runBtn.disabled=true; runBtn.dataset.origLabel=runBtn.dataset.origLabel||runBtn.textContent; runBtn.textContent='Preparing structure…'; }
+  try{
+    const sub=await api('/api/docking/receptor/custom',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({target_id:targetId,pdb_id:pdbId,ligand_resname:resname})});
+    while(true){
+      await new Promise(r=>setTimeout(r,3000));
+      const j=await api(`/api/docking/receptor/custom/job/${sub.job_id}`);
+      if(j.status==='done'){
+        _advState[g].customProfile=j.profile;
+        status.innerHTML=`<div class="notice">Using ${pdbId} (manual) &mdash; NOT redocking-validated; pose geometry is unconfirmed.</div>`;
+        applyBindingSiteFromProfile(g,j.profile);
+        return;
+      }
+      if(j.status==='error'){
+        _advState[g].customProfile=null;
+        list.querySelectorAll('.structrow').forEach(r=>r.classList.remove('on'));
+        status.innerHTML=`<div class="err">Could not prepare ${pdbId}: ${j.error||'unknown error'}</div>`;
+        return;
+      }
+    }
+  }catch(e){
+    _advState[g].customProfile=null;
+    status.innerHTML=`<div class="err">${e.message}</div>`;
+  }finally{
+    if(runBtn){ runBtn.disabled=false; runBtn.textContent=runBtn.dataset.origLabel; }
+  }
+}
+function getAdvanced(g){
+  const num=id=>{const v=$(`#${g}-adv-${id}`)?.value; const n=parseFloat(v); return (v!=null&&v!==''&&!isNaN(n))?n:null;};
+  const adv={};
+  const exh=num('exh'); if(exh!=null) adv.exhaustiveness=Math.round(exh);
+  const poses=num('poses'); if(poses!=null) adv.n_poses=Math.round(poses);
+  const gnina=$(`#${g}-adv-gnina`); if(gnina && !gnina.checked) adv.use_gnina=false;
+  const cx=num('cx'),cy=num('cy'),cz=num('cz');
+  if([cx,cy,cz].every(v=>v!=null)) adv.box_center=[cx,cy,cz];
+  const sx=num('sx'),sy=num('sy'),sz=num('sz');
+  if([sx,sy,sz].every(v=>v!=null)) adv.box_size=[sx,sy,sz];
+  const cp=(_advState[g]||{}).customProfile;
+  if(cp) adv.custom_profile=cp;
+  if((_advState[g]||{}).dockingMode==='blind') adv.docking_mode='blind';
+  return Object.keys(adv).length?adv:null;
+}
+
+/* ---------- Binding site: summary + residue checklist + live 3D preview ---------- */
+function residueKey(r){ return `${r.chain}:${r.resnum}`; }
+function selectAllResidues(g){
+  // Default: every pocket residue counts toward the binding site (matches
+  // what the automatic ligand-centered box already implies). Unchecking
+  // some is how you NARROW it — "use selected residues" only ever uses
+  // what's still checked, so starting from all-checked means the first
+  // click of that button reproduces ~the full pocket, and deselecting is
+  // the deliberate action that excludes a residue.
+  const st=_advState[g];
+  st.selected=new Set((st.site&&st.site.residues||[]).map(residueKey));
+}
+function renderResidueChecklist(g){
+  const el=$(`#${g}-site-residues`); if(!el) return;   // only exists while the binding-site modal is open
+  const st=_advState[g]; const residues=(st.site&&st.site.residues)||[];
+  if(!residues.length){ el.innerHTML='<div class="hint" style="padding:8px">No pocket-residue data for this structure.</div>'; return; }
+  el.innerHTML=residues.map(r=>{
+    const k=residueKey(r);
+    return `<label class="structrow" style="cursor:pointer">
+      <input type="checkbox" data-k="${k}" onchange="toggleResidue('${g}','${k}',this.checked)" ${st.selected.has(k)?'checked':''}>
+      <span class="q">${r.resname} ${r.resnum} &middot; chain ${r.chain}</span></label>`;
+  }).join('');
+}
+function toggleResidue(g,k,checked){
+  const s=_advState[g].selected;
+  if(checked) s.add(k); else s.delete(k);
+  updateResidueHighlight(g);            // real-time: reflect the check/uncheck in the 3D view immediately
+  debouncedApplyResidueSelection(g);    // real-time: the box (and what docking actually uses) follows the selection automatically
+}
+/* Cheap re-highlight for real-time checkbox toggling — restyles the existing
+   receptor model in place (no re-fetch, no box/ligand rebuild, no camera
+   change), unlike renderSitePreview()'s full rebuild. Unselected residues
+   are reset to plain cartoon (no stick) so they're omitted from view
+   entirely, not just dimmed — only checked residues get a stick overlay. */
+function updateResidueHighlight(g){
+  const st=_advState[g]; if(!st||!st.viewer||!st.site) return;
+  const residues=st.site.residues||[];
+  const allResi=[...new Set(residues.map(r=>r.resnum))];
+  const selResi=[...new Set(residues.filter(r=>st.selected.has(residueKey(r))).map(r=>r.resnum))];
+  if(allResi.length) st.viewer.setStyle({model:0,resi:allResi},{cartoon:{color:'lightgrey',opacity:0.5}});
+  if(selResi.length) st.viewer.addStyle({model:0,resi:selResi},{stick:{radius:0.18,colorscheme:'yellowCarbon'}});
+  st.viewer.render();
+}
+let _residueApplyTimers={};
+function debouncedApplyResidueSelection(g){
+  clearTimeout(_residueApplyTimers[g]);
+  _residueApplyTimers[g]=setTimeout(()=>applyResidueSelection(g),400);
+}
+/* The actual docking box tracks the checked residues automatically — no
+   separate 'apply' action. Nothing checked -> falls back to the automatic
+   (ligand-centered or blind) box rather than erroring, since 'deselect
+   everything' is a real, valid state while toggling, not a mistake. */
+async function applyResidueSelection(g){
+  const st=_advState[g]; if(!st) return;
+  const status=$(`#${g}-site-residues-status`);
+  const residues=(st.site&&st.site.residues||[]).filter(r=>st.selected.has(residueKey(r)));
+  if(!residues.length){
+    clearBoxFields(g);
+    if(status) status.innerHTML='<div class="hint">No residues selected &mdash; using the automatic default box.</div>';
+    renderSitePreview(g);
+    return;
+  }
+  const tid=$(`#${g}-target`)?.value;
+  const body={target_id:tid, residues:residues.map(r=>({chain:r.chain,resnum:r.resnum})), padding:8.0};
+  if(st.customProfile) body.receptor_pdb=st.customProfile.receptor_pdb;
+  try{
+    const r=await api('/api/docking/box_from_residues',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    setBoxFields(g,r.center,r.box_size);
+    if(status) status.innerHTML=`<div class="notice">Binding box set from ${residues.length} of ${(st.site.residues||[]).length} pocket residue(s) &mdash; only these are used for docking.</div>`;
+    redrawBoxOnly(g,r.center,r.box_size);
+  }catch(e){ if(status) status.innerHTML=`<div class="err">${e.message}</div>`; }
+}
+function applyBindingSiteFromProfile(g,profile){
+  _advState[g].site={center:profile.center, box_size:profile.box_size, residues:profile.binding_site_residues||[],
+                     blind_center:profile.blind_center, blind_box_size:profile.blind_box_size,
+                     receptorUrl:`/api/docking/receptor_file?path=${encodeURIComponent(profile.receptor_pdb)}`, ligandUrl:null};
+  selectAllResidues(g);
+  renderResidueChecklist(g);
+  updateSiteSummary(g);
+  renderSitePreview(g);
+}
+async function loadBindingSite(g,targetId){
+  const summary=$(`#${g}-site-summary`);
+  const btn=$(`#${g}-site-btn`);
+  if(!targetId){ if(summary) summary.innerHTML=''; if(btn) btn.style.display='none'; return; }
+  _advState[g]=_advState[g]||{customProfile:null,site:null,selected:new Set(),viewer:null};
+  _advState[g].selected=new Set();
+  clearBoxFields(g);   // new target -> any typed/dragged box override belonged to the PREVIOUS one
+  if(targetId.startsWith('GENE_')){
+    // No registry entry exists for a no-QSAR-model gene — there's no
+    // 'automatic' binding site until the user picks a structure below
+    // (pickStructure -> applyBindingSiteFromProfile fills this in).
+    _advState[g].site=null;
+    renderResidueChecklist(g);
+    if(summary) summary.innerHTML='<span class="muted">Pick a structure below (Advanced Settings) to see its binding site.</span>';
+    if(btn) btn.style.display='none';
+    return;
+  }
+  try{
+    const d=await api(`/api/targets/${targetId}/binding_site`);
+    _advState[g].site={center:d.center, box_size:d.box_size, residues:d.pocket_residues||[],
+                       blind_center:d.blind_center, blind_box_size:d.blind_box_size,
+                       receptorUrl:`/api/docking/receptor/${targetId}`,
+                       ligandUrl:d.has_reference_ligand_mol?`/api/targets/${targetId}/reference_ligand.sdf`:null};
+    selectAllResidues(g);
+  }catch(e){
+    _advState[g].site=null;
+  }
+  renderResidueChecklist(g);
+  updateSiteSummary(g);
+  // No auto-render here — the 3D view now lives in the big modal (opened
+  // explicitly via the button below), not an inline sidebar box.
+}
+function updateSiteSummary(g){
+  const summary=$(`#${g}-site-summary`), btn=$(`#${g}-site-btn`);
+  if(!summary) return;
+  const st=_advState[g]||{}, site=st.site;
+  if(!site){ summary.innerHTML='<span class="muted">No binding-site evidence for this target.</span>'; if(btn) btn.style.display='none'; return; }
+  if(st.dockingMode==='blind'){
+    if(site.blind_box_size){
+      summary.innerHTML=`Blind docking: whole-protein search box <b>${site.blind_box_size.map(v=>v.toFixed(0)).join(' &times; ')}</b> &Aring; &mdash; no pocket assumed.`;
+      if(btn) btn.style.display='inline-block';
+    }else{
+      summary.innerHTML='<span class="muted">Blind box unavailable — no prepared receptor on disk for this target.</span>';
+      if(btn) btn.style.display='none';
+    }
+    return;
+  }
+  const n=(site.residues||[]).length;
+  summary.innerHTML=`Binding site: <b>${n}</b> pocket residue(s) within 5 &Aring; of the reference ligand (automatic) &middot; box ${site.box_size.map(v=>v.toFixed(1)).join('&times;')} &Aring;`;
+  if(btn) btn.style.display='inline-block';
+}
+function openBindingSiteModal(g){
+  const st=_advState[g];
+  if(!st || !st.site){ return; }
+  const targetId=$(`#${g}-target`)?.value||'';
+  const blind=st.dockingMode==='blind';
+  openModal(`Binding site — ${targetId}${blind?' (blind — whole protein)':''}`,
+    blind ? 'Whole-protein search box — fixed, not editable. Switch to Site-specific mode to move/resize it.'
+          : 'Drag the orange handle to move the box, the colored handles to resize it.');
+  $('#modal-body').innerHTML=`
+    <div class="site-modal-layout">
+      <div class="site-modal-canvas" id="${g}-site3d"></div>
+      <div class="site-modal-rail">
+        ${blind ? '<div class="hint">Blind mode searches the entire receptor surface — the box is fixed to the whole-protein bounding volume and not user-editable.</div>'
+                : '<label style="text-transform:none;margin:0"><input type="checkbox" id="'+g+'-adv-gizmo"> Enable drag editing</label>'
+                  + '<div class="hint">Orange = move box. Red/green/blue = resize X/Y/Z (anchored on the opposite face).</div>'}
+        <label>Current box</label>
+        <div class="site-readout" id="${g}-site-readout"></div>
+        <label>Pocket residues ${blind?'(informational only in blind mode)':'(uncheck to exclude from docking — the box updates automatically)'}</label>
+        <div class="structlist" id="${g}-site-residues"></div>
+        <div class="hint" id="${g}-site-residues-status"></div>
+      </div>
+    </div>`;
+  if(!blind) $(`#${g}-adv-gizmo`).onchange=()=>positionGizmoHandles(g);
+  // force a fresh viewer bound to the modal's canvas element (the previous
+  // one, if any, was bound to a now-discarded container from a prior open).
+  st.viewer=null; st.viewerEl=null;
+  renderResidueChecklist(g);
+  renderSitePreview(g);
+  _modalOnClose=()=>{ st.viewer=null; st.viewerEl=null; positionGizmoHandles(g); };   // also hides any dangling handle overlays (appended to <body>, outside the modal that just got wiped)
+}
+function updateSiteReadout(g){
+  const el=$(`#${g}-site-readout`); const st=_advState[g];
+  if(!el || !st || !st.site) return;
+  const [center,size]=effectiveBox(g,st.site);
+  el.innerHTML=`<div><span>Center (&Aring;)</span><b>${center.map(v=>v.toFixed(1)).join(', ')}</b></div>
+    <div><span>Size (&Aring;)</span><b>${size.map(v=>v.toFixed(1)).join(' &times; ')}</b></div>`;
+}
+let _siteReceptorCache={};
+function effectiveBox(g,site){
+  // Blind mode always shows the whole-protein box, matching the server (which
+  // ignores any box_center/box_size override once docking_mode='blind') — no
+  // point letting stale typed numbers imply an edit that won't actually apply.
+  if((_advState[g]||{}).dockingMode==='blind'){
+    return [site.blind_center||site.center, site.blind_box_size||site.box_size];
+  }
+  const num=id=>{const v=$(`#${g}-adv-${id}`)?.value; const n=parseFloat(v); return (v!=null&&v!==''&&!isNaN(n))?n:null;};
+  const cx=num('cx'),cy=num('cy'),cz=num('cz'),sx=num('sx'),sy=num('sy'),sz=num('sz');
+  const center=[cx,cy,cz].every(v=>v!=null)?[cx,cy,cz]:site.center;
+  const size=[sx,sy,sz].every(v=>v!=null)?[sx,sy,sz]:site.box_size;
+  return [center,size];
+}
+function setBoxFields(g,center,size){
+  $(`#${g}-adv-cx`).value=center[0].toFixed(2); $(`#${g}-adv-cy`).value=center[1].toFixed(2); $(`#${g}-adv-cz`).value=center[2].toFixed(2);
+  $(`#${g}-adv-sx`).value=size[0].toFixed(2); $(`#${g}-adv-sy`).value=size[1].toFixed(2); $(`#${g}-adv-sz`).value=size[2].toFixed(2);
+}
+function clearBoxFields(g){
+  // effectiveBox() prefers whatever's typed here over the target's own
+  // automatic center/size. Nothing used to clear these on target-switch or
+  // structure-pick, so leftover coordinates from a PREVIOUS structure (a
+  // different crystal's coordinate frame entirely) silently overrode the
+  // new one's box — placing it nowhere near the new protein ('box outside').
+  ['cx','cy','cz','sx','sy','sz'].forEach(k=>{const el=$(`#${g}-adv-${k}`); if(el) el.value='';});
+}
+let _sitePreviewTimers={};
+function debouncedSitePreview(g){
+  clearTimeout(_sitePreviewTimers[g]);
+  _sitePreviewTimers[g]=setTimeout(()=>renderSitePreview(g),250);
+}
+async function renderSitePreview(g){
+  const el=$(`#${g}-site3d`); const st=_advState[g];
+  if(!el || el.style.display==='none') return;
+  if(!st || !st.site){ if(!st||!st.viewer) el.innerHTML='<div class="muted" style="padding:14px">No binding-site data loaded for this target.</div>'; return; }
+  if(typeof $3Dmol==='undefined'){ el.innerHTML='<div class="err" style="margin:0;padding:14px">3D viewer library (3Dmol.js) failed to load — check /static/vendor/3Dmol-min.js is reachable.</div>'; return; }
+  // A viewer's canvas is a live child node of the el it was created against.
+  // If el got rebuilt since (e.g. the Docking tab re-renders its whole card
+  // from an innerHTML template on every /api/docking/status refresh), the
+  // OLD viewer object still exists in _advState but its canvas is no longer
+  // attached to the page — reusing it would silently paint into a detached
+  // canvas (looks like "3D view doesn't update"). Detect that and rebuild.
+  if(st.viewer && st.viewerEl !== el){ st.viewer=null; st.viewerEl=null; }
+  if(!st.viewer) el.innerHTML='';   // clear a placeholder message before mounting the canvas
+  const site=st.site;
+  const [center,size]=effectiveBox(g,site);
+
+  if(!st.viewer){
+    st.viewer=$3Dmol.createViewer(el,{backgroundColor:'white'}); st.viewerEl=el;
+    st.viewer.setViewChangeCallback(()=>positionGizmoHandles(g));   // fires after every render (rotate/pan/zoom/our own redraws)
+  }
+  const viewer=st.viewer; viewer.clear();
+  let modelIdx=0, resiList=[];
+
+  if(site.receptorUrl){
+    let pdb=_siteReceptorCache[site.receptorUrl];
+    if(pdb===undefined){ try{ pdb=await (await fetch(site.receptorUrl)).text(); }catch(e){ pdb=null; } _siteReceptorCache[site.receptorUrl]=pdb; }
+    if(pdb){
+      viewer.addModel(pdb,'pdb');
+      viewer.setStyle({model:modelIdx},{cartoon:{color:'lightgrey',opacity:0.5}});
+      // Only CHECKED pocket residues get a stick overlay — unchecked ones
+      // are omitted (left as plain cartoon), matching what's actually used
+      // for the docking box. resiList (the full pocket) is kept only for
+      // camera framing below, so the view doesn't zoom in tight around a
+      // handful of residues and lose the surrounding context.
+      resiList=[...new Set((site.residues||[]).map(r=>r.resnum))];
+      const selResi=[...new Set((site.residues||[]).filter(r=>st.selected.has(residueKey(r))).map(r=>r.resnum))];
+      if(selResi.length) viewer.addStyle({model:modelIdx,resi:selResi},{stick:{radius:0.18,colorscheme:'yellowCarbon'}});
+      modelIdx++;
+    }
+  }
+  if(site.ligandUrl){
+    try{
+      let sdf=_siteReceptorCache[site.ligandUrl];
+      if(sdf===undefined){ sdf=await (await fetch(site.ligandUrl)).text(); _siteReceptorCache[site.ligandUrl]=sdf; }
+      viewer.addModel(sdf,'sdf');
+      viewer.setStyle({model:modelIdx},{stick:{radius:0.18,colorscheme:'cyanCarbon'}});
+      modelIdx++;
+    }catch(e){/* optional */}
+  }
+  drawBoxShapes(viewer,center,size);
+  // zoom to the pocket itself, not the whole protein — otherwise the box
+  // (tens of A) is lost inside a 40-60+ A protein cartoon at default framing.
+  if(resiList.length) viewer.zoomTo({model:0,resi:resiList}); else viewer.zoomTo();
+  viewer.render();
+  positionGizmoHandles(g);
+  updateSiteReadout(g);
+}
+function drawBoxShapes(viewer,center,size){
+  if(!center||!size) return;
+  // solid translucent fill (visible regardless of the ~1px WebGL line-width
+  // cap most GPU drivers impose, which can make a pure wireframe box nearly
+  // invisible) PLUS a wireframe outline on top for crisp edges.
+  viewer.addBox({center:{x:center[0],y:center[1],z:center[2]}, dimensions:{w:size[0],h:size[1],d:size[2]},
+                 color:'red', opacity:0.15});
+  viewer.addBox({center:{x:center[0],y:center[1],z:center[2]}, dimensions:{w:size[0],h:size[1],d:size[2]},
+                 color:'red', wireframe:true, linewidth:2});
+}
+/* redraw ONLY the box (not the receptor/ligand models) — used during an
+   active drag so every mousemove frame stays cheap. removeAllShapes() only
+   touches shapes (the box), never the models already added by
+   renderSitePreview, so the cartoon/sticks don't need re-fetching. */
+function redrawBoxOnly(g,center,size){
+  const st=_advState[g]; if(!st||!st.viewer) return;
+  st.viewer.removeAllShapes();
+  drawBoxShapes(st.viewer,center,size);
+  st.viewer.render();   // triggers viewChangeCallback -> positionGizmoHandles(g)
+  updateSiteReadout(g);
+}
+
+/* ---------- Binding box gizmo: drag handles in the 3D view ----------
+   3Dmol.js has no built-in drag/resize widget, so this is hand-built on top
+   of two of its lower-level APIs: viewer.modelToScreen({x,y,z}) -> page
+   {x,y} pixel coords (to place HTML handle overlays over the WebGL canvas),
+   and viewer.screenOffsetToModel(dxPixels,dyPixels) -> a model-space 3D
+   vector for a given on-screen pixel drag (camera-aware — same math 3Dmol's
+   own pan uses internally). Handles are plain absolutely-positioned divs
+   appended to <body> (not the card), so they always sit above the canvas
+   regardless of layout, and are repositioned on every render via
+   setViewChangeCallback so they track rotate/pan/zoom too, not just drags. */
+const HANDLE_SPECS=[
+  {key:'x1',axis:0,sign:1,color:'#ef4444'},{key:'x-1',axis:0,sign:-1,color:'#ef4444'},
+  {key:'y1',axis:1,sign:1,color:'#22c55e'},{key:'y-1',axis:1,sign:-1,color:'#22c55e'},
+  {key:'z1',axis:2,sign:1,color:'#3b82f6'},{key:'z-1',axis:2,sign:-1,color:'#3b82f6'},
+];
+const MIN_BOX_DIM=4.0;   // A — floor so a resize drag can't collapse/invert the box
+let _gizmoHandles={};
+function ensureGizmoHandles(g){
+  if(_gizmoHandles[g]) return _gizmoHandles[g];
+  const handles=HANDLE_SPECS.map(spec=>{
+    const el=document.createElement('div');
+    el.className='box-handle'; el.style.background=spec.color;
+    document.body.appendChild(el);
+    const h={...spec,el,kind:'resize'};
+    el.addEventListener('mousedown',ev=>startHandleDrag(g,h,ev));
+    return h;
+  });
+  const moveEl=document.createElement('div');
+  moveEl.className='box-handle box-handle-move';
+  document.body.appendChild(moveEl);
+  const moveHandle={key:'move',kind:'move',el:moveEl};
+  moveEl.addEventListener('mousedown',ev=>startHandleDrag(g,moveHandle,ev));
+  handles.push(moveHandle);
+  _gizmoHandles[g]=handles;
+  return handles;
+}
+function gizmoEnabled(g){ return !!$(`#${g}-adv-gizmo`)?.checked; }
+function positionGizmoHandles(g){
+  const st=_advState[g];
+  const el3d=$(`#${g}-site3d`);
+  // Blind mode's box is a deterministic whole-protein bounding box, not a
+  // user-placed pocket — dragging it wouldn't mean anything, so no handles.
+  const on=gizmoEnabled(g) && st && st.site && st.viewer && el3d && el3d.style.display!=='none'
+           && st.dockingMode!=='blind';
+  const handles=ensureGizmoHandles(g);
+  if(!on){ handles.forEach(h=>h.el.style.display='none'); return; }
+  const [center,size]=effectiveBox(g,st.site);
+  handles.forEach(h=>{
+    let pt;
+    if(h.kind==='move'){ pt={x:center[0],y:center[1],z:center[2]}; }
+    else{ pt={x:center[0],y:center[1],z:center[2]}; pt[['x','y','z'][h.axis]]+=h.sign*size[h.axis]/2; }
+    const s=st.viewer.modelToScreen(pt);
+    if(!s){ h.el.style.display='none'; return; }
+    h.el.style.display='block';
+    h.el.style.left=s.x+'px'; h.el.style.top=s.y+'px';
+  });
+}
+function startHandleDrag(g,handle,ev){
+  ev.preventDefault(); ev.stopPropagation();
+  const st=_advState[g]; if(!st||!st.site||!st.viewer) return;
+  const [center0,size0]=effectiveBox(g,st.site);
+  const drag={startX:ev.clientX,startY:ev.clientY,center0,size0};
+  let pending=null;
+  function onMove(mev){
+    drag.dx=mev.clientX-drag.startX; drag.dy=mev.clientY-drag.startY;
+    if(pending) return;
+    pending=requestAnimationFrame(()=>{ pending=null; applyHandleDrag(g,handle,drag); });
+  }
+  function onUp(){
+    document.removeEventListener('mousemove',onMove);
+    document.removeEventListener('mouseup',onUp);
+  }
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onUp);
+}
+function applyHandleDrag(g,handle,drag){
+  const st=_advState[g]; if(!st||!st.viewer) return;
+  const delta=st.viewer.screenOffsetToModel(drag.dx,drag.dy);   // {x,y,z} model-space vector for this pixel drag
+  const d=[delta.x,delta.y,delta.z];
+  let center=drag.center0.slice(), size=drag.size0.slice();
+  if(handle.kind==='move'){
+    center=[center[0]+d[0],center[1]+d[1],center[2]+d[2]];
+  }else{
+    const a=handle.axis, s=handle.sign;
+    let newSize=drag.size0[a]+s*d[a];
+    newSize=Math.max(MIN_BOX_DIM,newSize);
+    const actualDelta=newSize-drag.size0[a];   // reflects the MIN_BOX_DIM clamp, if it kicked in
+    center[a]=drag.center0[a]+s*actualDelta/2;
+    size[a]=newSize;
+  }
+  setBoxFields(g,center,size);
+  redrawBoxOnly(g,center,size);
+}
+window.addEventListener('scroll',()=>Object.keys(_advState).forEach(positionGizmoHandles),{passive:true});
+window.addEventListener('resize',()=>Object.keys(_advState).forEach(positionGizmoHandles));
 
 /* ---------- shared data ---------- */
 let TARGETS=[];
@@ -283,24 +893,106 @@ async function boot(){
     const sel=$('#'+id); sel.innerHTML='';
     TARGETS.forEach(t=>sel.add(new Option(t.target_id,t.target_id)));
   });
-  $('#s-target').onchange=()=>onTargetInfo('s'); if($('#s-target').value) onTargetInfo('s');
+  initAdvancedPanel('s');
+  $('#s-target').onchange=onScreenTargetChange;
+  if($('#s-target').value) onScreenTargetChange();
+  $('#s-site-btn').onclick=()=>openBindingSiteModal('s');
   $('#p-target').onchange=()=>onTargetInfo('p'); if($('#p-target').value) onTargetInfo('p');
   $('#t-target').onchange=renderTargetInfo; if($('#t-target').value) renderTargetInfo();
   // compare targets checkboxes
   const cb=$('#c-targets');cb.innerHTML='';
   TARGETS.forEach(t=>{const l=document.createElement('label');l.className='chk';
     l.innerHTML=`<input type=checkbox value="${t.target_id}"> ${t.target_id}`;cb.appendChild(l);});
-  const dz=(await api('/api/diseases')).diseases;
-  const ds=$('#c-disease');
-  dz.forEach(d=>ds.add(new Option(`${d.name} (${d.available_targets.length})`,d.disease_id)));
-  ds.onchange=()=>{const d=dz.find(x=>x.disease_id===ds.value);
-    document.querySelectorAll('#c-targets input').forEach(c=>c.checked=d?d.available_targets.includes(c.value):false);};
   // docking
   try{ renderDocking(await api('/api/docking/status')); }
   catch(e){ $('#d-out').innerHTML='<div class="empty">Docking status unavailable.</div>'; }
+  // disease -> ranked-target filter (Screen & Docking tabs — same source, so
+  // the Docking tab can offer protein-only (GENE_) targets exactly like Screen)
+  try{
+    const diseases=(await api('/api/diseases')).diseases;
+    const fillDiseases=sel=>diseases.forEach(d=>sel.add(new Option(d.name+(d.is_therapeutic_area?' (therapeutic area)':''), d.disease_id)));
+    const dsel=$('#s-disease'); fillDiseases(dsel); dsel.onchange=()=>populateScreenTargets(dsel.value);
+    const dksel=$('#dk-disease');
+    if(dksel){ fillDiseases(dksel); dksel.onchange=()=>populateDockTargets(dksel.value); }
+  }catch(e){ /* disease filter is optional; plain target list still works */ }
+  $('#s-why-btn').onclick=showWhyThis;
+}
+/* Every protein target the Version 2 CSV associates with this disease, not
+   just the ones we happen to have a QSAR model for. Targets without a model
+   are NOT disabled/hidden — they're fully selectable, just routed to
+   docking-only mode (no QSAR potency, since there's no model to predict
+   with), using a synthetic 'GENE_<symbol>' id so the rest of the UI can tell
+   them apart from a real QSAR target_id. Shared by the Screen and Docking
+   tabs so both offer the same protein-target picker. */
+async function populateGroupTargets(g,diseaseId){
+  const sel=$(`#${g}-target`); if(!sel) return;
+  if(!diseaseId){
+    sel.innerHTML=''; TARGETS.forEach(t=>sel.add(new Option(t.target_id,t.target_id)));
+  }else{
+    const ranked=(await api('/api/diseases/'+encodeURIComponent(diseaseId)+'/targets')).targets;
+    sel.innerHTML='';
+    ranked.forEach(t=>{
+      const opt=document.createElement('option');
+      if(t.has_qsar_model){
+        const badge=t.validated?'✓':'⚠';
+        opt.value=t.target_id;
+        opt.text=`${badge} ${t.target_symbol} (${t.target_id}) — score ${t.disease_score}`;
+      }else{
+        opt.value='GENE_'+t.target_symbol;
+        opt.text=`⛭ ${t.target_symbol} — score ${t.disease_score} (no QSAR model — docking only)`;
+      }
+      sel.add(opt);
+    });
+  }
+}
+async function populateScreenTargets(diseaseId){ await populateGroupTargets('s',diseaseId); onScreenTargetChange(); }
+async function populateDockTargets(diseaseId){ await populateGroupTargets('dk',diseaseId); onDockTargetChange(); }
+function isGeneOnly(g){ return ($(`#${g}-target`)?.value||'').startsWith('GENE_'); }
+function onScreenTargetChange(){
+  onTargetInfo('s'); $('#s-why-out').innerHTML='';
+  const geneOnly=isGeneOnly('s');
+  $('#s-why-btn').style.display=geneOnly?'none':'inline-block';
+  $('#s-run').textContent=geneOnly?'Dock this target (no QSAR model)':'Run screen';
+  // No-QSAR-model targets have no automatic default structure at all — the
+  // ONLY way to get a binding site / 3D view / dock at all is to pick one
+  // from Advanced Settings' Manual structure list, so that panel can't stay
+  // collapsed behind a <details> the user has to know to open.
+  if(geneOnly) $('#s-adv').open=true;
+  loadStructureCandidates('s',$('#s-target').value);
+  loadBindingSite('s',$('#s-target').value);
+}
+function renderRecommendation(rec){
+  const v=rec.our_validation, p=rec.panel_evidence;
+  const badge=v.validated?'<span class="badge b-ok">&#10003; VALIDATED</span>':'<span class="badge b-warn">UNVALIDATED</span>';
+  const rmsd=(v.reference_rmsd!=null)?`<b>${v.reference_rmsd} &Aring;</b> redocking`:'<span class="muted">no redocking</span>';
+  const enr=(v.enrichment_auc!=null)?`<b>AUC ${v.enrichment_auc}</b> enrichment`:'<span class="muted">no enrichment test</span>';
+  return `<div style="padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:${v.validated?'#f0fdfa':'#fffbeb'}">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">${badge}</div>
+    <div style="font-size:13px;margin-bottom:4px">${rec.headline}</div>
+    <div style="font-size:12.5px;color:#334155">${rmsd} &nbsp;&middot;&nbsp; ${enr}${v.pdb_id?` &nbsp;&middot;&nbsp; PDB ${v.pdb_id}/${v.ligand_resname||''}`:''}</div>
+    <h5 style="margin:10px 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent-d)">Structural evidence (panel_results_v2.csv)</h5>
+    <div style="font-size:12.5px;color:#334155">
+      Top-ranked: <b>${p.top_ranked_pdb_id||'&mdash;'}${p.top_ranked_chain?':'+p.top_ranked_chain:''}</b> (${p.top_ranked_ligand||'?'})<br>
+      Resolution ${p.resolution??'&mdash;'} &Aring; (${p.resolution_tier||'?'}) &middot; RSCC ${p.ligand_RSCC??'&mdash;'} &middot; RSR ${p.ligand_RSR??'&mdash;'} &middot; R-free ${p.r_free??'&mdash;'}<br>
+      ${p.n_qualifying_structures??'?'} qualifying structures &middot; ${p.chembl_activity_records??'?'} ChEMBL activity records
+    </div>
+    <div class="muted" style="font-size:11px;margin-top:6px">${p.note||''}</div>
+  </div>`;
+}
+async function showWhyThis(){
+  const tid=$('#s-target').value; const box=$('#s-why-out');
+  if(!tid){ box.innerHTML=''; return; }
+  box.innerHTML='<div class="hint">Loading&hellip;</div>';
+  try{ box.innerHTML=renderRecommendation(await api('/api/targets/'+tid+'/recommendation')); }
+  catch(e){ box.innerHTML='<div class="hint">No structural-evidence data for this target.</div>'; }
 }
 function onTargetInfo(g){
-  const t=TARGETS.find(x=>x.target_id===$('#'+g+'-target').value)||{};
+  const val=$('#'+g+'-target').value;
+  if(val && val.startsWith('GENE_')){
+    $('#'+g+'-tinfo').innerHTML='<span class="muted">No QSAR model for this protein — structure-based docking only.</span>';
+    return;
+  }
+  const t=TARGETS.find(x=>x.target_id===val)||{};
   $('#'+g+'-tinfo').innerHTML=t.target_id
     ? `${t.n_compounds||'?'} compounds &middot; test R&sup2; ${t.test_r2??'&mdash;'} &middot; RMSE ${t.test_rmse??'&mdash;'}`
     : '';
@@ -325,22 +1017,42 @@ function dockValidationPanel(details){
   return `<div style="margin:6px 0 4px"><h5 style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent-d)">Per-target validation</h5>${rows}
     <div class="muted" style="font-size:11.5px;margin-top:2px">Redocking &lt; 2 &Aring; confirms the pose geometry; enrichment AUC measures separation of known actives from decoys. Trust scores only for validated targets.</div></div>`;
 }
+function onDockTargetChange(){
+  onTargetInfo('dk');
+  if(isGeneOnly('dk')) $('#dk-adv').open=true;   // see onScreenTargetChange's comment — no automatic default to fall back on
+  loadStructureCandidates('dk',$('#dk-target').value);
+  loadBindingSite('dk',$('#dk-target').value);
+}
 function renderDocking(dk){
   const el=$('#d-out');
   if(dk.ready){
     el.className='card'; el.style.padding='0';
-    const opts=(dk.docking_targets||[]).map(t=>`<option value="${t}">${t}</option>`).join('');
     el.innerHTML=`<div style="padding:20px;max-width:720px;margin:0 auto">
       <h2>Structure-based docking</h2>
       <p class="sub">AutoDock Vina + PoseBusters physical-validity gate.</p>
-      ${dockValidationPanel(dk.target_details||[])}
-      <label style="margin-top:14px">Docking-ready target</label>
-      <select id="dk-target">${opts||'<option value="">&mdash; no prepared targets &mdash;</option>'}</select>
+      <label>Disease (optional, ranks &amp; filters targets)</label>
+      <select id="dk-disease"><option value="">&mdash; all targets &mdash;</option></select>
+      <label style="margin-top:12px">Target</label>
+      <select id="dk-target"></select>
+      <div class="hint" id="dk-tinfo"></div>
+      <label style="margin-top:12px">Docking mode</label>
+      <div class="mseg"><button class="on" data-mode="site_specific" data-g="dk">Site-specific</button><button data-mode="blind" data-g="dk">Blind (whole protein)</button></div>
+      <div id="dk-site-summary" class="hint" style="margin-top:8px"></div>
+      <button type="button" id="dk-site-btn" class="link" style="cursor:pointer;margin-top:6px;display:none">View binding site in 3D</button>
       <label style="margin-top:12px">SMILES (one per line)</label>
       <textarea id="dk-smiles" style="min-height:100px"></textarea>
+      <details class="adv" id="dk-adv">
+        <summary>Advanced Settings</summary>
+        <div class="adv-body" id="dk-adv-body"></div>
+      </details>
       <button class="go" id="dk-run">Dock compounds</button>
       <div id="dk-out" style="margin-top:14px"></div></div>`;
+    TARGETS.forEach(t=>$('#dk-target').add(new Option(t.target_id,t.target_id)));
     $('#dk-run').onclick=dockRun;
+    initAdvancedPanel('dk');
+    $('#dk-site-btn').onclick=()=>openBindingSiteModal('dk');
+    $('#dk-target').onchange=onDockTargetChange;
+    if($('#dk-target').value) onDockTargetChange();
     return;
   }
   // NOT ready -> show exactly what's installed vs missing + guidance
@@ -361,59 +1073,113 @@ async function dockRun(){
   const out=$('#dk-out');
   const smiles=$('#dk-smiles').value.split('\n').map(s=>s.trim()).filter(Boolean);
   const target=$('#dk-target').value;
-  if(!target){ out.innerHTML='<div class="err">No prepared target.</div>'; return; }
+  if(!target){ out.innerHTML='<div class="err">Pick a target.</div>'; return; }
   if(!smiles.length){ out.innerHTML='<div class="err">Enter SMILES.</div>'; return; }
+  const adv=getAdvanced('dk');
+  if(isGeneOnly('dk') && (!adv||!adv.custom_profile)){
+    out.innerHTML='<div class="err">Pick a structure in Advanced Settings first — there\'s no automatic default without a QSAR-modeled target.</div>';
+    return;
+  }
   out.innerHTML='<div class="muted">Submitting&hellip;</div>';
   try{
     const r=await api('/api/docking/submit',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({target_id:target,smiles})});
-    await pollDocking(out,r.job_id,r.total);
+      body:JSON.stringify({target_id:target,smiles,advanced:adv})});
+    await pollDocking(out,r.job_id,r.total,r.caveat,target,adv);
   }catch(e){ out.innerHTML=`<div class="err">${e.message}</div>`; }
 }
-async function pollDocking(out,jid,total){
+async function pollDocking(out,jid,total,caveat,targetId,adv){
+  const notice=caveat?`<div class="notice">${caveat}</div>`:'';
   while(true){
     await new Promise(r=>setTimeout(r,2000));
-    let s; try{ s=await api('/api/docking/job/'+jid); }catch(e){ out.innerHTML='<div class="err">Job lost.</div>'; return; }
-    if(s.status==='done'){ renderDockResults(out,s.results); return; }
-    if(s.status==='error'){ out.innerHTML=`<div class="err">${s.error||'failed'}</div>`; return; }
-    out.innerHTML=`<div class="muted">Docking ${s.done}/${s.total}&hellip; (minutes per compound)</div>`;
+    let s; try{ s=await api('/api/docking/job/'+jid); }catch(e){ out.innerHTML=notice+'<div class="err">Job lost.</div>'; return; }
+    if(s.status==='done'){ renderDockResults(out,s.results,notice,s.receptor_pdb_path,targetId,adv); return; }
+    if(s.status==='error'){ out.innerHTML=notice+`<div class="err">${s.error||'failed'}</div>`; return; }
+    out.innerHTML=notice+`<div class="muted">Docking ${s.done}/${s.total}&hellip; (minutes per compound)</div>`;
   }
 }
 let _dockResults=[];
+let _dockReceptorPdbPath=null;
+let _dockTargetId=null;
+let _dockAdvanced=null;
 let _receptorCache={};
 let _pose3dInited={};
 
-function renderDockResults(out,results){
+function enrichmentChip(r){
+  const pct=r.enrichment_percentile;
+  if(pct==null) return '<span class="muted">&mdash;</span>';
+  const ec=r.enrichment_context||{};
+  const dcls=pct>=90?'d-high':(pct>=65?'d-med':'d-low');
+  const beats=ec.beats_best_known_active?' &middot; beats best known active':'';
+  return `<span class="chip" title="${ec.n_active??'?'} known active(s), ${ec.n_decoy??'?'} decoys (${ec.decoy_method||'?'})">`
+        +`<span class="dot ${dcls}"></span>${pct}th pct${beats}</span>`;
+}
+function renderDockResults(out,results,notice,receptorPdbPath,targetId,adv){
   const cls={high:'d-high',medium:'d-med',low:'d-low',none:'d-out'};
   const hasGnina=(results||[]).some(r=>r.gnina&&r.gnina.cnn_score!=null);
-  const cols=hasGnina?8:5;
+  const hasEnrichment=(results||[]).some(r=>r.enrichment_percentile!=null);
+  const cols=5+(hasGnina?3:0)+(hasEnrichment?1:0);
   _dockResults=results||[];
+  _dockReceptorPdbPath=receptorPdbPath||null;
+  _dockTargetId=targetId||null;
+  _dockAdvanced=adv||null;
   _pose3dInited={};
-  let h=`<table><thead><tr><th></th><th>Compound</th><th>Confidence</th><th>Vina affinity (kcal/mol)</th>${hasGnina?'<th>GNINA CNN score</th><th>GNINA CNN affinity</th><th>GNINA affinity (kcal/mol)</th>':''}<th>Status</th></tr></thead><tbody>`;
+  let h=(notice||'')+`<table><thead><tr><th></th><th>Compound</th><th>Confidence</th><th>Vina affinity (kcal/mol)</th>${hasGnina?'<th>GNINA CNN score</th><th>GNINA CNN affinity</th><th>GNINA affinity (kcal/mol)</th>':''}${hasEnrichment?'<th>vs. known actives/decoys</th>':''}<th>Status</th></tr></thead><tbody>`;
   (results||[]).forEach((r,i)=>{
     const g=r.gnina||{};
     const canView=!!r.interaction_png;
-    h+=`<tr class="${canView?'clickrow':''}" ${canView?`onclick="toggleDock(${i})"`:''}>
-      <td>${canView?'<span id="dar'+i+'">&#9656;</span>':''}</td>
+    const hasDetail=canView||r.status==='ok';
+    h+=`<tr class="${hasDetail?'clickrow':''}" ${hasDetail?`onclick="toggleDock(${i})"`:''}>
+      <td>${hasDetail?'<span id="dar'+i+'">&#9656;</span>':''}</td>
       <td class="smi">${r.smiles||''}</td>
       <td><span class="chip"><span class="dot ${cls[r.confidence]||'d-out'}"></span>${r.confidence||'&mdash;'}</span></td>
       <td>${r.vina_score??'&mdash;'}</td>
       ${hasGnina?`<td>${g.cnn_score??'&mdash;'}</td><td>${g.cnn_affinity??'&mdash;'}</td><td>${g.gnina_affinity??'&mdash;'}</td>`:''}
+      ${hasEnrichment?`<td>${enrichmentChip(r)}</td>`:''}
       <td class="muted">${r.status==='ok'?(r.n_valid+' valid pose(s)'):(r.reason||r.status||'')}</td></tr>`;
-    if(canView){
-      const ov=(r.residue_overlap_pct!=null)?`<div class="muted" style="margin:4px 0 8px">Shares ${r.residue_overlap_pct}% of the reference drug's contact residues.</div>`:'';
-      const src=r.interaction_source?`<div class="muted" style="margin:4px 0 8px">Interaction detection: ${r.interaction_source}.</div>`:'';
-      const tbl=interactionTable(r.interactions);
+    if(hasDetail){
+      const ov=canView&&(r.residue_overlap_pct!=null)?`<div class="muted" style="margin:4px 0 8px">Shares ${r.residue_overlap_pct}% of the reference drug's contact residues.</div>`:'';
+      const src=canView&&r.interaction_source?`<div class="muted" style="margin:4px 0 8px">Interaction detection: ${r.interaction_source}.</div>`:'';
+      const tbl=canView?interactionTable(r.interactions):'';
+      const img=canView?`<img src="data:image/png;base64,${r.interaction_png}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff"/>`
+                       :'<div class="muted" style="padding:8px 0">No interaction diagram for this pose.</div>';
       const pose3d=r.pose_pdb?`<div class="pose3d-bar">
           <button onclick="event.stopPropagation();toggle3D(${i})">Ball-and-stick 3D pose</button>
           <button onclick="event.stopPropagation();reset3D(${i})">Reset view</button>
           <label style="font-size:12px;color:var(--mut);cursor:pointer"><input type="checkbox" onclick="event.stopPropagation();toggleSpin(${i},this.checked)" style="vertical-align:middle"> spin</label>
           <span class="muted" style="font-size:11px">All atoms shown incl. hydrogens (nonpolar H positions are geometry-estimated, not Vina's own placement).</span>
         </div><div id="pose3d${i}" class="pose3d" style="display:none"></div>`:'';
-      h+=`<tr id="dkd${i}" style="display:none"><td></td><td colspan="${cols-1}" style="padding:0"><div class="detail">${ov}${src}<img src="data:image/png;base64,${r.interaction_png}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff"/>${tbl}${pose3d}</div></td></tr>`;
+      const fresh=`<div class="pose3d-bar" style="margin-top:14px">
+          <button onclick="event.stopPropagation();runFreshDecoy(${i})" id="fresh-btn-${i}">Run Fresh Decoy Validation</button>
+          <span class="muted" style="font-size:11px">Generates ~50 NEW decoys property-matched &amp; topologically-dissimilar to THIS compound and docks all of them (~2-5 min) &mdash; a compound-specific check beyond the free reference-set percentile above.</span>
+        </div><div id="fresh-out-${i}" style="margin-top:8px"></div>`;
+      h+=`<tr id="dkd${i}" style="display:none"><td></td><td colspan="${cols-1}" style="padding:0"><div class="detail">${ov}${src}${img}${tbl}${pose3d}${fresh}</div></td></tr>`;
     }
   });
   out.innerHTML=h+`</tbody></table>`;
+}
+async function runFreshDecoy(i){
+  const r=_dockResults[i];
+  const btn=$(`#fresh-btn-${i}`), out=$(`#fresh-out-${i}`);
+  if(!_dockTargetId){ out.innerHTML='<div class="err">No target context for this result.</div>'; return; }
+  btn.disabled=true; btn.textContent='Generating decoys & docking (~2-5 min)…';
+  out.innerHTML='<div class="muted">Generating ~50 decoys matched to this compound, then docking compound + decoys&hellip;</div>';
+  try{
+    const sub=await api('/api/docking/enrichment/fresh',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({target_id:_dockTargetId,smiles:r.smiles,advanced:_dockAdvanced})});
+    let j;
+    while(true){
+      await new Promise(res=>setTimeout(res,3000));
+      j=await api(`/api/docking/enrichment/fresh/job/${sub.job_id}`);
+      if(j.status==='done'||j.status==='error') break;
+    }
+    if(j.status==='error'){ out.innerHTML=`<div class="err">${j.error||'failed'}</div>`; return; }
+    const res=j.result;
+    if(res.error){ out.innerHTML=`<div class="hint">${res.error}</div>`; return; }
+    out.innerHTML=`<div class="notice" style="background:#f0fdfa;border-color:#99f6e4;color:#0f766e">
+      Fresh percentile: <b>${res.percentile}%</b> &middot; Decoy discrimination: <b>${res.discrimination}</b>
+      <div class="muted" style="margin-top:4px;color:#0f766e">Compound score ${res.compound_score} kcal/mol vs ${res.n_decoys_docked} freshly-docked, property-matched &amp; topologically-dissimilar decoys${res.n_decoys_failed?` (${res.n_decoys_failed} failed to dock)`:''}.</div></div>`;
+  }catch(e){ out.innerHTML=`<div class="err">${e.message}</div>`; }
+  finally{ btn.disabled=false; btn.textContent='Run Fresh Decoy Validation'; }
 }
 
 async function toggle3D(i){
@@ -433,11 +1199,18 @@ async function init3D(i, el){
     el.innerHTML='<div class="muted" style="padding:10px">3D pose not available.</div>';
     return;
   }
-  let receptorPdb=_receptorCache[r.target];
+  // Fetch by the exact receptor path the job actually docked against — NOT
+  // /api/docking/receptor/{target_id}, which only ever serves the registry's
+  // automatic default: wrong (or, for a GENE_ target with no registry entry
+  // at all, a 500) whenever an Advanced Settings custom_profile was used.
+  let receptorPdb=_receptorCache[_dockReceptorPdbPath];
   if(receptorPdb===undefined){
-    try{ receptorPdb=await (await fetch(`/api/docking/receptor/${r.target}`)).text(); }
-    catch(e){ receptorPdb=null; }
-    _receptorCache[r.target]=receptorPdb;
+    try{
+      receptorPdb=_dockReceptorPdbPath
+        ? await (await fetch(`/api/docking/receptor_file?path=${encodeURIComponent(_dockReceptorPdbPath)}`)).text()
+        : null;
+    }catch(e){ receptorPdb=null; }
+    _receptorCache[_dockReceptorPdbPath]=receptorPdb;
   }
   const viewer=$3Dmol.createViewer(el, {backgroundColor:'white'});
   el._viewer=viewer;
@@ -460,8 +1233,7 @@ function reset3D(i){
   const el=document.getElementById('pose3d'+i);
   const v=el&&el._viewer;
   if(!v) return;
-  const r=_dockResults[i];
-  v.zoomTo({model: r&&_receptorCache[r.target]?1:0});
+  v.zoomTo({model: _receptorCache[_dockReceptorPdbPath]?1:0});
   v.render();
 }
 
@@ -487,9 +1259,21 @@ $('#s-run').onclick=async()=>{
   try{
     const smiles=await getSmiles('s'); if(!smiles.length)throw new Error('Enter at least one SMILES.');
     const target_id=$('#s-target').value; if(!target_id)throw new Error('Pick a target.');
+    if(isGeneOnly('s')){
+      // No QSAR model for this gene — nothing to predict potency with, so
+      // this is structure-based docking only, reusing the Docking tab's own
+      // submit/poll/render (they're generic, not hardcoded to '#dk-out').
+      const adv=getAdvanced('s');
+      if(!adv || !adv.custom_profile) throw new Error('Pick a structure in Advanced Settings first — there\'s no automatic default without a QSAR-modeled target.');
+      el.innerHTML='<div class="muted" style="padding:30px;text-align:center">Submitting&hellip;</div>';
+      const r=await api('/api/docking/submit',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({target_id,smiles,advanced:adv})});
+      await pollDocking(el,r.job_id,r.total,r.caveat,target_id,adv);
+      return;
+    }
     el.innerHTML=stepsHtml(0,'Submitting&hellip;');
     const r=await api('/api/screen/submit',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({target_id,smiles})});
+      body:JSON.stringify({target_id,smiles,advanced:getAdvanced('s')})});
     await pollScreen(el,r.job_id);
   }catch(e){fail(el,e.message);}
 };
@@ -650,9 +1434,8 @@ $('#c-run').onclick=async()=>{
   try{
     const smiles=await getSmiles('c');if(!smiles.length)throw new Error('Enter SMILES.');
     const checked=[...document.querySelectorAll('#c-targets input:checked')].map(c=>c.value);
-    const disease=$('#c-disease').value;
-    const body={smiles}; if(disease)body.disease_id=disease; else if(checked.length)body.target_ids=checked;
-    else throw new Error('Pick a disease or at least one target.');
+    if(!checked.length)throw new Error('Pick at least one target.');
+    const body={smiles,target_ids:checked};
     loading(el);
     const d=await api('/api/predict_multi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     window.__cmp=d; renderCompare(el,d,'matrix');

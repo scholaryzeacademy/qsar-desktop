@@ -1,54 +1,5100 @@
 {
   "targets": [
     {
-      "target_id": "cox2",
-      "name": "COX-2",
-      "pdb_source": "5kir.pdb",
-      "reference_ligand_resname": "RCX",
+      "target_id": "CHEMBL1862_ABL1",
+      "name": "CHEMBL1862_ABL1",
+      "pdb_source": "2F4J_raw.pdb",
+      "reference_ligand_resname": "VX6",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        23.206,
-        1.318,
-        34.259
+        1.99,
+        -7.501,
+        -24.569
       ],
       "box_size": [
-        22.798,
-        24.188,
-        23.896
+        22.578,
+        21.202,
+        33.083
       ],
-      "ad4_grid_maps": null,
       "site_source": "co-crystal_ligand",
       "validated": true,
-      "reference_rmsd": 0.834,
-      "enrichment_auc": 0.817,
-      "enrichment_ef20": 2.67,
-      "enrichment_n": 16
+      "reference_rmsd": 0.795,
+      "enrichment_auc": 0.52,
+      "enrichment_ef20": 0.6,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
     },
     {
-      "target_id": "CHEMBL1862_ABL1",
-      "name": "ABL1 (Abelson tyrosine kinase)",
-      "pdb_source": "1IEP_raw.pdb",
-      "reference_ligand_resname": "STI",
+      "target_id": "CHEMBL1163125_BRD4",
+      "name": "CHEMBL1163125_BRD4",
+      "pdb_source": "7ZE6_raw.pdb",
+      "reference_ligand_resname": "1P8",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        15.614,
-        53.38,
-        15.455
+        -11.196,
+        -5.735,
+        0.317
       ],
       "box_size": [
-        24.664,
-        32.739,
-        29.526
+        22.298,
+        20.0,
+        20.0
       ],
       "site_source": "co-crystal_ligand",
       "validated": true,
-      "reference_rmsd": 1.425,
-      "enrichment_auc": 0.562,
+      "reference_rmsd": 0.289,
+      "enrichment_auc": 0.391,
+      "enrichment_ef20": 0.6,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL1824_ERBB2",
+      "name": "CHEMBL1824_ERBB2",
+      "pdb_source": "3PP0_raw.pdb",
+      "reference_ligand_resname": "03Q",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        17.099,
+        16.549,
+        26.601
+      ],
+      "box_size": [
+        23.372,
+        29.936,
+        23.25
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.513,
+      "enrichment_auc": 0.836,
+      "enrichment_ef20": 2.4,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL1844_CSF1R",
+      "name": "CHEMBL1844_CSF1R",
+      "pdb_source": "6IG8_raw.pdb",
+      "reference_ligand_resname": "A7O",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -2.532,
+        18.418,
+        -16.756
+      ],
+      "box_size": [
+        40.035,
+        21.207,
+        24.436
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.231,
+      "enrichment_auc": 0.531,
+      "enrichment_ef20": 0.6,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL1906_RAF1",
+      "name": "CHEMBL1906_RAF1",
+      "pdb_source": "6VJJ_raw.pdb",
+      "reference_ligand_resname": "GNP",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -7.305,
+        -9.828,
+        12.096
+      ],
+      "box_size": [
+        23.889,
+        29.305,
+        24.22
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.565,
+      "enrichment_auc": 0.683,
+      "enrichment_ef20": 1.73,
+      "enrichment_n": 23,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) - 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL1936_KIT",
+      "name": "CHEMBL1936_KIT",
+      "pdb_source": "6MOB_raw.pdb",
+      "reference_ligand_resname": "JWY",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        17.017,
+        -17.529,
+        3.614
+      ],
+      "box_size": [
+        23.22,
+        30.149,
+        24.111
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 29,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 30,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 37,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 55,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 56,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 57,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 71,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 74,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 75,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 77,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 78,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 81,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 87,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 90,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 102,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 103,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 104,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 105,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 106,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 107,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 110,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 111,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 159,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 164,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 166,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 175,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 184,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 185,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 186,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 187,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 190,
+          "resname": "ALA"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.22,
+      "enrichment_auc": 0.672,
+      "enrichment_ef20": 0.6,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL1907611_p53_MDM2",
+      "name": "CHEMBL1907611_p53_MDM2",
+      "pdb_source": "8PWC_raw.pdb",
+      "reference_ligand_resname": "G7I",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        32.947,
+        -29.142,
+        -2.016
+      ],
+      "box_size": [
+        23.315,
+        27.372,
+        30.31
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 2,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 4,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 36,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 38,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 39,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 40,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 42,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 43,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 46,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 47,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 52,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 58,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 60,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 67,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 71,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 76,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 78,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 79,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 81,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 84,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "ILE"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.568,
+      "enrichment_auc": 0.258,
       "enrichment_ef20": 0.0,
-      "enrichment_n": 16,
-      "enrichment_source": "own ChEMBL training data: top/bottom 8 by measured pchembl_value \u2014 'decoys' are this target's weakest measured binders, not confirmed non-binders"
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL1937_HDAC2",
+      "name": "CHEMBL1937_HDAC2",
+      "pdb_source": "7ZZT_raw.pdb",
+      "reference_ligand_resname": "KJF",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        20.779,
+        -19.269,
+        1.029
+      ],
+      "box_size": [
+        25.563,
+        21.368,
+        24.426
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.273,
+      "enrichment_auc": 0.804,
+      "enrichment_ef20": 1.31,
+      "enrichment_n": 23,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL1951_MAOA",
+      "name": "CHEMBL1951_MAOA",
+      "pdb_source": "2Z5X_raw.pdb",
+      "reference_ligand_resname": "DCX",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        60.315,
+        12.389,
+        -20.29
+      ],
+      "box_size": [
+        20.0,
+        26.336,
+        24.62
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": false,
+      "reference_rmsd": null,
+      "enrichment_auc": 0.68,
+      "enrichment_ef20": 1.2,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL1957_IGF1R",
+      "name": "CHEMBL1957_IGF1R",
+      "pdb_source": "3D94_raw.pdb",
+      "reference_ligand_resname": "D94",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        24.622,
+        18.184,
+        -5.558
+      ],
+      "box_size": [
+        22.091,
+        27.863,
+        30.397
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 20,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 21,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 22,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 23,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 24,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 25,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 28,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 46,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 48,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 62,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 65,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 66,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 69,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 78,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 92,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 94,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 95,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 96,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 97,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 100,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 101,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 143,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 154,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 155,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 156,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 157,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 158,
+          "resname": "GLY"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.414,
+      "enrichment_auc": 0.445,
+      "enrichment_ef20": 0.6,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL1974_FLT3",
+      "name": "CHEMBL1974_FLT3",
+      "pdb_source": "4RT7_raw.pdb",
+      "reference_ligand_resname": "P30",
+      "chain": "A",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -40.601,
+        11.24,
+        -13.828
+      ],
+      "box_size": [
+        31.965,
+        20.48,
+        34.968
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 16,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 18,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 26,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 42,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 44,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 58,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 61,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 62,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 65,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 71,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 72,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 89,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 90,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 91,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 92,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 93,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 94,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 95,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 126,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 132,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 133,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 142,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 151,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 152,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 153,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 154,
+          "resname": "PHE"
+        }
+      ],
+      "blind_center": [
+        -31.343,
+        11.45,
+        -14.508
+      ],
+      "blind_box_size": [
+        65.013,
+        55.579,
+        62.942
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": false,
+      "reference_rmsd": 2.015,
+      "enrichment_auc": 0.852,
+      "enrichment_ef20": 2.4,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL1978_CYP19A1",
+      "name": "CHEMBL1978_CYP19A1",
+      "pdb_source": "3S79_raw.pdb",
+      "reference_ligand_resname": "ASD",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        85.778,
+        54.148,
+        46.03
+      ],
+      "box_size": [
+        20.018,
+        24.791,
+        20.733
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 71,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 89,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 90,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 177,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 180,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 261,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 262,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 265,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 266,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 326,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 328,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 329,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 330,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 433,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 434,
+          "resname": "SER"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.133,
+      "enrichment_auc": 0.426,
+      "enrichment_ef20": 0.6,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL2007625_IDH1",
+      "name": "CHEMBL2007625_IDH1",
+      "pdb_source": "6BKY_raw.pdb",
+      "reference_ligand_resname": "K32",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        21.067,
+        63.032,
+        88.503
+      ],
+      "box_size": [
+        20.943,
+        23.517,
+        20.371
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 119,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 122,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 253,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 256,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 257,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 265,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 274,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 275,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 278,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 279,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 282,
+          "resname": "GLY"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.085,
+      "enrichment_auc": 0.391,
+      "enrichment_ef20": 1.2,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL203_EGFR",
+      "name": "CHEMBL203_EGFR",
+      "pdb_source": "3POZ_raw.pdb",
+      "reference_ligand_resname": "03P",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        17.417,
+        32.793,
+        11.71
+      ],
+      "box_size": [
+        26.75,
+        24.4,
+        27.218
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 18,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 19,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 26,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 39,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 40,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 41,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 55,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 58,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 63,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 64,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 65,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 66,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 77,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 78,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 79,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 80,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 81,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 82,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 86,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 130,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 131,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 133,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 142,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 143,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 144,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 145,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 147,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 279,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 283,
+          "resname": "LEU"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.644,
+      "enrichment_auc": 0.422,
+      "enrichment_ef20": 0.0,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL2041_RET",
+      "name": "CHEMBL2041_RET",
+      "pdb_source": "7DU9_raw.pdb",
+      "reference_ligand_resname": "Q4J",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        8.551,
+        3.126,
+        -5.396
+      ],
+      "box_size": [
+        26.469,
+        27.591,
+        26.021
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 17,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 18,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 19,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 20,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 22,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 23,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 24,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 25,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 43,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 45,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 46,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 47,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 55,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 59,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 75,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 91,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 92,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 93,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 94,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 95,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 96,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 97,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 98,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 152,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 155,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 165,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 166,
+          "resname": "ASP"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.801,
+      "enrichment_auc": 0.359,
+      "enrichment_ef20": 0.0,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL2093865_HDAC_family",
+      "name": "CHEMBL2093865_HDAC_family",
+      "pdb_source": "6CEC_raw.pdb",
+      "reference_ligand_resname": "EY7",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        0.415,
+        3.722,
+        6.98
+      ],
+      "box_size": [
+        23.0,
+        20.252,
+        21.171
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 36,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 46,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 47,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 48,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 49,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 54,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 55,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 66,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 75,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 77,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 80,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 82,
+          "resname": "TYR"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.336,
+      "enrichment_auc": 0.398,
+      "enrichment_ef20": 1.2,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL2093869_ITGA2B_ITGB3",
+      "name": "CHEMBL2093869_ITGA2B_ITGB3",
+      "pdb_source": "7UDH_raw.pdb",
+      "reference_ligand_resname": "MWO",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        53.12,
+        109.254,
+        73.167
+      ],
+      "box_size": [
+        21.729,
+        29.273,
+        22.191
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 121,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 122,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 123,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 157,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 213,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 214,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 215,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 216,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 217,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 218,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 220,
+          "resname": "GLU"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.696,
+      "enrichment_auc": 0.508,
+      "enrichment_ef20": 0.6,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL2147_PIM1",
+      "name": "CHEMBL2147_PIM1",
+      "pdb_source": "3F2A_raw.pdb",
+      "reference_ligand_resname": "985",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        73.793,
+        34.666,
+        1.879
+      ],
+      "box_size": [
+        20.0,
+        23.155,
+        25.902
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": false
+    },
+    {
+      "target_id": "CHEMBL2148_JAK3",
+      "name": "CHEMBL2148_JAK3",
+      "pdb_source": "4QPS_raw.pdb",
+      "reference_ligand_resname": "37Q",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -18.236,
+        -4.733,
+        13.249
+      ],
+      "box_size": [
+        20.0,
+        24.87,
+        25.145
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 15,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 16,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 22,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 39,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 41,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 65,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 76,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 78,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 79,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 80,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 81,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 84,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 87,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 129,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 130,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 132,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 142,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 143,
+          "resname": "ASP"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.974,
+      "enrichment_auc": 0.449,
+      "enrichment_ef20": 0.0,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL215_ALOX5",
+      "name": "CHEMBL215_ALOX5",
+      "pdb_source": "6N2W_raw.pdb",
+      "reference_ligand_resname": "30Z",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        35.821,
+        65.513,
+        38.411
+      ],
+      "box_size": [
+        20.54,
+        22.026,
+        30.036
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.4,
+      "enrichment_auc": 0.594,
+      "enrichment_ef20": 1.2,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL220_AChE",
+      "name": "CHEMBL220_AChE",
+      "pdb_source": "4M0E_raw.pdb",
+      "reference_ligand_resname": "1YL",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -17.198,
+        -42.376,
+        25.582
+      ],
+      "box_size": [
+        25.502,
+        20.277,
+        21.484
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 69,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 71,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 119,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 121,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 278,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 281,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 284,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 285,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 286,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 287,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 288,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 289,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 329,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 330,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 333,
+          "resname": "TYR"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.315,
+      "enrichment_auc": 0.797,
+      "enrichment_ef20": 1.8,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL235_PPARG",
+      "name": "CHEMBL235_PPARG",
+      "pdb_source": "3V9T_raw.pdb",
+      "reference_ligand_resname": "17L",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        11.429,
+        48.481,
+        61.044
+      ],
+      "box_size": [
+        26.893,
+        23.223,
+        28.312
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 50,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 57,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 64,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 65,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 68,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 69,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 70,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 71,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 72,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 73,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 107,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 110,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 111,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 114,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 118,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 123,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 124,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 125,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 126,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 132,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 137,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 147,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 148,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 151,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 152,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 233,
+          "resname": "HIS"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.37,
+      "enrichment_auc": 0.805,
+      "enrichment_ef20": 1.8,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL248_ELANE",
+      "name": "CHEMBL248_ELANE",
+      "pdb_source": "5A0A_raw.pdb",
+      "reference_ligand_resname": "JJS",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -6.935,
+        35.128,
+        -3.207
+      ],
+      "box_size": [
+        23.651,
+        20.927,
+        26.623
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 41,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 80,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 81,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 82,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 86,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 166,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 167,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 168,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 169,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 170,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 171,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 172,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 185,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 186,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 187,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 188,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 192,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 199,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 200,
+          "resname": "ALA"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.499,
+      "enrichment_auc": 0.714,
+      "enrichment_ef20": 2.25,
+      "enrichment_n": 21,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL2581_CTSD",
+      "name": "CHEMBL2581_CTSD",
+      "pdb_source": "1LYW_raw.pdb",
+      "reference_ligand_resname": "EPE",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        147.509,
+        12.692,
+        82.568
+      ],
+      "box_size": [
+        20.339,
+        23.203,
+        22.442
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.397,
+      "enrichment_auc": 0.318,
+      "enrichment_ef20": 0.0,
+      "enrichment_n": 19,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL258_LCK",
+      "name": "CHEMBL258_LCK",
+      "pdb_source": "1QPD_raw.pdb",
+      "reference_ligand_resname": "STU",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        25.273,
+        39.403,
+        83.928
+      ],
+      "box_size": [
+        25.787,
+        25.293,
+        21.658
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.44,
+      "enrichment_auc": 0.828,
+      "enrichment_ef20": 1.8,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL268_CTSK",
+      "name": "CHEMBL268_CTSK",
+      "pdb_source": "4X6H_raw.pdb",
+      "reference_ligand_resname": "3XT",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        16.97,
+        8.019,
+        -19.079
+      ],
+      "box_size": [
+        27.339,
+        24.575,
+        20.295
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 19,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 22,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 23,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 24,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 25,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 26,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 59,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 60,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 61,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 64,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 65,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 66,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 67,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 68,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 70,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 134,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 135,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 160,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 161,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 162,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 163,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 209,
+          "resname": "LEU"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.487,
+      "enrichment_auc": 0.551,
+      "enrichment_ef20": 1.2,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL2742_FGFR3",
+      "name": "CHEMBL2742_FGFR3",
+      "pdb_source": "8UDV_raw.pdb",
+      "reference_ligand_resname": "WIQ",
+      "chain": "A",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -44.664,
+        19.458,
+        35.196
+      ],
+      "box_size": [
+        33.962,
+        22.435,
+        24.183
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 21,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 22,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 23,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 25,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 26,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 29,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 49,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 50,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 51,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 65,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 68,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 69,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 72,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 82,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 96,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 98,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 99,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 100,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 101,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 104,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 105,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 108,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 152,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 155,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 165,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 166,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 167,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 169,
+          "resname": "LEU"
+        }
+      ],
+      "blind_center": [
+        -40.991,
+        25.557,
+        28.958
+      ],
+      "blind_box_size": [
+        53.138,
+        63.516,
+        72.203
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.991,
+      "enrichment_auc": 0.496,
+      "enrichment_ef20": 0.6,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL279_KDR",
+      "name": "CHEMBL279_KDR",
+      "pdb_source": "3VO3_raw.pdb",
+      "reference_ligand_resname": "0KF",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        25.613,
+        -27.709,
+        -13.528
+      ],
+      "box_size": [
+        31.347,
+        24.714,
+        26.077
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 29,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 37,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 55,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 56,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 57,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 74,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 77,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 78,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 81,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 87,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 103,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 105,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 106,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 107,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 108,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 109,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 110,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 111,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 112,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 154,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 161,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 170,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 179,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 180,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 181,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 182,
+          "resname": "PHE"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.496,
+      "enrichment_auc": 0.609,
+      "enrichment_ef20": 1.2,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL280_MMP13",
+      "name": "CHEMBL280_MMP13",
+      "pdb_source": "3ZXH_raw.pdb",
+      "reference_ligand_resname": "E41",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -3.883,
+        28.148,
+        55.277
+      ],
+      "box_size": [
+        23.61,
+        24.965,
+        23.526
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 80,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 81,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 82,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 83,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 84,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 115,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 116,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 119,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 120,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 123,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 129,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 136,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 138,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 139,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 140,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 141,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 142,
+          "resname": "THR"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.647,
+      "enrichment_auc": 0.772,
+      "enrichment_ef20": 2.75,
+      "enrichment_n": 22,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL2820_F11",
+      "name": "CHEMBL2820_F11",
+      "pdb_source": "7MBO_raw.pdb",
+      "reference_ligand_resname": "YXG",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -1.059,
+        9.924,
+        -17.798
+      ],
+      "box_size": [
+        27.973,
+        26.34,
+        29.035
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 26,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 27,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 28,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 29,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 44,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 45,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 46,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 47,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 48,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 134,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 137,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 141,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 182,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 183,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 184,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 185,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 186,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 187,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 188,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 206,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 207,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 208,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 209,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 210,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 211,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 212,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 213,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 218,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 219,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 220,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 221,
+          "resname": "TYR"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.837,
+      "enrichment_auc": 0.625,
+      "enrichment_ef20": 1.8,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL2835_JAK1",
+      "name": "CHEMBL2835_JAK1",
+      "pdb_source": "6N77_raw.pdb",
+      "reference_ligand_resname": "KEJ",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        5.615,
+        -24.97,
+        22.574
+      ],
+      "box_size": [
+        23.928,
+        26.437,
+        20.985
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 16,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 17,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 18,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 19,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 22,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 23,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 24,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 41,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 43,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 69,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 82,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 83,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 84,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 86,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 89,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 92,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 133,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 134,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 136,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 146,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 147,
+          "resname": "ASP"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.99,
+      "enrichment_auc": 0.434,
+      "enrichment_ef20": 0.6,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL2842_MTOR",
+      "name": "CHEMBL2842_MTOR",
+      "pdb_source": "1FAP_raw.pdb",
+      "reference_ligand_resname": "RAP",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -8.57,
+        26.895,
+        36.866
+      ],
+      "box_size": [
+        31.392,
+        24.046,
+        31.684
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": false,
+      "reference_rmsd": null,
+      "enrichment_auc": null,
+      "enrichment_ef20": null,
+      "enrichment_n": 0,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL286_REN",
+      "name": "CHEMBL286_REN",
+      "pdb_source": "3K1W_raw.pdb",
+      "reference_ligand_resname": "BFX",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        3.827,
+        6.227,
+        1.461
+      ],
+      "box_size": [
+        25.614,
+        20.874,
+        27.903
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 15,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 16,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 33,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 35,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 37,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 38,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 42,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 43,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 44,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 54,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 58,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 78,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 80,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 108,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 111,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 115,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 116,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 119,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 121,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 122,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 123,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 124,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 216,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 218,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 220,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 221,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 222,
+          "resname": "SER"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.374,
+      "enrichment_auc": 0.383,
+      "enrichment_ef20": 0.58,
+      "enrichment_n": 23,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL2971_JAK2",
+      "name": "CHEMBL2971_JAK2",
+      "pdb_source": "3UGC_raw.pdb",
+      "reference_ligand_resname": "046",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        19.986,
+        -18.076,
+        -17.863
+      ],
+      "box_size": [
+        37.759,
+        22.506,
+        24.705
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 13,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 21,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 38,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 40,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 56,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 59,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 60,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 63,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 68,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 69,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 87,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 89,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 90,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 91,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 92,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 93,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 94,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 125,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 130,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 131,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 132,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 133,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 134,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 141,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 150,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 151,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 152,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 153,
+          "resname": "PHE"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.463,
+      "enrichment_auc": 0.156,
+      "enrichment_ef20": 0.0,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL3105_PARP1",
+      "name": "CHEMBL3105_PARP1",
+      "pdb_source": "7KK5_raw.pdb",
+      "reference_ligand_resname": "3JD",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -37.551,
+        6.493,
+        -7.791
+      ],
+      "box_size": [
+        25.908,
+        25.98,
+        22.799
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 93,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 96,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 97,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 100,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 190,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 191,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 192,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 217,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 218,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 219,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 225,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 226,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 227,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 232,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 233,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 236,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 317,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 318,
+          "resname": "TYR"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.875,
+      "enrichment_auc": 0.852,
+      "enrichment_ef20": 3.0,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL3130_PIK3CD",
+      "name": "CHEMBL3130_PIK3CD",
+      "pdb_source": "6PYR_raw.pdb",
+      "reference_ligand_resname": "P5J",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        38.215,
+        13.222,
+        33.47
+      ],
+      "box_size": [
+        28.681,
+        24.75,
+        22.717
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 632,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 674,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 675,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 676,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 684,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 696,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 698,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 703,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 706,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 732,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 744,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 745,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 746,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 747,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 750,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 751,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 752,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 755,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 809,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 817,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 819,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 820,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 821,
+          "resname": "PHE"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.275,
+      "enrichment_auc": 0.25,
+      "enrichment_ef20": 0.0,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL3267_PIK3CG",
+      "name": "CHEMBL3267_PIK3CG",
+      "pdb_source": "3L54_raw.pdb",
+      "reference_ligand_resname": "LXX",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        23.75,
+        14.281,
+        22.084
+      ],
+      "box_size": [
+        25.433,
+        22.691,
+        21.427
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 556,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 562,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 564,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 583,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 585,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 588,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 590,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 593,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 619,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 631,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 632,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 633,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 634,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 637,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 639,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 642,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 705,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 713,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 715,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 716,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 717,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 718,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 719,
+          "resname": "HIS"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.251,
+      "enrichment_auc": 0.254,
+      "enrichment_ef20": 0.6,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL333_MMP2",
+      "name": "CHEMBL333_MMP2",
+      "pdb_source": "7XJO_raw.pdb",
+      "reference_ligand_resname": "B3P",
+      "chain": "A",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        41.07,
+        -61.821,
+        19.86
+      ],
+      "box_size": [
+        20.086,
+        21.599,
+        26.924
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 70,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 71,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 72,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 73,
+          "resname": "PRO"
+        }
+      ],
+      "blind_center": [
+        56.624,
+        -48.886,
+        15.575
+      ],
+      "blind_box_size": [
+        51.392,
+        49.249,
+        47.835
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.973,
+      "enrichment_auc": 0.221,
+      "enrichment_ef20": 0.0,
+      "enrichment_n": 21,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL3553_TYK2",
+      "name": "CHEMBL3553_TYK2",
+      "pdb_source": "8S99_raw.pdb",
+      "reference_ligand_resname": "ZS3",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        8.806,
+        -37.041,
+        26.073
+      ],
+      "box_size": [
+        27.033,
+        25.98,
+        20.696
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 18,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 19,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 20,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 21,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 26,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 39,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 41,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 86,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 87,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 89,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 90,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 91,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 92,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 93,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 95,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 96,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 99,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 137,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 138,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 140,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 157,
+          "resname": "SER"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.3,
+      "enrichment_auc": 0.801,
+      "enrichment_ef20": 2.4,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL3572_CETP",
+      "name": "CHEMBL3572_CETP",
+      "pdb_source": "4F2A_raw.pdb",
+      "reference_ligand_resname": "PCW",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -19.878,
+        16.282,
+        -22.517
+      ],
+      "box_size": [
+        30.42,
+        32.134,
+        31.126
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": false,
+      "reference_rmsd": null,
+      "enrichment_auc": null,
+      "enrichment_ef20": null,
+      "enrichment_n": 0,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL3717_MET",
+      "name": "CHEMBL3717_MET",
+      "pdb_source": "4R1V_raw.pdb",
+      "reference_ligand_resname": "3E8",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        109.966,
+        20.485,
+        140.478
+      ],
+      "box_size": [
+        31.348,
+        27.13,
+        21.011
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 30,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 31,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 32,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 38,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 54,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 56,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 86,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 101,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 102,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 103,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 104,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 105,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 106,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 107,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 108,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 111,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 152,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 153,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 154,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 155,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 165,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 166,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 167,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 170,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 174,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 175,
+          "resname": "ASP"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.996,
+      "enrichment_auc": 0.859,
+      "enrichment_ef20": 3.0,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL3880_HSP90AA1",
+      "name": "CHEMBL3880_HSP90AA1",
+      "pdb_source": "5J2X_raw.pdb",
+      "reference_ligand_resname": "6DL",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        0.858,
+        9.178,
+        25.209
+      ],
+      "box_size": [
+        21.911,
+        22.619,
+        22.377
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 33,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 36,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 37,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 39,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 40,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 43,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 78,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 80,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 81,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 82,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 83,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 92,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 93,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 94,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 123,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 135,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 169,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 171,
+          "resname": "VAL"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.21,
+      "enrichment_auc": 0.305,
+      "enrichment_ef20": 0.0,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL3973_FGFR4",
+      "name": "CHEMBL3973_FGFR4",
+      "pdb_source": "4XCU_raw.pdb",
+      "reference_ligand_resname": "40M",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -13.827,
+        4.769,
+        -21.667
+      ],
+      "box_size": [
+        27.398,
+        22.208,
+        29.851
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.833,
+      "enrichment_auc": 0.531,
+      "enrichment_ef20": 1.2,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL4282_AKT1",
+      "name": "CHEMBL4282_AKT1",
+      "pdb_source": "3CQW_raw.pdb",
+      "reference_ligand_resname": "CQW",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        5.99,
+        3.014,
+        17.345
+      ],
+      "box_size": [
+        22.094,
+        21.619,
+        21.643
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 13,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 14,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 21,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 34,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 36,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 68,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 84,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 86,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 87,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 91,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 135,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 136,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 138,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 148,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 149,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 294,
+          "resname": "PHE"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.308,
+      "enrichment_auc": 0.141,
+      "enrichment_ef20": 0.0,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL4439_TGFBR1",
+      "name": "CHEMBL4439_TGFBR1",
+      "pdb_source": "4X2F_raw.pdb",
+      "reference_ligand_resname": "3WJ",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        19.22,
+        70.229,
+        4.837
+      ],
+      "box_size": [
+        25.0,
+        20.0,
+        20.985
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 13,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 14,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 21,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 32,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 34,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 62,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 82,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 83,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 84,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 89,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 92,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 142,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 152,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 153,
+          "resname": "ASP"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.127,
+      "enrichment_auc": 0.578,
+      "enrichment_ef20": 1.2,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL5145_BRAF",
+      "name": "CHEMBL5145_BRAF",
+      "pdb_source": "8C7Y_raw.pdb",
+      "reference_ligand_resname": "TXV",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        1.415,
+        110.997,
+        16.57
+      ],
+      "box_size": [
+        27.804,
+        22.274,
+        28.001
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 16,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 24,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 34,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 35,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 36,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 54,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 57,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 58,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 61,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 66,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 67,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 80,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 82,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 83,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 84,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 120,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 125,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 126,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 127,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 136,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 145,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 146,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 147,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 148,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 150,
+          "resname": "LEU"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.027,
+      "enrichment_auc": 0.461,
+      "enrichment_ef20": 0.6,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL262_GSK3B",
+      "name": "CHEMBL262_GSK3B",
+      "pdb_source": "7SXJ_raw.pdb",
+      "reference_ligand_resname": "6VL",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        12.926,
+        -8.861,
+        33.309
+      ],
+      "box_size": [
+        22.46,
+        21.699,
+        23.57
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.701,
+      "enrichment_auc": 0.578,
+      "enrichment_ef20": 1.2,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL3650_FGFR1",
+      "name": "CHEMBL3650_FGFR1",
+      "pdb_source": "3DPK_raw.pdb",
+      "reference_ligand_resname": "8C5",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        4.672,
+        28.228,
+        6.181
+      ],
+      "box_size": [
+        30.408,
+        31.338,
+        25.811
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 31,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 32,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 33,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 34,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 35,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 41,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 56,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 58,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 75,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 79,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 89,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 103,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 105,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 106,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 107,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 108,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 109,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 110,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 111,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 112,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 115,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 153,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 154,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 156,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 157,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 166,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 167,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 168,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 171,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 172,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 173,
+          "resname": "ASP"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.909,
+      "enrichment_auc": 0.375,
+      "enrichment_ef20": 0.0,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "CHEMBL4142_FGFR2",
+      "name": "CHEMBL4142_FGFR2",
+      "pdb_source": "8W3D_raw.pdb",
+      "reference_ligand_resname": "TZ0",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -8.302,
+        -43.951,
+        11.411
+      ],
+      "box_size": [
+        27.479,
+        25.636,
+        25.743
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 21,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 22,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 23,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 24,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 25,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 26,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 29,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 49,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 51,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 65,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 68,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 69,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 72,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 82,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 96,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 98,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 99,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 100,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 101,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 102,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 104,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 105,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 108,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 164,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 167,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 177,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 178,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 179,
+          "resname": "PHE"
+        }
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 0.832,
+      "enrichment_auc": 0.572,
+      "enrichment_ef20": 1.97,
+      "enrichment_n": 21,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
     }
   ]
 }

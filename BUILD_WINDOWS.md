@@ -47,7 +47,6 @@ From the project folder:
     pyinstaller --noconfirm --windowed --name PhytoScreen ^
       --add-data "static;static" ^
       --add-data "docking;docking" ^
-      --add-data "diseases.yaml;." ^
       --add-data "docking_registry.json;." ^
       --collect-all rdkit ^
       --collect-all autogluon ^

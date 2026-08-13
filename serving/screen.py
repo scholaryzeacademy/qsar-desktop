@@ -21,6 +21,8 @@
   matching the existing ADMET/docking job pattern).
 ============================================================
 """
+import os
+
 from . import model_adapter as MA
 from . import featurize as F
 import admet as ADMET
@@ -29,8 +31,15 @@ try:
     from docking import availability as DOCK_AVAIL
     from docking import pipeline as DOCK_PIPE
     from docking import profile as DOCK_PROFILE
+    from docking import engines as DOCK_ENGINES
+    from docking import receptor_prep as DOCK_RECEPTOR_PREP
 except Exception:
-    DOCK_AVAIL = DOCK_PIPE = DOCK_PROFILE = None
+    DOCK_AVAIL = DOCK_PIPE = DOCK_PROFILE = DOCK_ENGINES = DOCK_RECEPTOR_PREP = None
+
+BLIND_CAVEAT = ("Blind docking: searching the ENTIRE protein surface, not a validated (or even assumed) "
+                "pocket. Vina must cover a much larger volume than a site-specific box, which is both "
+                "slower and substantially less reliable per-site — treat any hit as a candidate binding "
+                "site to investigate, not a confirmed pose or affinity.")
 
 STEPS = {
     1: "Parsing & standardising SMILES",
@@ -66,11 +75,18 @@ def _rank_score(values, higher_is_better):
     return score
 
 
-def run(target_id, smiles_list, make_diagram=True, progress=None):
+def run(target_id, smiles_list, make_diagram=True, progress=None, advanced=None):
     """Runs the full pipeline synchronously; progress(step, label, done, total)
        is called at each transition (and during step 6, per compound, since
-       docking is the slow part). Returns the result dict."""
+       docking is the slow part). Returns the result dict.
+
+       advanced (plain dict, matching app.py's AdvancedDocking.model_dump()):
+       exhaustiveness/n_poses/use_gnina/box_center/box_size/custom_profile,
+       all optional — Automatic behavior (unvalidated dict/None) is
+       byte-for-byte what this function already did before Advanced
+       Settings existed."""
     progress = progress or _noop
+    advanced = advanced or {}
     smiles_list = [s.strip() for s in smiles_list if s and s.strip()]
 
     progress(1, STEPS[1])
@@ -103,19 +119,56 @@ def run(target_id, smiles_list, make_diagram=True, progress=None):
     dock_by_smiles = {}
     docking_note = None
     dock_validated = False
+    custom_caveat = None
+    custom_profile = advanced.get("custom_profile")
+    blind = (advanced.get("docking_mode") == "blind")
     if DOCK_PROFILE is not None:
-        try:
-            dprofile = DOCK_PROFILE.load_profile(target_id)
-            dock_validated = bool(dprofile.get("validated"))
-        except Exception:
-            dprofile = None
-        dock_ready = bool(DOCK_AVAIL and DOCK_AVAIL.status()["ready"])
-        if dprofile is not None and dock_validated and dock_ready:
-            progress(6, STEPS[6], 0, len(valid_std))
-            for i, s in enumerate(valid_std):
-                dock_by_smiles[s] = DOCK_PIPE.dock_compound(dprofile, s, make_diagram=make_diagram)
-                progress(6, STEPS[6], i + 1, len(valid_std))
+        if custom_profile:
+            if custom_profile.get("target_id") != target_id:
+                dprofile = None
+                docking_note = "Docking skipped: custom_profile's target_id doesn't match the request."
+            else:
+                dprofile = dict(custom_profile)
+                dock_validated = bool(dprofile.get("validated"))
+                if not dock_validated and not blind:
+                    custom_caveat = (f"Structure {dprofile.get('pdb_source', '?')} was manually selected via "
+                                     "Advanced Settings and has NOT passed redocking validation — pose "
+                                     "geometry for this target is unconfirmed.")
         else:
+            try:
+                dprofile = DOCK_PROFILE.load_profile(target_id)
+                dock_validated = bool(dprofile.get("validated"))
+            except Exception:
+                dprofile = None
+
+        if blind and dprofile is not None and dprofile.get("receptor_pdb") and os.path.exists(dprofile["receptor_pdb"]):
+            try:
+                bc, bs = DOCK_RECEPTOR_PREP.box_from_receptor(dprofile["receptor_pdb"])
+                dprofile = dict(dprofile, center=bc, box_size=bs, site_source="blind_whole_protein")
+                custom_caveat = (custom_caveat + " " if custom_caveat else "") + BLIND_CAVEAT
+            except Exception:
+                dprofile = None   # can't compute a blind box -> nothing to dock against
+        elif dprofile is not None and (advanced.get("box_center") or advanced.get("box_size")):
+            dprofile = dict(dprofile)
+            if advanced.get("box_center"): dprofile["center"] = advanced["box_center"]
+            if advanced.get("box_size"): dprofile["box_size"] = advanced["box_size"]
+
+        dock_ready = bool(DOCK_AVAIL and DOCK_AVAIL.status()["ready"])
+        # Automatic site-specific mode still requires validated=True. An explicit
+        # custom_profile (Advanced Settings override) OR blind mode (no pocket
+        # assumed at all) is allowed to run unvalidated, with a caveat carried
+        # through to the caller either way.
+        dock_will_run = dprofile is not None and dock_ready and (dock_validated or custom_profile or blind)
+        if dock_will_run:
+            progress(6, STEPS[6], 0, len(valid_std))
+            engine = DOCK_ENGINES.VinaEngine(exhaustiveness=advanced.get("exhaustiveness") or 8)
+            rescorer = DOCK_ENGINES.NullRescorer() if advanced.get("use_gnina") is False else DOCK_ENGINES.GninaRescorer()
+            n_poses = advanced.get("n_poses") or 9
+            for i, s in enumerate(valid_std):
+                dock_by_smiles[s] = DOCK_PIPE.dock_compound(dprofile, s, engine=engine, rescorer=rescorer,
+                                                            n_poses=n_poses, make_diagram=make_diagram)
+                progress(6, STEPS[6], i + 1, len(valid_std))
+        elif docking_note is None:
             docking_note = ("Docking skipped: this target is not docking-validated." if dprofile is not None
                             and not dock_validated else
                             "Docking skipped: docking engine not available on this machine." if not dock_ready
@@ -124,6 +177,7 @@ def run(target_id, smiles_list, make_diagram=True, progress=None):
     else:
         docking_note = "Docking skipped: the docking package is not importable."
         progress(6, STEPS[6] + " — skipped")
+    dock_ran = bool(dock_by_smiles)
 
     progress(7, STEPS[7])
     qsar_vals = [qsar.get(s, {}).get("Predicted_pIC50") if qsar.get(s, {}).get("In_AD") else None
@@ -137,11 +191,11 @@ def run(target_id, smiles_list, make_diagram=True, progress=None):
         q = qsar.get(smi, {})
         d = dock_by_smiles.get(smi)
         a = admet_by_smiles.get(smi)
-        has_dock_score = dock_validated and d_score[i] is not None
+        has_dock_score = dock_ran and d_score[i] is not None
         if has_dock_score and q_score[i] is not None:
             fused = (1 - DOCK_WEIGHT) * q_score[i] + DOCK_WEIGHT * d_score[i]
         else:
-            fused = q_score[i]   # QSAR-only when docking didn't run/wasn't validated
+            fused = q_score[i]   # QSAR-only when docking didn't run
 
         caveats = []
         if not q.get("In_AD", False):
@@ -150,6 +204,8 @@ def run(target_id, smiles_list, make_diagram=True, progress=None):
             caveats.append(f"Docking: {d.get('reason') or d.get('status')}.")
         if a and a.get("n_alerts"):
             caveats.append(f"{a['n_alerts']} structural alert(s) (PAINS/Brenk/NIH) — informational, not a filter.")
+        if custom_caveat and d is not None:
+            caveats.append(custom_caveat)
 
         shortlist.append({
             "input_smiles": valid_inputs[i],
@@ -185,7 +241,14 @@ def run(target_id, smiles_list, make_diagram=True, progress=None):
         f"compounds (mean |z| <= 3.0 vs. the training set) receive a trusted potency value. "
         + (f"Docking used AutoDock Vina against a redocking+enrichment-validated receptor "
            f"and contributed {int(DOCK_WEIGHT*100)}% of the fused rank score."
-           if dock_validated and dock_by_smiles else
+           if dock_validated and dock_ran and not blind else
+           f"Docking used AutoDock Vina in BLIND mode ({BLIND_CAVEAT}) and contributed "
+           f"{int(DOCK_WEIGHT*100)}% of the fused rank score."
+           if dock_ran and blind else
+           f"Docking used AutoDock Vina against a manually-selected, UNVALIDATED structure "
+           f"({custom_caveat}) and contributed {int(DOCK_WEIGHT*100)}% of the fused rank score — "
+           f"treat docking-influenced ranking here with real skepticism."
+           if dock_ran else
            f"Docking was not used in ranking ({docking_note or 'not available for this target'}).")
         + " ADMET flags (Lipinski/Veber/PAINS/Brenk/NIH) are informational caveats, not filters — "
           "nothing was excluded for violating them. This is a prioritisation aid, not a substitute for assays."
@@ -196,7 +259,8 @@ def run(target_id, smiles_list, make_diagram=True, progress=None):
         "counts": {"submitted": len(smiles_list), "parsed": len(valid_inputs), "skipped": len(skipped)},
         "skipped": skipped,
         "shortlist": shortlist,
-        "docking_used": bool(dock_validated and dock_by_smiles),
+        "docking_used": dock_ran,
         "docking_note": docking_note,
+        "docking_caveat": custom_caveat,
         "methods_note": methods_note,
     }

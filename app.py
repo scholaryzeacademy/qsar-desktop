@@ -26,7 +26,7 @@ import pandas as pd
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 
 from serving import model_adapter as MA
@@ -35,12 +35,6 @@ import admet as ADMET
 import factory_browser
 
 _here = os.path.dirname(os.path.abspath(__file__))
-try:
-    import yaml
-    with open(os.path.join(_here, "diseases.yaml")) as _f:
-        _DISEASES = {d["id"]: d for d in (yaml.safe_load(_f) or {}).get("diseases", [])}
-except Exception:
-    _DISEASES = {}
 
 app = FastAPI(title="PhytoScreen", version="3.0")
 app.include_router(factory_browser.router)
@@ -129,7 +123,6 @@ class PredictBody(BaseModel):
 class MultiBody(BaseModel):
     smiles: List[str]
     target_ids: Optional[List[str]] = None
-    disease_id: Optional[str] = None
 
 
 @app.get("/api/health")
@@ -172,13 +165,33 @@ async def predict_csv(target_id: str = Form(...), file: UploadFile = File(...)):
     return _predict(target_id, smiles)
 
 
-@app.get("/api/diseases")
-def diseases():
-    usable = set(MA.list_target_ids())
-    return {"diseases": [{"disease_id": did, "name": d.get("name"), "note": d.get("note"),
-                          "targets": d.get("targets", []),
-                          "available_targets": [t for t in d.get("targets", []) if t in usable]}
-                         for did, d in _DISEASES.items()]}
+@app.post("/api/parse_sdf")
+async def parse_sdf(file: UploadFile = File(...)):
+    """SDF -> SMILES list, for the SDF input mode on every input tab (Screen/
+       Predict/ADMET/Compare/Docking) — RDKit is far more reliable at reading
+       an SDF's bond/stereo perception server-side than any client-side JS
+       parser would be, so every tab funnels SDF uploads through here and
+       then treats the result exactly like a pasted SMILES list."""
+    import io
+    from rdkit import Chem
+    data = await file.read()
+    if not data:
+        raise HTTPException(400, "Empty file.")
+    suppl = Chem.ForwardSDMolSupplier(io.BytesIO(data), removeHs=False, sanitize=True)
+    smiles, names, n_skipped = [], [], 0
+    for mol in suppl:
+        if mol is None:
+            n_skipped += 1
+            continue
+        try:
+            smiles.append(Chem.MolToSmiles(mol))
+        except Exception:
+            n_skipped += 1
+            continue
+        names.append(mol.GetProp("_Name") if mol.HasProp("_Name") else None)
+    if not smiles:
+        raise HTTPException(400, "No parsable molecules found in this SDF file.")
+    return {"smiles": smiles, "names": names, "n_parsed": len(smiles), "n_skipped": n_skipped}
 
 
 @app.post("/api/predict_multi")
@@ -186,15 +199,9 @@ def predict_multi(body: MultiBody):
     smiles = [s.strip() for s in body.smiles if s and s.strip()]
     if not smiles:
         raise HTTPException(400, "No SMILES provided.")
-    if body.disease_id:
-        d = _DISEASES.get(body.disease_id)
-        if not d:
-            raise HTTPException(404, f"Unknown disease '{body.disease_id}'")
-        target_ids = d["targets"]
-    elif body.target_ids:
-        target_ids = body.target_ids
-    else:
-        raise HTTPException(400, "Provide target_ids or disease_id.")
+    if not body.target_ids:
+        raise HTTPException(400, "Provide target_ids.")
+    target_ids = body.target_ids
     result = A.analyse(smiles, target_ids)
     if not result["targets"]:
         raise HTTPException(409, f"No usable targets among {target_ids}.")
@@ -266,9 +273,10 @@ try:
     from docking import availability as DOCK_AVAIL
     from docking import pipeline as DOCK_PIPE
     from docking import profile as DOCK_PROFILE
+    from docking import recommend as DOCK_RECOMMEND
     _DOCK_IMPORT_ERR = None
 except Exception as e:
-    DOCK_AVAIL = DOCK_PIPE = DOCK_PROFILE = None
+    DOCK_AVAIL = DOCK_PIPE = DOCK_PROFILE = DOCK_RECOMMEND = None
     _DOCK_IMPORT_ERR = str(e)
 
 _DOCK_JOBS = {}
@@ -286,7 +294,7 @@ def docking_status():
                      "Per-target reference-redocking + enrichment validation"]
     try:
         reg = DOCK_PROFILE.load_registry()
-        st["docking_targets"] = list(reg.keys())
+        st["docking_targets"] = [t for t, r in reg.items() if r.get("validated")]
         st["target_details"] = [{
             "target_id": t, "name": r.get("name", t),
             "validated": bool(r.get("validated")),
@@ -307,7 +315,41 @@ def docking_targets():
     if DOCK_PROFILE is None:
         return {"targets": []}
     reg = DOCK_PROFILE.load_registry()
-    return {"targets": [{"target_id": t, "name": r.get("name", t)} for t, r in reg.items()]}
+    return {"targets": [{"target_id": t, "name": r.get("name", t)}
+                        for t, r in reg.items() if r.get("validated")]}
+
+
+@app.get("/api/diseases")
+def diseases():
+    """Diseases (from panel_results_v2.csv) that have >=1 associated target
+       among our QSAR-modeled targets — most of the CSV's diseases fall
+       away here since it covers ~669 genes and we only model ~52."""
+    if DOCK_RECOMMEND is None:
+        return {"diseases": []}
+    return {"diseases": DOCK_RECOMMEND.list_diseases()}
+
+
+@app.get("/api/diseases/{disease_id}/targets")
+def disease_targets(disease_id: str):
+    """Our targets associated with disease_id, ranked by disease-association
+       score, annotated with real docking-validation status and QSAR
+       quality — nothing here is invented."""
+    if DOCK_RECOMMEND is None:
+        return {"targets": []}
+    return {"targets": DOCK_RECOMMEND.targets_for_disease(disease_id)}
+
+
+@app.get("/api/targets/{target_id}/recommendation")
+def target_recommendation(target_id: str):
+    """The 'Why this?' evidence bundle for one target's recommended docking
+       structure: our own empirical validation plus panel_results_v2.csv's
+       crystallographic context."""
+    if DOCK_RECOMMEND is None:
+        raise HTTPException(503, "Docking package not available")
+    rec = DOCK_RECOMMEND.recommendation(target_id)
+    if rec is None:
+        raise HTTPException(404, f"'{target_id}' is not one of our QSAR-modeled targets")
+    return rec
 
 
 @app.get("/api/docking/receptor/{target_id}")
@@ -323,9 +365,338 @@ def docking_receptor(target_id: str):
     return PlainTextResponse(open(receptor_pdb).read())
 
 
+@app.get("/api/docking/receptor_file")
+def docking_receptor_file(path: str):
+    """Serves a receptor PDB by its own file path rather than by target_id —
+       used for the binding-site 3D preview and the dock-results pose viewer
+       whenever the receptor in play isn't (or might not be) the registry's
+       automatic default: an Advanced Settings custom structure (any
+       target, not just no-QSAR-model ones — its receptor_pdb is an
+       absolute path already known client-side from the custom-receptor
+       job's response, not a registry target_id) or the exact receptor a
+       completed docking job actually used. Restricted to docking_targets/
+       — never an arbitrary filesystem path — so this can't be used to read
+       anything else on the box."""
+    allowed_root = os.path.abspath("docking_targets")
+    real = os.path.abspath(path)
+    if not (real == allowed_root or real.startswith(allowed_root + os.sep)) or not os.path.exists(real):
+        raise HTTPException(403, "path not allowed")
+    return PlainTextResponse(open(real).read())
+
+
+def _structure_candidates_for_gene(gene, default_pdb=None):
+    """Shared by both structure_candidates() (QSAR-modeled targets) and
+       gene_structure_candidates() (any protein in the Version 2 CSV, model
+       or not) — everything here only needs a gene symbol, never a real
+       QSAR target_id."""
+    from scripts import panel_candidates as PC
+    df = PC._panel_df()
+    if df is None or gene not in df.index:
+        return {"gene": gene, "default_pdb_id": default_pdb, "candidates": [], "n_qualifying_structures": 0}
+    row = df.loc[gene]
+    ranked_ids = [p for p in str(row.get("all_pdb_ids_ranked") or "").split(";") if p]
+    cands = PC._parse_top5(row.get("top5_pdb_summary"))
+    import re as _re
+    quality_re = _re.compile(r"^(\S+)\s+\(res=([\d.]+),\s*RSCC=([\d.]+),\s*RSR=([\d.]+)\)")
+    quality_by_pdb = {}
+    for chunk in str(row.get("top5_pdb_summary") or "").split(" | "):
+        m = quality_re.match(chunk.strip())
+        if m:
+            quality_by_pdb[m.group(1)] = {"resolution": float(m.group(2)), "ligand_RSCC": float(m.group(3)),
+                                          "ligand_RSR": float(m.group(4))}
+    out = []
+    for c in cands:
+        try:
+            rank = ranked_ids.index(c["pdb_id"]) + 1
+        except ValueError:
+            rank = None
+        q = quality_by_pdb.get(c["pdb_id"], {})
+        out.append({"pdb_id": c["pdb_id"], "resname": c["resname"], "csv_rank": rank,
+                    "is_current_default": c["pdb_id"] == default_pdb,
+                    "resolution": q.get("resolution"), "ligand_RSCC": q.get("ligand_RSCC"),
+                    "ligand_RSR": q.get("ligand_RSR")})
+    return {"gene": gene, "default_pdb_id": default_pdb, "candidates": out,
+           "n_qualifying_structures": row.get("n_qualifying_structures"),
+           "note": "Crystallographic quality ranking only — picking one here does NOT redock/validate it; "
+                   "Vina's pose geometry for a manually-picked structure is unconfirmed until proven."}
+
+
+@app.get("/api/targets/{target_id}/structure_candidates")
+def structure_candidates(target_id: str):
+    """Every qualifying structure for this target's gene from the Version 2
+       CSV (panel_results_v2.csv), for Advanced Settings' manual structure
+       picker — resolution/RSCC/RSR/ligand per candidate, plus which one is
+       the current automatic default, so 'View Evidence' works per-row, not
+       just for the top pick."""
+    if DOCK_RECOMMEND is None:
+        raise HTTPException(503, "Docking package not available")
+    t2g, _ = DOCK_RECOMMEND._target_gene_map()
+    gene = t2g.get(target_id)
+    if gene is None:
+        raise HTTPException(404, f"'{target_id}' is not one of our QSAR-modeled targets")
+    default_pdb = None
+    reg = DOCK_PROFILE.load_registry()
+    src = (reg.get(target_id) or {}).get("pdb_source")
+    if src:
+        default_pdb = src.split("_raw")[0].split(".")[0].upper()
+    return {"target_id": target_id, **_structure_candidates_for_gene(gene, default_pdb)}
+
+
+@app.get("/api/genes/{gene_symbol}/structure_candidates")
+def gene_structure_candidates(gene_symbol: str):
+    """Same as structure_candidates(), but for ANY protein in the Version 2
+       CSV — including the ~620 genes that have disease association evidence
+       but no trained QSAR model. Powers 'docking only, no QSAR model'
+       targets: the Screen tab's disease->target list no longer hides these,
+       it routes them here instead so a receptor can still be built and
+       docked against on demand (see /api/docking/receptor/custom, which
+       already accepts any string as target_id — a QSAR model was never a
+       structural requirement for it, only a UI convention)."""
+    if DOCK_RECOMMEND is None:
+        raise HTTPException(503, "Docking package not available")
+    return _structure_candidates_for_gene(gene_symbol.upper())
+
+
+@app.get("/api/targets/{target_id}/binding_site")
+def binding_site(target_id: str):
+    """Binding-site evidence for the AUTOMATIC (registry-default) profile:
+       the pocket residues within 5 A of the reference ligand, plus the
+       center/box_size already stored. Computed fresh from files already on
+       disk (raw PDB + cleaned receptor) every call — cheap (no PDBFixer/
+       Vina involved) and works retroactively for every already-validated
+       target without needing to rebuild anything."""
+    if DOCK_PROFILE is None:
+        raise HTTPException(503, "Docking package not available")
+    try:
+        profile = DOCK_PROFILE.load_profile(target_id)
+    except Exception as e:
+        raise HTTPException(404, str(e))
+    from docking import receptor_prep as RP
+    resname = profile.get("reference_ligand_resname")
+    raw_path = os.path.join(DOCK_PROFILE.DOCKING_TARGETS_DIR, target_id, profile.get("pdb_source") or "")
+    residues, error = [], None
+    if resname and os.path.exists(raw_path) and profile.get("receptor_pdb") and os.path.exists(profile["receptor_pdb"]):
+        try:
+            ref_coords = RP.locate_ligand_near(raw_path, resname, profile["center"])
+            residues = RP.pocket_residues(profile["receptor_pdb"], ref_coords, cutoff=5.0)
+        except Exception as e:
+            error = str(e)
+    else:
+        error = "raw structure or cleaned receptor no longer on disk"
+    crystal_sdf = os.path.join(DOCK_PROFILE.DOCKING_TARGETS_DIR, target_id, "crystal_ligand.sdf")
+    blind_center = blind_box_size = None
+    if profile.get("receptor_pdb") and os.path.exists(profile["receptor_pdb"]):
+        try:
+            blind_center, blind_box_size = RP.box_from_receptor(profile["receptor_pdb"])
+        except Exception:
+            pass   # blind mode just won't be offered for this target; site-specific evidence above is unaffected
+    return {"target_id": target_id, "center": profile.get("center"), "box_size": profile.get("box_size"),
+           "reference_ligand_resname": resname, "pocket_residues": residues, "n_pocket_residues": len(residues),
+           "has_reference_ligand_mol": os.path.exists(crystal_sdf),
+           "blind_center": blind_center, "blind_box_size": blind_box_size,
+           "error": error if not residues else None}
+
+
+@app.get("/api/targets/{target_id}/reference_ligand.sdf")
+def reference_ligand_sdf(target_id: str):
+    """The crystal (experimentally-observed) reference-ligand pose, real
+       bond orders included — only exists for targets that went through the
+       full validate_target.py pipeline (not Advanced Settings' on-demand
+       custom structures, which skip this step)."""
+    if DOCK_PROFILE is None:
+        raise HTTPException(503, "Docking package not available")
+    path = os.path.join(DOCK_PROFILE.DOCKING_TARGETS_DIR, target_id, "crystal_ligand.sdf")
+    if not os.path.exists(path):
+        raise HTTPException(404, f"no reference-ligand pose on file for '{target_id}'")
+    return PlainTextResponse(open(path).read())
+
+
+class BoxFromResiduesBody(BaseModel):
+    target_id: str
+    residues: List[dict]     # [{chain, resnum}, ...] — from a binding_site/custom_profile response
+    receptor_pdb: Optional[str] = None   # pass a custom_profile's receptor_pdb to target that structure instead
+    padding: float = 8.0
+
+
+@app.post("/api/docking/box_from_residues")
+def box_from_residues(body: BoxFromResiduesBody):
+    """Advanced Settings' 'define the binding site from residues' path:
+       user checks residues off the pocket list, this recomputes center/
+       box_size from their coordinates (same math as the automatic ligand-
+       centered box) — an alternative to typing raw XYZ numbers."""
+    if not body.residues:
+        raise HTTPException(400, "Pick at least one residue.")
+    from docking import receptor_prep as RP
+    receptor_pdb = body.receptor_pdb
+    if not receptor_pdb:
+        if DOCK_PROFILE is None:
+            raise HTTPException(503, "Docking package not available")
+        try:
+            receptor_pdb = DOCK_PROFILE.load_profile(body.target_id)["receptor_pdb"]
+        except Exception as e:
+            raise HTTPException(404, str(e))
+    if not os.path.exists(receptor_pdb):
+        raise HTTPException(404, f"receptor file not found: {receptor_pdb}")
+    try:
+        center, box_size = RP.box_from_residues(receptor_pdb, body.residues, padding=body.padding)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    return {"center": center, "box_size": box_size}
+
+
+_CUSTOM_RECEPTOR_JOBS = {}
+
+
+class CustomReceptorBody(BaseModel):
+    target_id: str
+    pdb_id: str
+    chain: Optional[str] = None
+    ligand_resname: Optional[str] = None
+
+
+@app.post("/api/docking/receptor/custom")
+def docking_receptor_custom(body: CustomReceptorBody):
+    """Advanced Settings' manual structure override: build (strip/repair/
+       PDBQT) a receptor for an expert-chosen PDB entry on demand. Never
+       touches docking_registry.json — this is a per-request profile the
+       caller must pass back as advanced.custom_profile on submit, exactly
+       so it can't silently overwrite the vetted automatic default (and so
+       it can't race a concurrent batch_validate.py run's registry writes).
+       No redocking/enrichment here either (that's a build-time-only,
+       10s-of-minutes step) — the resulting profile stays 'validated: false'
+       and the UI must show that plainly."""
+    import threading, uuid
+    if DOCK_PROFILE is None:
+        raise HTTPException(503, "Docking package not available")
+    from docking import receptor_prep as RP
+    from scripts.pdb_fetch import fetch_pdb
+    from scripts.detect_chain import chain_for_ligand
+    from scripts.batch_validate import gene_for_target
+
+    jid = uuid.uuid4().hex[:12]
+    _CUSTOM_RECEPTOR_JOBS[jid] = {"status": "queued", "profile": None, "error": None}
+
+    def work():
+        job = _CUSTOM_RECEPTOR_JOBS[jid]
+        job["status"] = "running"
+        try:
+            out_dir = os.path.join("docking_targets", "_custom")
+            work_id = f"{body.target_id}__{body.pdb_id}"
+            os.makedirs(os.path.join(out_dir, work_id), exist_ok=True)
+            raw_pdb = os.path.join(out_dir, work_id, f"{body.pdb_id}_raw.pdb")
+            fetch_pdb(body.pdb_id, raw_pdb)
+            chain = body.chain
+            if not chain and body.ligand_resname:
+                chain = chain_for_ligand(raw_pdb, body.ligand_resname)
+                if chain is None:
+                    raise RuntimeError(f"ligand '{body.ligand_resname}' not found in any chain of {body.pdb_id}")
+            profile = RP.build_receptor(raw_pdb, work_id, name=f"{body.target_id} ({body.pdb_id}, manual)",
+                                        ref_resname=body.ligand_resname, chain=chain, out_dir=out_dir)
+            profile["target_id"] = body.target_id   # advertise the REAL target_id to the caller, not the scratch work_id
+            job["profile"] = profile
+            job["status"] = "done"
+        except Exception as e:
+            job["status"] = "error"; job["error"] = str(e)
+    threading.Thread(target=work, daemon=True).start()
+    return {"job_id": jid}
+
+
+@app.get("/api/docking/receptor/custom/job/{jid}")
+def docking_receptor_custom_job(jid: str):
+    job = _CUSTOM_RECEPTOR_JOBS.get(jid)
+    if not job:
+        raise HTTPException(404, "unknown job")
+    r = {"status": job["status"]}
+    if job["status"] == "done":
+        r["profile"] = job["profile"]
+    if job["status"] == "error":
+        r["error"] = job["error"]
+    return r
+
+
+class AdvancedDocking(BaseModel):
+    """Every field is optional and defaults to Automatic — set only the ones
+       an expert user actually overrode (see PROJECT_DOCUMENTATION.md's
+       'Hide complexity, not evidence' principle: Automatic stays the
+       default everywhere, this is opt-in per request, never persisted)."""
+    exhaustiveness: Optional[int] = Field(default=None, ge=1, le=64)
+    n_poses: Optional[int] = Field(default=None, ge=1, le=20)
+    use_gnina: Optional[bool] = None          # None = automatic (use if installed); False = force off
+    docking_mode: Optional[str] = None        # None/"site_specific" (default) | "blind"
+    box_center: Optional[List[float]] = Field(default=None, min_length=3, max_length=3)
+    box_size: Optional[List[float]] = Field(default=None, min_length=3, max_length=3)
+    custom_profile: Optional[dict] = None     # from /api/docking/receptor/custom's job result
+
+
+BLIND_CAVEAT = ("Blind docking: searching the ENTIRE protein surface, not a validated (or even assumed) "
+                "pocket. Vina must cover a much larger volume than a site-specific box, which is both "
+                "slower and substantially less reliable per-site — treat any hit as a candidate binding "
+                "site to investigate, not a confirmed pose or affinity. Consider raising exhaustiveness "
+                "well above the default 8 for a real blind search.")
+
+
+def _resolve_docking_setup(target_id, advanced):
+    """Turns a (possibly-empty) AdvancedDocking into (profile, engine,
+       rescorer, n_poses, caveat) — shared by /api/docking/submit and the
+       Screen pipeline so 'automatic unless overridden' behaves identically
+       in both places.
+
+       Raises HTTPException the same way the plain-automatic path already
+       did when nothing usable is available."""
+    from docking.engines import VinaEngine, GninaRescorer, NullRescorer
+    adv = advanced or AdvancedDocking()
+    blind = (adv.docking_mode == "blind")
+    caveat = None
+
+    if adv.custom_profile:
+        profile = dict(adv.custom_profile)
+        if profile.get("target_id") != target_id:
+            raise HTTPException(400, "custom_profile's target_id doesn't match the request's target_id")
+        if not profile.get("validated") and not blind:
+            caveat = (f"Using a manually-selected structure ({profile.get('pdb_source', '?')}) that has "
+                      "NOT passed redocking validation — pose geometry is unconfirmed. Automatic mode "
+                      "would have used the redocking-validated default instead.")
+    else:
+        try:
+            profile = DOCK_PROFILE.load_profile(target_id)
+        except Exception as e:
+            raise HTTPException(404, str(e))
+        # Site-specific automatic mode still requires a proven pocket. Blind mode
+        # doesn't assume any pocket at all, so it only needs a prepared receptor —
+        # it works even for targets whose default site-specific box never validated.
+        if not profile.get("validated") and not blind:
+            raise HTTPException(409, f"'{target_id}' has not passed redocking validation — its receptor "
+                                     "geometry/search box are unconfirmed, so Vina scores for it would be "
+                                     "unreliable. Use Advanced Settings to pick a different structure, use "
+                                     "Blind docking mode, or see Target Info for its RMSD/enrichment.")
+
+    if blind:
+        from docking import receptor_prep as RP
+        receptor_pdb = profile.get("receptor_pdb")
+        if not receptor_pdb or not os.path.exists(receptor_pdb):
+            raise HTTPException(404, f"no prepared receptor on disk for '{target_id}' — blind docking needs "
+                                     "at least a stripped/repaired receptor, even without a validated pocket.")
+        try:
+            center, size = RP.box_from_receptor(receptor_pdb)
+        except Exception as e:
+            raise HTTPException(500, f"could not compute a blind (whole-protein) box: {e}")
+        profile = dict(profile, center=center, box_size=size, site_source="blind_whole_protein")
+        caveat = (caveat + " " if caveat else "") + BLIND_CAVEAT
+    elif adv.box_center or adv.box_size:
+        profile = dict(profile)
+        if adv.box_center: profile["center"] = adv.box_center
+        if adv.box_size: profile["box_size"] = adv.box_size
+
+    engine = VinaEngine(exhaustiveness=adv.exhaustiveness or 8)
+    rescorer = NullRescorer() if adv.use_gnina is False else GninaRescorer()
+    n_poses = adv.n_poses or 9
+    return profile, engine, rescorer, n_poses, caveat
+
+
 class DockBody(BaseModel):
     target_id: str
     smiles: List[str]
+    advanced: Optional[AdvancedDocking] = None
 
 
 @app.post("/api/docking/submit")
@@ -333,18 +704,25 @@ def docking_submit(body: DockBody):
     import uuid
     if DOCK_AVAIL is None or not DOCK_AVAIL.status()["ready"]:
         raise HTTPException(503, "Docking is not available — install Vina and prep a receptor. See the Docking tab.")
-    try:
-        profile = DOCK_PROFILE.load_profile(body.target_id)
-    except Exception as e:
-        raise HTTPException(404, str(e))
+    profile, engine, rescorer, n_poses, caveat = _resolve_docking_setup(body.target_id, body.advanced)
     smiles = [s.strip() for s in body.smiles if s and s.strip()]
     if not smiles:
         raise HTTPException(400, "No SMILES provided.")
     jid = uuid.uuid4().hex[:12]
-    _DOCK_JOBS[jid] = {"status": "queued", "total": len(smiles), "done": 0, "results": [],
-                       "profile": profile, "smiles": smiles}
+    # captured now (not read back off job["profile"], which _run_docking_job
+    # nulls out once done) — the 3D pose viewer needs the receptor that was
+    # ACTUALLY docked against, which for an Advanced Settings custom_profile
+    # (any target, not just no-QSAR-model ones) is NOT the same file
+    # /api/docking/receptor/{target_id} would serve (that's always the
+    # registry's automatic default, wrong receptor for a manual override —
+    # and a plain KeyError/500 for a GENE_ target_id, which has no registry
+    # entry at all).
+    receptor_pdb_path = profile.get("receptor_pdb")
+    _DOCK_JOBS[jid] = {"status": "queued", "total": len(smiles), "done": 0, "results": [], "caveat": caveat,
+                       "profile": profile, "smiles": smiles, "engine": engine, "rescorer": rescorer, "n_poses": n_poses,
+                       "receptor_pdb_path": receptor_pdb_path}
     _run_docking_job(jid)      # background thread
-    return {"job_id": jid, "total": len(smiles)}
+    return {"job_id": jid, "total": len(smiles), "caveat": caveat}
 
 
 def _run_docking_job(jid):
@@ -353,10 +731,21 @@ def _run_docking_job(jid):
         job = _DOCK_JOBS[jid]
         job["status"] = "running"
         try:
+            from docking.enrichment import annotate_with_reference
             for s in job["smiles"]:
-                job["results"].append(DOCK_PIPE.dock_compound(job["profile"], s, make_diagram=True))
+                result = DOCK_PIPE.dock_compound(
+                    job["profile"], s, engine=job["engine"], rescorer=job["rescorer"],
+                    n_poses=job["n_poses"], make_diagram=True)
+                # FREE per-compound comparison against the target's already-
+                # saved active/decoy distribution (no extra docking) — see
+                # docking/enrichment.py for eligibility rules. No-ops silently
+                # (result unchanged) for unvalidated/custom/blind targets or
+                # targets with no saved reference yet.
+                annotate_with_reference(result, job["profile"].get("target_id"), job["profile"])
+                job["results"].append(result)
                 job["done"] += 1
             job["status"] = "done"; job["smiles"] = None; job["profile"] = None
+            job["engine"] = None; job["rescorer"] = None
         except Exception as e:
             job["status"] = "error"; job["error"] = str(e)
     threading.Thread(target=work, daemon=True).start()
@@ -367,9 +756,67 @@ def docking_job(jid: str):
     job = _DOCK_JOBS.get(jid)
     if not job:
         raise HTTPException(404, "unknown job")
-    r = {"status": job["status"], "done": job["done"], "total": job["total"]}
+    r = {"status": job["status"], "done": job["done"], "total": job["total"], "caveat": job.get("caveat")}
     if job["status"] == "done":
         r["results"] = job["results"]
+        r["receptor_pdb_path"] = job.get("receptor_pdb_path")
+    if job["status"] == "error":
+        r["error"] = job.get("error")
+    return r
+
+
+class FreshDecoyBody(BaseModel):
+    target_id: str
+    smiles: str
+    advanced: Optional[AdvancedDocking] = None
+    n_decoys: int = Field(default=50, ge=5, le=200)
+
+
+_ENRICHMENT_JOBS = {}
+
+
+@app.post("/api/docking/enrichment/fresh")
+def enrichment_fresh_submit(body: FreshDecoyBody):
+    """The EXPENSIVE, on-demand tier (see docking/enrichment.py's module
+       docstring): ~(n_decoys + 1) fresh Vina runs against NEW decoys
+       property-matched to THIS specific compound, using the exact same
+       profile (receptor/box/exhaustiveness) the caller would submit for a
+       normal dock — pass the same `advanced` block a prior /api/docking/
+       submit call for this compound used, so the comparison is apples-to-
+       apples with whatever structure/mode that used (including a manually-
+       picked Advanced Settings structure, which the free per-compound
+       annotation on /api/docking/submit deliberately skips)."""
+    import uuid, threading
+    if DOCK_AVAIL is None or not DOCK_AVAIL.status()["ready"]:
+        raise HTTPException(503, "Docking is not available — install Vina and prep a receptor. See the Docking tab.")
+    if not body.smiles.strip():
+        raise HTTPException(400, "No SMILES provided.")
+    profile, engine, rescorer, n_poses, caveat = _resolve_docking_setup(body.target_id, body.advanced)
+    jid = uuid.uuid4().hex[:12]
+    _ENRICHMENT_JOBS[jid] = {"status": "queued", "result": None, "error": None}
+
+    def work():
+        job = _ENRICHMENT_JOBS[jid]
+        job["status"] = "running"
+        try:
+            from docking.enrichment import fresh_decoy_validation
+            job["result"] = fresh_decoy_validation(body.target_id, body.smiles, profile,
+                                                    engine=engine, n_decoys=body.n_decoys)
+            job["status"] = "done"
+        except Exception as e:
+            job["status"] = "error"; job["error"] = str(e)
+    threading.Thread(target=work, daemon=True).start()
+    return {"job_id": jid}
+
+
+@app.get("/api/docking/enrichment/fresh/job/{jid}")
+def enrichment_fresh_job(jid: str):
+    job = _ENRICHMENT_JOBS.get(jid)
+    if not job:
+        raise HTTPException(404, "unknown job")
+    r = {"status": job["status"]}
+    if job["status"] == "done":
+        r["result"] = job["result"]
     if job["status"] == "error":
         r["error"] = job.get("error")
     return r
@@ -384,6 +831,7 @@ _SCREEN_JOBS = {}
 class ScreenBody(BaseModel):
     target_id: str
     smiles: List[str]
+    advanced: Optional[AdvancedDocking] = None
 
 
 @app.post("/api/screen/submit")
@@ -397,11 +845,11 @@ def screen_submit(body: ScreenBody):
     jid = uuid.uuid4().hex[:12]
     _SCREEN_JOBS[jid] = {"status": "queued", "step": 0, "step_label": "Queued",
                          "done": None, "total": None, "result": None, "error": None}
-    _run_screen_job(jid, body.target_id, smiles)
+    _run_screen_job(jid, body.target_id, smiles, body.advanced.model_dump() if body.advanced else None)
     return {"job_id": jid}
 
 
-def _run_screen_job(jid, target_id, smiles):
+def _run_screen_job(jid, target_id, smiles, advanced=None):
     import threading
 
     def on_progress(step, label, done=None, total=None):
@@ -412,7 +860,7 @@ def _run_screen_job(jid, target_id, smiles):
         job = _SCREEN_JOBS[jid]
         job["status"] = "running"
         try:
-            result = SCREEN.run(target_id, smiles, progress=on_progress)
+            result = SCREEN.run(target_id, smiles, progress=on_progress, advanced=advanced)
             job["result"] = result
             job["status"] = "done"
         except Exception as e:

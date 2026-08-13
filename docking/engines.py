@@ -103,6 +103,14 @@ def parse_gnina(stdout):
             "gnina_affinity": g(r"Affinity:\s*([-\d.]+)")}
 
 
+class NullRescorer:
+    """Always-unavailable rescorer — lets a caller force GNINA off (Advanced
+       Settings 'disable rescoring') without an if/else at every call site."""
+    name = "gnina"
+    def available(self): return False
+    def rescore(self, receptor_pdb, pose_mol): return None
+
+
 class GninaRescorer:
     """CNN pose rescoring. CNNscore (0-1) = pose-quality confidence; CNNaffinity = predicted pKd-like."""
     name = "gnina"

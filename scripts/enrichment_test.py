@@ -10,8 +10,39 @@ Input CSV (enrichment_set.csv): columns  name,smiles,label   (label = active|dec
 
 Run:  python enrichment_test.py cox2 enrichment_set.csv
 """
-import sys, csv, json
+import os, sys, csv, json
 import numpy as np
+
+REFERENCE_FILENAME = "enrichment_reference.json"
+
+
+def reference_path(target_id):
+    from docking.profile import DOCKING_TARGETS_DIR
+    return os.path.join(DOCKING_TARGETS_DIR, target_id, REFERENCE_FILENAME)
+
+
+def save_reference(target_id, m, pdb_source, decoy_method, source_note, engine_name="vina", exhaustiveness=8):
+    """Persists the FULL per-compound active/decoy score list (not just the
+       aggregate AUC/EF already written to docking_registry.json) so a
+       later-submitted compound can be ranked against this exact, already-
+       vetted distribution instead of nothing. Keyed to pdb_source so a
+       future re-validation against a different structure can't silently
+       leave a stale (mismatched-receptor) reference in place — callers
+       must check pdb_source still matches the live registry entry before
+       trusting this file (see docking/enrichment.py's load_reference)."""
+    path = reference_path(target_id)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    payload = {
+        "target_id": target_id, "pdb_source": pdb_source,
+        "decoy_method": decoy_method, "source_note": source_note,
+        "engine": engine_name, "exhaustiveness": exhaustiveness,
+        "metrics": {k: v for k, v in m.items() if k != "ranking"},
+        "compounds": [{"name": r["name"], "smiles": r["smiles"], "label": r["label"], "score": r["score"]}
+                     for r in m.get("ranking", [])],
+    }
+    with open(path, "w") as f:
+        json.dump(payload, f, indent=2)
+    return path
 
 
 def dock_scores(target_id, rows, vina_only=True):
@@ -52,7 +83,7 @@ def metrics(scored, top_frac=0.2):
         result["top_frac"] = top_frac
         result["active_ranks"] = [s["rank"] for s in ok if s["label"] == "active"]
     result["ranking"] = [{"rank": s["rank"], "name": s["name"], "label": s["label"],
-                          "score": s["score"]} for s in ok]
+                          "score": s["score"], "smiles": s.get("smiles")} for s in ok]
     return result
 
 
