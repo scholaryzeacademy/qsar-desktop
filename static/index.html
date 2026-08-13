@@ -1157,15 +1157,16 @@ function renderDockResults(out,results,notice,receptorPdbPath,targetId,adv){
   });
   out.innerHTML=h+`</tbody></table>`;
 }
-async function runFreshDecoy(i){
-  const r=_dockResults[i];
-  const btn=$(`#fresh-btn-${i}`), out=$(`#fresh-out-${i}`);
-  if(!_dockTargetId){ out.innerHTML='<div class="err">No target context for this result.</div>'; return; }
+/* Shared by the Docking tab's results table AND the Screen tab's shortlist —
+   both dock individual compounds and both want the same "go deeper on this
+   one" action, just against different result arrays/target context. */
+async function runFreshDecoyGeneric(smiles,targetId,adv,btn,out){
+  if(!targetId){ out.innerHTML='<div class="err">No target context for this result.</div>'; return; }
   btn.disabled=true; btn.textContent='Generating decoys & docking (~2-5 min)…';
   out.innerHTML='<div class="muted">Generating ~50 decoys matched to this compound, then docking compound + decoys&hellip;</div>';
   try{
     const sub=await api('/api/docking/enrichment/fresh',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({target_id:_dockTargetId,smiles:r.smiles,advanced:_dockAdvanced})});
+      body:JSON.stringify({target_id:targetId,smiles,advanced:adv})});
     let j;
     while(true){
       await new Promise(res=>setTimeout(res,3000));
@@ -1180,6 +1181,15 @@ async function runFreshDecoy(i){
       <div class="muted" style="margin-top:4px;color:#0f766e">Compound score ${res.compound_score} kcal/mol vs ${res.n_decoys_docked} freshly-docked, property-matched &amp; topologically-dissimilar decoys${res.n_decoys_failed?` (${res.n_decoys_failed} failed to dock)`:''}.</div></div>`;
   }catch(e){ out.innerHTML=`<div class="err">${e.message}</div>`; }
   finally{ btn.disabled=false; btn.textContent='Run Fresh Decoy Validation'; }
+}
+function runFreshDecoy(i){
+  const r=_dockResults[i];
+  runFreshDecoyGeneric(r.smiles,_dockTargetId,_dockAdvanced,$(`#fresh-btn-${i}`),$(`#fresh-out-${i}`));
+}
+function runFreshDecoyScreen(i){
+  const r=(window.__screen&&window.__screen.shortlist||[])[i];
+  if(!r) return;
+  runFreshDecoyGeneric(r.smiles,_screenTargetId,_screenAdvanced,$(`#fresh-btn-s${i}`),$(`#fresh-out-s${i}`));
 }
 
 async function toggle3D(i){
@@ -1271,10 +1281,11 @@ $('#s-run').onclick=async()=>{
       await pollDocking(el,r.job_id,r.total,r.caveat,target_id,adv);
       return;
     }
+    const advQsar=getAdvanced('s');
     el.innerHTML=stepsHtml(0,'Submitting&hellip;');
     const r=await api('/api/screen/submit',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({target_id,smiles,advanced:getAdvanced('s')})});
-    await pollScreen(el,r.job_id);
+      body:JSON.stringify({target_id,smiles,advanced:advQsar})});
+    await pollScreen(el,r.job_id,target_id,advQsar);
   }catch(e){fail(el,e.message);}
 };
 const SCREEN_STEPS=['Parse & standardise SMILES','Featurise (RDKit 2D + MACCS + Morgan)',
@@ -1287,18 +1298,22 @@ function stepsHtml(step,note){
   }).join('');
   return `<div class="steps"><div style="text-align:center;color:var(--mut);font-size:12.5px;margin-bottom:6px">${note||''}</div>${rows}</div>`;
 }
-async function pollScreen(el,jid){
+async function pollScreen(el,jid,targetId,adv){
   while(true){
     let s; try{ s=await api('/api/screen/job/'+jid); }catch(e){ fail(el,'Job lost: '+e.message); return; }
     if(s.status==='error'){ fail(el,s.error||'Screen failed.'); return; }
-    if(s.status==='done'){ window.__screen_jid=jid; renderScreen(el,s.result); return; }
+    if(s.status==='done'){ window.__screen_jid=jid; renderScreen(el,s.result,targetId,adv); return; }
     const note=(s.step===6&&s.total)?`Docking ${s.done||0}/${s.total}&hellip;`:(s.step_label||'Working&hellip;');
     el.innerHTML=stepsHtml(s.step||0,`Step ${s.step||0}/8 &mdash; ${note}`);
     await new Promise(r=>setTimeout(r,900));
   }
 }
-function renderScreen(el,d){
+let _screenTargetId=null;
+let _screenAdvanced=null;
+function renderScreen(el,d,targetId,adv){
   window.__screen=d;
+  _screenTargetId=targetId||d.target_id||null;
+  _screenAdvanced=adv||null;
   const c=d.counts;
   let h=`<div class="rhead"><div class="name">${d.target_id}</div>
     <div class="stat">Submitted<b>${c.submitted}</b></div>
@@ -1308,21 +1323,30 @@ function renderScreen(el,d){
   h+=`<div class="disc">${d.methods_note}</div>`;
   if(d.docking_note && !d.docking_used) h+=`<div class="notice">${d.docking_note}</div>`;
   if(!d.shortlist.length){ h+=`<div class="empty">No molecules could be parsed.</div>`; el.innerHTML=h; return; }
+  const hasEnrichment=d.shortlist.some(r=>r.docking&&r.docking.enrichment_percentile!=null);
+  const cols=4+(d.docking_used?2:0)+(hasEnrichment?1:0)+2;
   h+=`<div class="tablewrap"><table><thead><tr><th>#</th><th>Compound</th><th>QSAR pIC50</th><th>Confidence</th>
-    ${d.docking_used?'<th>Vina</th><th>Dock conf.</th>':''}<th>Fused score</th><th>Caveats</th></tr></thead><tbody>`;
+    ${d.docking_used?'<th>Vina</th><th>Dock conf.</th>':''}${hasEnrichment?'<th>vs. known actives/decoys</th>':''}<th>Fused score</th><th>Caveats</th></tr></thead><tbody>`;
   d.shortlist.forEach((r,i)=>{
     const canView=!!(r.docking&&r.docking.interaction_png);
-    h+=`<tr class="${canView?'clickrow':''}" ${canView?`onclick="toggleScreen(${i})"`:''}>
-      <td>${r.rank}${canView?' <span id="sar'+i+'">&#9656;</span>':''}</td>
+    const hasDetail=canView||(r.docking&&r.docking.status==='ok');
+    h+=`<tr class="${hasDetail?'clickrow':''}" ${hasDetail?`onclick="toggleScreen(${i})"`:''}>
+      <td>${r.rank}${hasDetail?' <span id="sar'+i+'">&#9656;</span>':''}</td>
       <td class="smi">${r.smiles}</td>
       <td>${r.qsar.in_domain?('<b>'+r.qsar.predicted_pIC50+'</b>'):'<span class="muted">out-of-domain</span>'}</td>
       <td><span class="chip"><span class="dot ${tierClass[r.qsar.confidence]||'d-out'}"></span>${r.qsar.confidence_label||''}</span></td>
       ${d.docking_used?`<td>${r.docking?(r.docking.vina_score??'&mdash;'):'&mdash;'}</td><td>${r.docking?(r.docking.confidence??'&mdash;'):'&mdash;'}</td>`:''}
+      ${hasEnrichment?`<td>${enrichmentChip(r.docking||{})}</td>`:''}
       <td>${r.fused_score??'&mdash;'}</td>
       <td>${r.caveats.map(c=>`<span class="caveat">${c}</span>`).join('')||'&mdash;'}</td></tr>`;
-    if(canView){
-      h+=`<tr id="sdd${i}" style="display:none"><td></td><td colspan="6" style="padding:0"><div class="detail">
-        <img src="data:image/png;base64,${r.docking.interaction_png}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff"/></div></td></tr>`;
+    if(hasDetail){
+      const img=canView?`<img src="data:image/png;base64,${r.docking.interaction_png}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff"/>`
+                       :'<div class="muted" style="padding:8px 0">No interaction diagram for this pose.</div>';
+      const fresh=`<div class="pose3d-bar" style="margin-top:14px">
+          <button onclick="event.stopPropagation();runFreshDecoyScreen(${i})" id="fresh-btn-s${i}">Run Fresh Decoy Validation</button>
+          <span class="muted" style="font-size:11px">Generates ~50 NEW decoys property-matched &amp; topologically-dissimilar to THIS compound and docks all of them (~2-5 min) &mdash; a compound-specific check beyond the free reference-set percentile above.</span>
+        </div><div id="fresh-out-s${i}" style="margin-top:8px"></div>`;
+      h+=`<tr id="sdd${i}" style="display:none"><td></td><td colspan="${cols-1}" style="padding:0"><div class="detail">${img}${fresh}</div></td></tr>`;
     }
   });
   h+=`</tbody></table></div>`;

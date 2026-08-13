@@ -33,8 +33,10 @@ try:
     from docking import profile as DOCK_PROFILE
     from docking import engines as DOCK_ENGINES
     from docking import receptor_prep as DOCK_RECEPTOR_PREP
+    from docking.enrichment import annotate_with_reference
 except Exception:
     DOCK_AVAIL = DOCK_PIPE = DOCK_PROFILE = DOCK_ENGINES = DOCK_RECEPTOR_PREP = None
+    annotate_with_reference = None
 
 BLIND_CAVEAT = ("Blind docking: searching the ENTIRE protein surface, not a validated (or even assumed) "
                 "pocket. Vina must cover a much larger volume than a site-specific box, which is both "
@@ -167,6 +169,13 @@ def run(target_id, smiles_list, make_diagram=True, progress=None, advanced=None)
             for i, s in enumerate(valid_std):
                 dock_by_smiles[s] = DOCK_PIPE.dock_compound(dprofile, s, engine=engine, rescorer=rescorer,
                                                             n_poses=n_poses, make_diagram=make_diagram)
+                # FREE per-compound comparison against the target's saved active/decoy
+                # distribution (see docking/enrichment.py) — same annotation
+                # /api/docking/submit's job runner applies, just also wired into the
+                # Screen pipeline's own docking call instead of only the standalone
+                # Docking tab. No-ops silently for unvalidated/custom/blind profiles.
+                if annotate_with_reference is not None:
+                    annotate_with_reference(dock_by_smiles[s], target_id, dprofile)
                 progress(6, STEPS[6], i + 1, len(valid_std))
         elif docking_note is None:
             docking_note = ("Docking skipped: this target is not docking-validated." if dprofile is not None
@@ -223,6 +232,8 @@ def run(target_id, smiles_list, make_diagram=True, progress=None, advanced=None)
                 "status": d.get("status"),
                 "interaction_png": d.get("interaction_png"),
                 "residue_overlap_pct": d.get("residue_overlap_pct"),
+                "enrichment_percentile": d.get("enrichment_percentile"),
+                "enrichment_context": d.get("enrichment_context"),
             } if d else None),
             "admet": a,
             "fused_score": round(fused, 4) if fused is not None else None,
