@@ -100,11 +100,27 @@ def annotate_with_reference(result, target_id, profile):
     return result
 
 
-def fresh_decoy_validation(target_id, smiles, profile, engine=None, n_decoys=50, seed=None):
+def fresh_decoy_validation(target_id, smiles, profile, engine=None, n_decoys=50, seed=None, progress_cb=None):
     """~(n_decoys + 1) Vina runs. Returns a dict with compound_score,
        percentile, discrimination label, and the per-decoy scores — or
-       {'error': ...} if the compound/pool can't support the test."""
+       {'error': ...} if the compound/pool can't support the test.
+
+       Decoys are docked CONCURRENTLY (a thread pool, one Vina subprocess
+       per worker) — sequentially this was ~50 back-to-back Vina calls,
+       10+ minutes wall-clock with 31 of 32 cores sitting idle the whole
+       time, since a single exhaustiveness=8 Vina run only keeps ~8 cores
+       busy. Workers get an explicit --cpu cap (docking/engines.py) so N
+       concurrent Vina processes divide the machine's cores instead of each
+       one independently grabbing all of them and thrashing.
+
+       progress_cb(done, total), if given, is called after every dock
+       (compound first, then each decoy as its own thread finishes) so a
+       caller can show live progress instead of one static "generating..."
+       message for the whole run — the single biggest reason this used to
+       look hung: no visible movement for many minutes."""
+    import os
     import pandas as pd
+    from concurrent.futures import ThreadPoolExecutor, as_completed
     from .pipeline import dock_compound
     from .engines import VinaEngine, NullRescorer
     from scripts.generate_decoys import build_pool, select_decoys
@@ -118,19 +134,39 @@ def fresh_decoy_validation(target_id, smiles, profile, engine=None, n_decoys=50,
                          "compound in the candidate pool (models/curated/*.csv) — it may be "
                          "structurally unusual relative to every other target's curated compounds."}
 
+    total = len(decoys) + 1
+    done = 0
+    if progress_cb:
+        progress_cb(done, total)
+
     compound_res = dock_compound(profile, smiles, engine=engine, rescorer=NullRescorer())
     compound_pose = compound_res.get("consensus_pose")
     compound_score = compound_pose["score"] if compound_pose else None
+    done += 1
+    if progress_cb:
+        progress_cb(done, total)
     if compound_score is None:
         return {"error": "This compound did not produce a valid (PoseBusters-passing) pose against "
                          "this receptor — nothing to rank against decoys."}
 
-    decoy_rows = []
-    for d in decoys:
-        r = dock_compound(profile, d["smiles"], engine=engine, rescorer=NullRescorer())
+    n_workers = min(8, max(1, os.cpu_count() or 4))
+    cpu_per_worker = max(1, (os.cpu_count() or n_workers) // n_workers)
+
+    def _dock_one(d):
+        worker_engine = VinaEngine(binary=engine.binary, exhaustiveness=engine.exhaustiveness, cpu=cpu_per_worker)
+        r = dock_compound(profile, d["smiles"], engine=worker_engine, rescorer=NullRescorer())
         pose = r.get("consensus_pose")
-        decoy_rows.append({"name": d["name"], "smiles": d["smiles"], "source_target": d.get("source_target"),
-                           "score": pose["score"] if pose else None})
+        return {"name": d["name"], "smiles": d["smiles"], "source_target": d.get("source_target"),
+               "score": pose["score"] if pose else None}
+
+    decoy_rows = []
+    with ThreadPoolExecutor(max_workers=n_workers) as pool_exec:
+        futures = {pool_exec.submit(_dock_one, d): d for d in decoys}
+        for fut in as_completed(futures):
+            decoy_rows.append(fut.result())
+            done += 1
+            if progress_cb:
+                progress_cb(done, total)
 
     valid_scores = [d["score"] for d in decoy_rows if d["score"] is not None]
     pct = percentile_rank(compound_score, valid_scores) if valid_scores else None

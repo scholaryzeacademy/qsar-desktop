@@ -176,8 +176,24 @@ def main():
     print("   ", redock)
     rmsd, validated = redock.get("reference_rmsd"), bool(redock.get("validated"))
 
-    print(f"[5/5] enrichment test ({args.decoy_method} decoys) ...")
-    if args.decoy_method == "property_matched":
+    # Both enrichment methods need this target's own real ChEMBL training
+    # data (models/<target_id>/Data/full_cleaned.csv) — property_matched for
+    # its top-N actives, weakest_binder for both ends. That only exists for
+    # our ~52 QSAR-modeled targets; a no-QSAR-model gene (target_id like
+    # 'GENE_BTK') has no such bucket, so there's no real-potency active
+    # compound to build an enrichment set around. Enrichment was already
+    # documented as non-gating for 'validated' (redocking alone decides
+    # that) — this just makes the missing-data case an honest skip instead
+    # of an unhandled FileNotFoundError that would abort step 5 entirely
+    # and (via batch_validate.py's subprocess wrapper) read as a total
+    # failure for every candidate tried, even ones that redocked perfectly.
+    has_training_data = os.path.exists(os.path.join("models", args.target_id, "Data", "full_cleaned.csv"))
+    if not has_training_data:
+        print("[5/5] enrichment test skipped: no models/<target_id>/Data/full_cleaned.csv "
+              "(this target has no QSAR training data — redocking alone decides 'validated')")
+        m, source_note = {}, None
+    elif args.decoy_method == "property_matched":
+        print(f"[5/5] enrichment test ({args.decoy_method} decoys) ...")
         rows = build_enrichment_rows_property_matched(args.target_id, args.n_side)
         source_note = ("real actives (top-{n} by measured pChEMBL) vs. property-matched "
                         "(MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar "
@@ -186,59 +202,72 @@ def main():
                         "scripts/generate_decoys.py) — 'presumed inactive' means 'curated for a "
                         "different target's assay', not independently confirmed non-binding"
                        ).format(n=args.n_side)
+        n_active = sum(1 for r in rows if r["label"] == "active")
+        n_decoy = sum(1 for r in rows if r["label"] == "decoy")
+        print(f"    {n_active} actives, {n_decoy} decoys")
+        scored = dock_scores(args.target_id, rows)
+        m = metrics(scored)
+        print("    AUC:", m.get("auc"), "  EF@20%:", m.get("ef_top"), "  verdict:", verdict(m))
     else:
+        print(f"[5/5] enrichment test ({args.decoy_method} decoys) ...")
         rows = build_enrichment_rows_weakest_binder(args.target_id, args.n_side)
         source_note = (f"own ChEMBL training data: top/bottom {args.n_side} by measured "
                         "pchembl_value — 'decoys' are this target's weakest measured binders, "
                         "not confirmed non-binders")
-    n_active = sum(1 for r in rows if r["label"] == "active")
-    n_decoy = sum(1 for r in rows if r["label"] == "decoy")
-    print(f"    {n_active} actives, {n_decoy} decoys")
-    scored = dock_scores(args.target_id, rows)
-    m = metrics(scored)
-    print("    AUC:", m.get("auc"), "  EF@20%:", m.get("ef_top"), "  verdict:", verdict(m))
+        n_active = sum(1 for r in rows if r["label"] == "active")
+        n_decoy = sum(1 for r in rows if r["label"] == "decoy")
+        print(f"    {n_active} actives, {n_decoy} decoys")
+        scored = dock_scores(args.target_id, rows)
+        m = metrics(scored)
+        print("    AUC:", m.get("auc"), "  EF@20%:", m.get("ef_top"), "  verdict:", verdict(m))
 
-    reg = json.load(open(REGISTRY))
-    prior = next((t for t in reg["targets"] if t["target_id"] == args.target_id), None)
-    prior_validated = bool(prior and prior.get("validated"))
-    prior_rmsd = prior.get("reference_rmsd") if prior else None
-    worse = (prior_validated and validated and prior_rmsd is not None and rmsd is not None and rmsd > prior_rmsd)
-    if worse and not args.force:
-        # NOTE: step [2/5]'s prepare_receptor() call above already overwrote
-        # BOTH the registry entry AND the shared docking_targets/<target_id>/
-        # receptor files with THIS (worse) candidate's build, unconditionally,
-        # before this check could ever run. So "keeps the prior entry" isn't
-        # automatic — both have to be explicitly restored here, or a target
-        # that already passed real Vina redocking is left with a registry
-        # entry (and, worse, live docking FILES) matching a candidate that
-        # was supposed to have been rejected. (Same class of bug fixed in
-        # batch_validate.py's _accept_or_revert/_restore_receptor_files —
-        # this is the standalone-CLI equivalent.)
+    # registry_lock spans the WHOLE read-decide-write below (not just each
+    # individual json.dump) — needed once multiple targets can be validated
+    # concurrently (scripts/batch_validate.py's parallel runner): two
+    # processes both reading before either writes would otherwise let one's
+    # update silently overwrite the other's.
+    with P.registry_lock():
+        reg = json.load(open(REGISTRY))
+        prior = next((t for t in reg["targets"] if t["target_id"] == args.target_id), None)
+        prior_validated = bool(prior and prior.get("validated"))
+        prior_rmsd = prior.get("reference_rmsd") if prior else None
+        worse = (prior_validated and validated and prior_rmsd is not None and rmsd is not None and rmsd > prior_rmsd)
+        if worse and not args.force:
+            # NOTE: step [2/5]'s prepare_receptor() call above already overwrote
+            # BOTH the registry entry AND the shared docking_targets/<target_id>/
+            # receptor files with THIS (worse) candidate's build, unconditionally,
+            # before this check could ever run. So "keeps the prior entry" isn't
+            # automatic — both have to be explicitly restored here, or a target
+            # that already passed real Vina redocking is left with a registry
+            # entry (and, worse, live docking FILES) matching a candidate that
+            # was supposed to have been rejected. (Same class of bug fixed in
+            # batch_validate.py's _accept_or_revert/_restore_receptor_files —
+            # this is the standalone-CLI equivalent.)
+            for t in reg["targets"]:
+                if t["target_id"] == args.target_id:
+                    t.update(prior)
+            P.write_registry_json(reg)
+            try:
+                prior_raw = os.path.join(tdir, prior.get("pdb_source") or "")
+                if prior.get("pdb_source") and os.path.exists(prior_raw):
+                    receptor_prep.build_receptor(prior_raw, args.target_id, ref_resname=prior.get("reference_ligand_resname"),
+                                                 chain=prior.get("chain"), out_dir="docking_targets")
+                    print(f"receptor files restored to the prior entry ({prior.get('pdb_source')})")
+            except Exception as e:
+                print(f"WARNING: could not restore receptor files to the prior entry: {e}")
+            print(f"\nNOT accepted: this candidate ({args.pdb_id}) validated at {rmsd} A, "
+                  f"which is WORSE than the existing entry's {prior_rmsd} A (source: {prior.get('pdb_source')}). "
+                  f"Registry AND receptor files reverted to the prior (better) entry. Pass --force to overwrite anyway.")
+            return
         for t in reg["targets"]:
             if t["target_id"] == args.target_id:
-                t.update(prior)
-        json.dump(reg, open(REGISTRY, "w"), indent=2)
-        try:
-            prior_raw = os.path.join(tdir, prior.get("pdb_source") or "")
-            if prior.get("pdb_source") and os.path.exists(prior_raw):
-                receptor_prep.build_receptor(prior_raw, args.target_id, ref_resname=prior.get("reference_ligand_resname"),
-                                             chain=prior.get("chain"), out_dir="docking_targets")
-                print(f"receptor files restored to the prior entry ({prior.get('pdb_source')})")
-        except Exception as e:
-            print(f"WARNING: could not restore receptor files to the prior entry: {e}")
-        print(f"\nNOT accepted: this candidate ({args.pdb_id}) validated at {rmsd} A, "
-              f"which is WORSE than the existing entry's {prior_rmsd} A (source: {prior.get('pdb_source')}). "
-              f"Registry AND receptor files reverted to the prior (better) entry. Pass --force to overwrite anyway.")
-        return
-    for t in reg["targets"]:
-        if t["target_id"] == args.target_id:
-            t["validated"] = validated
-            t["reference_rmsd"] = rmsd
-            t["enrichment_auc"] = m.get("auc")
-            t["enrichment_ef20"] = m.get("ef_top")
-            t["enrichment_n"] = m.get("n_docked")
-            t["enrichment_source"] = source_note
-    json.dump(reg, open(REGISTRY, "w"), indent=2)
+                t["validated"] = validated
+                t["reference_rmsd"] = rmsd
+                t["enrichment_auc"] = m.get("auc")
+                t["enrichment_ef20"] = m.get("ef_top")
+                t["enrichment_n"] = m.get("n_docked")
+                t["enrichment_source"] = source_note
+        P.write_registry_json(reg)
     print(f"\ndone. registry updated for '{args.target_id}': validated = {validated}")
 
     # Per-compound reference (name/smiles/label/score for every active+decoy),
@@ -248,7 +277,7 @@ def main():
     # against a decoy set docked with an unconfirmed receptor/box would be
     # meaningless, per the same redocking-before-enrichment ordering this
     # script already enforces above.
-    if validated:
+    if validated and m.get("ranking"):
         ref_path = save_reference(args.target_id, m, pdb_source=f"{args.pdb_id}_raw.pdb",
                                   decoy_method=args.decoy_method, source_note=source_note)
         print(f"enrichment reference saved -> {ref_path} ({len(m.get('ranking', []))} compounds)")

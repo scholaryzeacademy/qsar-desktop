@@ -22,7 +22,7 @@ Dependencies (install on your machine):
 import os, json, shutil, subprocess, tempfile
 import numpy as np
 
-from .profile import grid_box_from_ligand, REGISTRY
+from .profile import grid_box_from_ligand, REGISTRY, registry_lock, write_registry_json
 
 COMMON_ADDITIVES = {"HOH", "WAT", "SO4", "PO4", "GOL", "EDO", "PEG", "ACT", "NA",
                     "CL", "K", "MG", "ZN", "CA", "MN", "DMS", "TRS", "FMT", "IOD"}
@@ -334,10 +334,11 @@ def prepare_receptor(pdb_path, target_id, name=None, ref_resname=None, chain=Non
     # so the registry keeps working after the project moves or is packaged.
     profile = dict(profile, receptor_pdbqt=os.path.basename(profile["receptor_pdbqt"]),
                    receptor_pdb=os.path.basename(profile["receptor_pdb"]))
-    reg = {}
-    if os.path.exists(REGISTRY):
-        data = json.load(open(REGISTRY))
-        reg = {t["target_id"]: t for t in data.get("targets", [])}
-    reg[target_id] = profile
-    json.dump({"targets": list(reg.values())}, open(REGISTRY, "w"), indent=2)
+    with registry_lock():   # see registry_lock's docstring — needed once multiple targets can validate concurrently
+        reg = {}
+        if os.path.exists(REGISTRY):
+            data = json.load(open(REGISTRY))
+            reg = {t["target_id"]: t for t in data.get("targets", [])}
+        reg[target_id] = profile
+        write_registry_json({"targets": list(reg.values())})
     return profile

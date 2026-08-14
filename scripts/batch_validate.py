@@ -100,12 +100,14 @@ def _write_registry_entry(target_id, entry):
     """Overwrite target_id's dict in the registry with `entry` in place —
        used to revert a CSV-driven re-pick that turned out worse than what
        was already there (see _accept_or_revert)."""
-    reg = json.load(open(REGISTRY))
-    for i, t in enumerate(reg["targets"]):
-        if t["target_id"] == target_id:
-            reg["targets"][i] = entry
-            break
-    json.dump(reg, open(REGISTRY, "w"), indent=2)
+    from docking.profile import registry_lock, write_registry_json
+    with registry_lock():   # see registry_lock's docstring — needed once multiple targets validate concurrently
+        reg = json.load(open(REGISTRY))
+        for i, t in enumerate(reg["targets"]):
+            if t["target_id"] == target_id:
+                reg["targets"][i] = entry
+                break
+        write_registry_json(reg)
 
 
 def _restore_receptor_files(target_id, entry):

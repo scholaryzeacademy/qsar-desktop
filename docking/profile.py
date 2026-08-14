@@ -1,9 +1,41 @@
 """Docking target profiles (per-target receptor + box + reference).  [TESTED: load/save/box]"""
+import contextlib
 import os, json
 import numpy as np
 
 REGISTRY = os.environ.get("DOCKING_REGISTRY", "docking_registry.json")
 DOCKING_TARGETS_DIR = os.environ.get("DOCKING_TARGETS_DIR", "docking_targets")
+
+
+@contextlib.contextmanager
+def registry_lock():
+    """Cross-PROCESS advisory lock (fcntl.flock on a sibling .lock file)
+       guarding one full read-modify-write cycle against docking_registry.json.
+
+       Every write site does its own json.load(REGISTRY) -> mutate -> json.dump
+       — fine for a single writer, but as soon as more than one process can be
+       validating DIFFERENT targets at the same time (see scripts/
+       batch_validate.py's parallel runner), two of these read-then-write
+       cycles can interleave: A reads, B reads (before A's write), A writes,
+       B writes — B's write is from a now-stale copy and silently discards
+       A's update. flock blocks a second process at the 'read' step until the
+       first process's 'write' has completed, so every read-modify-write
+       cycle is atomic with respect to every other process using this same
+       lock — not just this one file's own writes.
+
+       fcntl.flock is process-scoped, not thread-scoped: two threads in the
+       SAME process both get the lock immediately (harmless here — every
+       call site in this codebase does its registry I/O synchronously on
+       one thread per logical operation, never two threads racing the same
+       write inside one process)."""
+    import fcntl
+    lock_path = REGISTRY + ".lock"
+    with open(lock_path, "w") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)
 
 
 def grid_box_from_ligand(coords, padding=8.0, min_size=20.0):
@@ -52,5 +84,21 @@ def load_profile(target_id):
 
 
 def save_registry(profiles):
-    with open(REGISTRY, "w") as f:
-        json.dump({"targets": list(profiles.values())}, f, indent=2)
+    write_registry_json({"targets": list(profiles.values())})
+
+
+def write_registry_json(reg_dict):
+    """json.dump straight into REGISTRY truncates it first, so a reader
+       (e.g. the live app answering a docking request) racing a writer can
+       see a half-written/truncated file and crash on json.load — a real
+       risk once multiple targets validate concurrently while the app stays
+       up for testing. Writing to a same-directory temp file and os.replace-
+       ing it over REGISTRY is atomic on POSIX: any concurrent reader sees
+       either the complete old file or the complete new one, never a partial
+       write. Callers still need registry_lock() around their own read-
+       modify-write cycle to avoid losing another WRITER's update — this
+       only protects readers from ever seeing corruption."""
+    tmp_path = f"{REGISTRY}.tmp.{os.getpid()}"
+    with open(tmp_path, "w") as f:
+        json.dump(reg_dict, f, indent=2)
+    os.replace(tmp_path, REGISTRY)

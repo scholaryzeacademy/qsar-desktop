@@ -557,14 +557,17 @@ class CustomReceptorBody(BaseModel):
 @app.post("/api/docking/receptor/custom")
 def docking_receptor_custom(body: CustomReceptorBody):
     """Advanced Settings' manual structure override: build (strip/repair/
-       PDBQT) a receptor for an expert-chosen PDB entry on demand. Never
-       touches docking_registry.json — this is a per-request profile the
-       caller must pass back as advanced.custom_profile on submit, exactly
-       so it can't silently overwrite the vetted automatic default (and so
-       it can't race a concurrent batch_validate.py run's registry writes).
-       No redocking/enrichment here either (that's a build-time-only,
-       10s-of-minutes step) — the resulting profile stays 'validated: false'
-       and the UI must show that plainly."""
+       PDBQT) a receptor for an expert-chosen PDB entry on demand, THEN run
+       the same redocking check (scripts/validate_target.py's RMSD<2A gate)
+       the automatic/batch pipeline uses — one extra Vina redock of the
+       known co-crystallised ligand, ~10-30s, so a manually-picked structure
+       doesn't have to stay permanently 'unconfirmed' the way it used to.
+       Never touches docking_registry.json regardless of the outcome — this
+       is still a per-request profile the caller passes back as
+       advanced.custom_profile on submit, so it can't silently overwrite the
+       vetted automatic default (or race a concurrent batch_validate.py
+       run's registry writes) — 'validated' here just reflects THIS specific
+       structure's own redocking result, not a promotion to the registry."""
     import threading, uuid
     if DOCK_PROFILE is None:
         raise HTTPException(503, "Docking package not available")
@@ -593,6 +596,27 @@ def docking_receptor_custom(body: CustomReceptorBody):
             profile = RP.build_receptor(raw_pdb, work_id, name=f"{body.target_id} ({body.pdb_id}, manual)",
                                         ref_resname=body.ligand_resname, chain=chain, out_dir=out_dir)
             profile["target_id"] = body.target_id   # advertise the REAL target_id to the caller, not the scratch work_id
+
+            if body.ligand_resname:
+                try:
+                    from scripts.validate_target import fetch_ligand_smiles, make_crystal_sdf
+                    lig_smiles = fetch_ligand_smiles(body.ligand_resname)
+                    crystal_sdf = make_crystal_sdf(raw_pdb, body.ligand_resname,
+                                                   os.path.join(out_dir, work_id, "crystal_ligand.sdf"),
+                                                   lig_smiles, chain=chain)
+                    redock = DOCK_PIPE.redock_reference(profile, lig_smiles, crystal_sdf=crystal_sdf, rmsd_threshold=2.0)
+                    profile["validated"] = bool(redock.get("validated"))
+                    profile["reference_rmsd"] = redock.get("reference_rmsd")
+                    if not redock.get("validated"):
+                        profile["redock_note"] = (
+                            f"redocking RMSD {redock['reference_rmsd']} Å exceeds the 2 Å threshold"
+                            if redock.get("reference_rmsd") is not None
+                            else f"redocking check inconclusive ({redock.get('rmsd_error') or redock.get('status') or 'no valid pose'})")
+                except Exception as e:
+                    profile["redock_note"] = f"redocking check errored: {e}"
+            else:
+                profile["redock_note"] = "no ligand resname given — redocking check skipped"
+
             job["profile"] = profile
             job["status"] = "done"
         except Exception as e:
@@ -609,6 +633,80 @@ def docking_receptor_custom_job(jid: str):
     r = {"status": job["status"]}
     if job["status"] == "done":
         r["profile"] = job["profile"]
+    if job["status"] == "error":
+        r["error"] = job["error"]
+    return r
+
+
+_AUTO_VALIDATE_JOBS = {}
+
+
+class AutoValidateBody(BaseModel):
+    target_id: str
+
+
+@app.post("/api/docking/receptor/auto_validate")
+def docking_receptor_auto_validate(body: AutoValidateBody):
+    """'Find the best validated structure automatically': tries this
+       target's ranked candidates (scripts/batch_validate.py's own
+       cheap-tier-then-deep-tier candidate list, the same source the manual
+       structure picker ranks from) IN ORDER, redocking each one, and keeps
+       the first that passes AND is at least as good as whatever's already
+       the registry default — exactly scripts/batch_validate.py's own
+       run_one()/_try_candidate()/_accept_or_revert() machinery, just
+       exposed for a single target on demand instead of only as an offline
+       batch script. Works for a QSAR-modeled target_id (e.g.
+       CHEMBL1862_ABL1) the same as a no-QSAR-model GENE_<symbol> id —
+       gene_for_target() splits either the same way, and a GENE_<symbol>
+       target getting a validated registry entry for the first time is
+       exactly what turns Automatic mode on for it (previously always
+       'manual structure required, no automatic default exists').
+
+       Safe to call whether or not a default already exists: with one, it
+       can only replace it with something at least as good (never worse —
+       same accept-or-revert protection the offline batch script has, now
+       covering the receptor FILES too, not just the registry entry); with
+       none, it can only ever set one, never invent a fake pass."""
+    import threading, uuid
+    if DOCK_PROFILE is None:
+        raise HTTPException(503, "Docking package not available")
+    jid = uuid.uuid4().hex[:12]
+    _AUTO_VALIDATE_JOBS[jid] = {"status": "queued", "result": None, "error": None}
+
+    def work():
+        job = _AUTO_VALIDATE_JOBS[jid]
+        job["status"] = "running"
+        try:
+            from scripts import batch_validate as BV
+            prior = BV.registry_entry(body.target_id)
+            prior_pdb = prior.get("pdb_source") if prior else None
+            prior_validated = bool(prior and prior.get("validated"))
+            prior_rmsd = prior.get("reference_rmsd") if prior else None
+            BV.run_one(body.target_id, skip_validated=False)
+            new = BV.registry_entry(body.target_id)
+            job["result"] = {
+                "was_already_validated": prior_validated,
+                "prior_pdb_source": prior_pdb, "prior_reference_rmsd": prior_rmsd,
+                "validated": bool(new and new.get("validated")),
+                "pdb_source": new.get("pdb_source") if new else None,
+                "reference_rmsd": new.get("reference_rmsd") if new else None,
+                "changed": bool(new) and (new.get("pdb_source") != prior_pdb or new.get("reference_rmsd") != prior_rmsd),
+            }
+            job["status"] = "done"
+        except Exception as e:
+            job["status"] = "error"; job["error"] = str(e)
+    threading.Thread(target=work, daemon=True).start()
+    return {"job_id": jid}
+
+
+@app.get("/api/docking/receptor/auto_validate/job/{jid}")
+def docking_receptor_auto_validate_job(jid: str):
+    job = _AUTO_VALIDATE_JOBS.get(jid)
+    if not job:
+        raise HTTPException(404, "unknown job")
+    r = {"status": job["status"]}
+    if job["status"] == "done":
+        r["result"] = job["result"]
     if job["status"] == "error":
         r["error"] = job["error"]
     return r
@@ -793,15 +891,20 @@ def enrichment_fresh_submit(body: FreshDecoyBody):
         raise HTTPException(400, "No SMILES provided.")
     profile, engine, rescorer, n_poses, caveat = _resolve_docking_setup(body.target_id, body.advanced)
     jid = uuid.uuid4().hex[:12]
-    _ENRICHMENT_JOBS[jid] = {"status": "queued", "result": None, "error": None}
+    _ENRICHMENT_JOBS[jid] = {"status": "queued", "result": None, "error": None, "done": 0, "total": body.n_decoys + 1}
 
     def work():
         job = _ENRICHMENT_JOBS[jid]
         job["status"] = "running"
         try:
             from docking.enrichment import fresh_decoy_validation
+
+            def on_progress(done, total):
+                job["done"] = done
+                job["total"] = total
+
             job["result"] = fresh_decoy_validation(body.target_id, body.smiles, profile,
-                                                    engine=engine, n_decoys=body.n_decoys)
+                                                    engine=engine, n_decoys=body.n_decoys, progress_cb=on_progress)
             job["status"] = "done"
         except Exception as e:
             job["status"] = "error"; job["error"] = str(e)
@@ -814,7 +917,7 @@ def enrichment_fresh_job(jid: str):
     job = _ENRICHMENT_JOBS.get(jid)
     if not job:
         raise HTTPException(404, "unknown job")
-    r = {"status": job["status"]}
+    r = {"status": job["status"], "done": job.get("done", 0), "total": job.get("total")}
     if job["status"] == "done":
         r["result"] = job["result"]
     if job["status"] == "error":

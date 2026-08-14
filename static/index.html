@@ -394,6 +394,8 @@ function advBodyHTML(g){
       <label>Manual structure (overrides the automatic recommendation)</label>
       <div class="structlist" id="${g}-adv-structlist"><div class="hint" style="padding:8px">Pick a target first.</div></div>
       <div class="hint" id="${g}-adv-structstatus"></div>
+      <button type="button" class="link" id="${g}-adv-autovalidate-btn" style="margin-top:8px">Find best validated structure automatically</button>
+      <div class="hint" id="${g}-adv-autovalidate-status" style="margin-top:4px"></div>
     </div>
     <div class="adv-row"><label>Exhaustiveness</label><input type="number" id="${g}-adv-exh" min="1" max="64" placeholder="Automatic (8)"></div>
     <div class="adv-row"><label>Number of poses</label><input type="number" id="${g}-adv-poses" min="1" max="20" placeholder="Automatic (9)"></div>
@@ -428,6 +430,44 @@ function initAdvancedPanel(g){
     const tid=$(`#${g}-target`)?.value; if(tid) loadBindingSite(g,tid);
     renderSitePreview(g);
   };
+  $(`#${g}-adv-autovalidate-btn`).onclick=()=>runAutoValidate(g);
+}
+async function runAutoValidate(g){
+  const targetId=$(`#${g}-target`)?.value;
+  const status=$(`#${g}-adv-autovalidate-status`), btn=$(`#${g}-adv-autovalidate-btn`);
+  if(!targetId){ status.innerHTML='<div class="err">Pick a target first.</div>'; return; }
+  btn.disabled=true; btn.textContent='Testing candidate structures&hellip;';
+  status.innerHTML='<div class="muted">Redocking ranked candidates in order, keeping the first that passes and is at least as good as any existing default &mdash; can take a few minutes.</div>';
+  try{
+    const sub=await api('/api/docking/receptor/auto_validate',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({target_id:targetId})});
+    let j;
+    while(true){
+      await new Promise(res=>setTimeout(res,4000));
+      j=await api(`/api/docking/receptor/auto_validate/job/${sub.job_id}`);
+      if(j.status==='done'||j.status==='error') break;
+    }
+    if(j.status==='error'){ status.innerHTML=`<div class="err">${j.error||'failed'}</div>`; return; }
+    const r=j.result;
+    if(!r.validated){
+      status.innerHTML = r.was_already_validated
+        ? `<div class="hint">No candidate matched or beat the existing default (${r.prior_pdb_source}, RMSD ${r.prior_reference_rmsd} &Aring;) &mdash; kept as-is.</div>`
+        : `<div class="hint">No candidate passed redocking validation (RMSD &lt; 2 &Aring;) for this target &mdash; still no automatic default. Pick a structure manually above, or use "Run Fresh Decoy Validation" per compound after docking.</div>`;
+    }else if(r.changed){
+      status.innerHTML=`<div class="notice" style="background:#f0fdfa;border-color:#99f6e4;color:#0f766e">`
+        +(r.was_already_validated
+          ? `Found a better structure: ${r.pdb_source} (RMSD ${r.reference_rmsd} &Aring;), replacing ${r.prior_pdb_source} (RMSD ${r.prior_reference_rmsd} &Aring;). This is now the automatic default.`
+          : `Found and set a new automatic default: ${r.pdb_source} (RMSD ${r.reference_rmsd} &Aring;) &mdash; Automatic mode now works for this target without picking a manual structure.`)
+        +`</div>`;
+    }else{
+      status.innerHTML=`<div class="hint">Already using the best validated structure (${r.pdb_source}, RMSD ${r.reference_rmsd} &Aring;) &mdash; nothing changed.</div>`;
+    }
+    // The automatic default may have just been created/replaced — refresh
+    // this target's binding-site view so it reflects it right away instead
+    // of a stale 'pick a structure' state from before this ran.
+    loadBindingSite(g,targetId);
+  }catch(e){ status.innerHTML=`<div class="err">${e.message}</div>`; }
+  finally{ btn.disabled=false; btn.textContent='Find best validated structure automatically'; }
 }
 async function loadStructureCandidates(g,targetId){
   const list=$(`#${g}-adv-structlist`); if(!list) return;
@@ -456,10 +496,10 @@ async function pickStructure(g,targetId,pdbId,resname){
   const list=$(`#${g}-adv-structlist`), status=$(`#${g}-adv-structstatus`);
   const runBtn=$(`#${g}-run`);
   list.querySelectorAll('.structrow').forEach(r=>r.classList.toggle('on', r.dataset.pdb===pdbId));
-  status.innerHTML=`<div class="muted">Preparing receptor for ${pdbId}&hellip; (strip/repair/PDBQT, ~30&ndash;90s, no redocking validation)</div>`;
+  status.innerHTML=`<div class="muted">Preparing receptor for ${pdbId}&hellip; (strip/repair/PDBQT + a redocking check, ~1&ndash;2 min)</div>`;
   clearBoxFields(g);   // a new structure's own center/box_size should show, not a leftover override from a previously-picked one
   if(_advState[g]) _advState[g].selected=new Set();
-  // Building a custom receptor is a real ~30-90s background job — customProfile
+  // Building a custom receptor (+ its own redocking check) is a real ~1-2min background job — customProfile
   // (what getAdvanced() actually submits) isn't set until it finishes, so
   // Run/Dock has to stay disabled meanwhile. Without this, clicking Run right
   // after picking a structure hits "no automatic default" even though a
@@ -473,7 +513,10 @@ async function pickStructure(g,targetId,pdbId,resname){
       const j=await api(`/api/docking/receptor/custom/job/${sub.job_id}`);
       if(j.status==='done'){
         _advState[g].customProfile=j.profile;
-        status.innerHTML=`<div class="notice">Using ${pdbId} (manual) &mdash; NOT redocking-validated; pose geometry is unconfirmed.</div>`;
+        const p=j.profile;
+        status.innerHTML = p.validated
+          ? `<div class="notice" style="background:#f0fdfa;border-color:#99f6e4;color:#0f766e">Using ${pdbId} (manual) &mdash; redocking-validated (RMSD ${p.reference_rmsd} &Aring;).</div>`
+          : `<div class="notice">Using ${pdbId} (manual) &mdash; NOT redocking-validated${p.redock_note?` (${p.redock_note})`:''}; pose geometry is unconfirmed.</div>`;
         applyBindingSiteFromProfile(g,j.profile);
         return;
       }
@@ -595,16 +638,13 @@ async function loadBindingSite(g,targetId){
   _advState[g]=_advState[g]||{customProfile:null,site:null,selected:new Set(),viewer:null};
   _advState[g].selected=new Set();
   clearBoxFields(g);   // new target -> any typed/dragged box override belonged to the PREVIOUS one
-  if(targetId.startsWith('GENE_')){
-    // No registry entry exists for a no-QSAR-model gene — there's no
-    // 'automatic' binding site until the user picks a structure below
-    // (pickStructure -> applyBindingSiteFromProfile fills this in).
-    _advState[g].site=null;
-    renderResidueChecklist(g);
-    if(summary) summary.innerHTML='<span class="muted">Pick a structure below (Advanced Settings) to see its binding site.</span>';
-    if(btn) btn.style.display='none';
-    return;
-  }
+  // GENE_<symbol> (no-QSAR-model) targets USED to never have a registry
+  // entry, so this always short-circuited to 'pick manually'. Now that
+  // "Find best validated structure automatically" (Advanced Settings) can
+  // give one a real registry-backed default same as any QSAR target, try
+  // the normal automatic endpoint first regardless of prefix — it 404s
+  // exactly like before for one that still has no default, so the fallback
+  // below still applies, just no longer unconditionally.
   try{
     const d=await api(`/api/targets/${targetId}/binding_site`);
     _advState[g].site={center:d.center, box_size:d.box_size, residues:d.pocket_residues||[],
@@ -612,10 +652,18 @@ async function loadBindingSite(g,targetId){
                        receptorUrl:`/api/docking/receptor/${targetId}`,
                        ligandUrl:d.has_reference_ligand_mol?`/api/targets/${targetId}/reference_ligand.sdf`:null};
     selectAllResidues(g);
+    renderResidueChecklist(g);
+    updateSiteSummary(g);
+    return;
   }catch(e){
     _advState[g].site=null;
   }
   renderResidueChecklist(g);
+  if(targetId.startsWith('GENE_')){
+    if(summary) summary.innerHTML='<span class="muted">No automatic default yet for this target — pick a structure below (Advanced Settings), or click "Find best validated structure automatically".</span>';
+    if(btn) btn.style.display='none';
+    return;
+  }
   updateSiteSummary(g);
   // No auto-render here — the 3D view now lives in the big modal (opened
   // explicitly via the button below), not an inline sidebar box.
@@ -1076,8 +1124,13 @@ async function dockRun(){
   if(!target){ out.innerHTML='<div class="err">Pick a target.</div>'; return; }
   if(!smiles.length){ out.innerHTML='<div class="err">Enter SMILES.</div>'; return; }
   const adv=getAdvanced('dk');
-  if(isGeneOnly('dk') && (!adv||!adv.custom_profile)){
-    out.innerHTML='<div class="err">Pick a structure in Advanced Settings first — there\'s no automatic default without a QSAR-modeled target.</div>';
+  // A gene-only target CAN have a real automatic default now ("Find best
+  // validated structure automatically") — only block when there's neither
+  // a manual pick NOR an automatic one to fall back on. _advState.site gets
+  // populated by loadBindingSite() whenever /api/targets/{id}/binding_site
+  // succeeds, which is exactly the same check the backend itself makes.
+  if(isGeneOnly('dk') && !(adv&&adv.custom_profile) && !(_advState['dk']&&_advState['dk'].site)){
+    out.innerHTML='<div class="err">Pick a structure in Advanced Settings first — there\'s no automatic default for this target yet. Try "Find best validated structure automatically" there, or pick one manually.</div>';
     return;
   }
   out.innerHTML='<div class="muted">Submitting&hellip;</div>';
@@ -1117,13 +1170,13 @@ function renderDockResults(out,results,notice,receptorPdbPath,targetId,adv){
   const cls={high:'d-high',medium:'d-med',low:'d-low',none:'d-out'};
   const hasGnina=(results||[]).some(r=>r.gnina&&r.gnina.cnn_score!=null);
   const hasEnrichment=(results||[]).some(r=>r.enrichment_percentile!=null);
-  const cols=5+(hasGnina?3:0)+(hasEnrichment?1:0);
+  const cols=6+(hasGnina?3:0)+(hasEnrichment?1:0);   // +1 vs before for the new "Fresh decoy check" column
   _dockResults=results||[];
   _dockReceptorPdbPath=receptorPdbPath||null;
   _dockTargetId=targetId||null;
   _dockAdvanced=adv||null;
   _pose3dInited={};
-  let h=(notice||'')+`<table><thead><tr><th></th><th>Compound</th><th>Confidence</th><th>Vina affinity (kcal/mol)</th>${hasGnina?'<th>GNINA CNN score</th><th>GNINA CNN affinity</th><th>GNINA affinity (kcal/mol)</th>':''}${hasEnrichment?'<th>vs. known actives/decoys</th>':''}<th>Status</th></tr></thead><tbody>`;
+  let h=(notice||'')+`<table><thead><tr><th></th><th>Compound</th><th>Confidence</th><th>Vina affinity (kcal/mol)</th>${hasGnina?'<th>GNINA CNN score</th><th>GNINA CNN affinity</th><th>GNINA affinity (kcal/mol)</th>':''}${hasEnrichment?'<th>vs. known actives/decoys</th>':''}<th>Status</th><th>Fresh decoy check</th></tr></thead><tbody>`;
   (results||[]).forEach((r,i)=>{
     const g=r.gnina||{};
     const canView=!!r.interaction_png;
@@ -1135,7 +1188,8 @@ function renderDockResults(out,results,notice,receptorPdbPath,targetId,adv){
       <td>${r.vina_score??'&mdash;'}</td>
       ${hasGnina?`<td>${g.cnn_score??'&mdash;'}</td><td>${g.cnn_affinity??'&mdash;'}</td><td>${g.gnina_affinity??'&mdash;'}</td>`:''}
       ${hasEnrichment?`<td>${enrichmentChip(r)}</td>`:''}
-      <td class="muted">${r.status==='ok'?(r.n_valid+' valid pose(s)'):(r.reason||r.status||'')}</td></tr>`;
+      <td class="muted">${r.status==='ok'?(r.n_valid+' valid pose(s)'):(r.reason||r.status||'')}</td>
+      <td>${r.status==='ok'?`<button onclick="event.stopPropagation();runFreshDecoy(${i})" id="fresh-btn-${i}">Run Fresh Decoy Validation</button><div id="fresh-out-${i}" style="margin-top:6px"></div>`:'<span class="muted">&mdash;</span>'}</td></tr>`;
     if(hasDetail){
       const ov=canView&&(r.residue_overlap_pct!=null)?`<div class="muted" style="margin:4px 0 8px">Shares ${r.residue_overlap_pct}% of the reference drug's contact residues.</div>`:'';
       const src=canView&&r.interaction_source?`<div class="muted" style="margin:4px 0 8px">Interaction detection: ${r.interaction_source}.</div>`:'';
@@ -1148,11 +1202,7 @@ function renderDockResults(out,results,notice,receptorPdbPath,targetId,adv){
           <label style="font-size:12px;color:var(--mut);cursor:pointer"><input type="checkbox" onclick="event.stopPropagation();toggleSpin(${i},this.checked)" style="vertical-align:middle"> spin</label>
           <span class="muted" style="font-size:11px">All atoms shown incl. hydrogens (nonpolar H positions are geometry-estimated, not Vina's own placement).</span>
         </div><div id="pose3d${i}" class="pose3d" style="display:none"></div>`:'';
-      const fresh=`<div class="pose3d-bar" style="margin-top:14px">
-          <button onclick="event.stopPropagation();runFreshDecoy(${i})" id="fresh-btn-${i}">Run Fresh Decoy Validation</button>
-          <span class="muted" style="font-size:11px">Generates ~50 NEW decoys property-matched &amp; topologically-dissimilar to THIS compound and docks all of them (~2-5 min) &mdash; a compound-specific check beyond the free reference-set percentile above.</span>
-        </div><div id="fresh-out-${i}" style="margin-top:8px"></div>`;
-      h+=`<tr id="dkd${i}" style="display:none"><td></td><td colspan="${cols-1}" style="padding:0"><div class="detail">${ov}${src}${img}${tbl}${pose3d}${fresh}</div></td></tr>`;
+      h+=`<tr id="dkd${i}" style="display:none"><td></td><td colspan="${cols-1}" style="padding:0"><div class="detail">${ov}${src}${img}${tbl}${pose3d}</div></td></tr>`;
     }
   });
   out.innerHTML=h+`</tbody></table>`;
@@ -1163,15 +1213,20 @@ function renderDockResults(out,results,notice,receptorPdbPath,targetId,adv){
 async function runFreshDecoyGeneric(smiles,targetId,adv,btn,out){
   if(!targetId){ out.innerHTML='<div class="err">No target context for this result.</div>'; return; }
   btn.disabled=true; btn.textContent='Generating decoys & docking (~2-5 min)…';
-  out.innerHTML='<div class="muted">Generating ~50 decoys matched to this compound, then docking compound + decoys&hellip;</div>';
+  out.innerHTML='<div class="muted">Generating ~50 decoys matched to this compound&hellip;</div>';
   try{
     const sub=await api('/api/docking/enrichment/fresh',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({target_id:targetId,smiles,advanced:adv})});
     let j;
     while(true){
-      await new Promise(res=>setTimeout(res,3000));
+      await new Promise(res=>setTimeout(res,2000));
       j=await api(`/api/docking/enrichment/fresh/job/${sub.job_id}`);
       if(j.status==='done'||j.status==='error') break;
+      // live progress — several decoys dock in parallel, so this moves in
+      // bursts rather than one-at-a-time, but it moves, unlike before.
+      const done=j.done||0, total=j.total||'?';
+      out.innerHTML=`<div class="muted">Docking ${done}/${total}&hellip;</div>`;
+      btn.textContent=`Docking ${done}/${total}&hellip;`;
     }
     if(j.status==='error'){ out.innerHTML=`<div class="err">${j.error||'failed'}</div>`; return; }
     const res=j.result;
@@ -1274,7 +1329,11 @@ $('#s-run').onclick=async()=>{
       // this is structure-based docking only, reusing the Docking tab's own
       // submit/poll/render (they're generic, not hardcoded to '#dk-out').
       const adv=getAdvanced('s');
-      if(!adv || !adv.custom_profile) throw new Error('Pick a structure in Advanced Settings first — there\'s no automatic default without a QSAR-modeled target.');
+      // Same automatic-default fallback as the Docking tab's dockRun() — a
+      // gene-only target can have a real validated default now, not just a
+      // manual pick (see "Find best validated structure automatically").
+      if(!(adv&&adv.custom_profile) && !(_advState['s']&&_advState['s'].site))
+        throw new Error('Pick a structure in Advanced Settings first — there\'s no automatic default for this target yet. Try "Find best validated structure automatically" there, or pick one manually.');
       el.innerHTML='<div class="muted" style="padding:30px;text-align:center">Submitting&hellip;</div>';
       const r=await api('/api/docking/submit',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({target_id,smiles,advanced:adv})});
@@ -1324,12 +1383,13 @@ function renderScreen(el,d,targetId,adv){
   if(d.docking_note && !d.docking_used) h+=`<div class="notice">${d.docking_note}</div>`;
   if(!d.shortlist.length){ h+=`<div class="empty">No molecules could be parsed.</div>`; el.innerHTML=h; return; }
   const hasEnrichment=d.shortlist.some(r=>r.docking&&r.docking.enrichment_percentile!=null);
-  const cols=4+(d.docking_used?2:0)+(hasEnrichment?1:0)+2;
+  const cols=5+(d.docking_used?2:0)+(hasEnrichment?1:0)+2;   // +1 vs before for the new "Fresh decoy check" column
   h+=`<div class="tablewrap"><table><thead><tr><th>#</th><th>Compound</th><th>QSAR pIC50</th><th>Confidence</th>
-    ${d.docking_used?'<th>Vina</th><th>Dock conf.</th>':''}${hasEnrichment?'<th>vs. known actives/decoys</th>':''}<th>Fused score</th><th>Caveats</th></tr></thead><tbody>`;
+    ${d.docking_used?'<th>Vina</th><th>Dock conf.</th>':''}${hasEnrichment?'<th>vs. known actives/decoys</th>':''}<th>Fused score</th><th>Caveats</th><th>Fresh decoy check</th></tr></thead><tbody>`;
   d.shortlist.forEach((r,i)=>{
     const canView=!!(r.docking&&r.docking.interaction_png);
-    const hasDetail=canView||(r.docking&&r.docking.status==='ok');
+    const canFreshDecoy=!!(r.docking&&r.docking.status==='ok');
+    const hasDetail=canView;
     h+=`<tr class="${hasDetail?'clickrow':''}" ${hasDetail?`onclick="toggleScreen(${i})"`:''}>
       <td>${r.rank}${hasDetail?' <span id="sar'+i+'">&#9656;</span>':''}</td>
       <td class="smi">${r.smiles}</td>
@@ -1338,15 +1398,11 @@ function renderScreen(el,d,targetId,adv){
       ${d.docking_used?`<td>${r.docking?(r.docking.vina_score??'&mdash;'):'&mdash;'}</td><td>${r.docking?(r.docking.confidence??'&mdash;'):'&mdash;'}</td>`:''}
       ${hasEnrichment?`<td>${enrichmentChip(r.docking||{})}</td>`:''}
       <td>${r.fused_score??'&mdash;'}</td>
-      <td>${r.caveats.map(c=>`<span class="caveat">${c}</span>`).join('')||'&mdash;'}</td></tr>`;
+      <td>${r.caveats.map(c=>`<span class="caveat">${c}</span>`).join('')||'&mdash;'}</td>
+      <td>${canFreshDecoy?`<button onclick="event.stopPropagation();runFreshDecoyScreen(${i})" id="fresh-btn-s${i}">Run Fresh Decoy Validation</button><div id="fresh-out-s${i}" style="margin-top:6px"></div>`:'<span class="muted">&mdash;</span>'}</td></tr>`;
     if(hasDetail){
-      const img=canView?`<img src="data:image/png;base64,${r.docking.interaction_png}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff"/>`
-                       :'<div class="muted" style="padding:8px 0">No interaction diagram for this pose.</div>';
-      const fresh=`<div class="pose3d-bar" style="margin-top:14px">
-          <button onclick="event.stopPropagation();runFreshDecoyScreen(${i})" id="fresh-btn-s${i}">Run Fresh Decoy Validation</button>
-          <span class="muted" style="font-size:11px">Generates ~50 NEW decoys property-matched &amp; topologically-dissimilar to THIS compound and docks all of them (~2-5 min) &mdash; a compound-specific check beyond the free reference-set percentile above.</span>
-        </div><div id="fresh-out-s${i}" style="margin-top:8px"></div>`;
-      h+=`<tr id="sdd${i}" style="display:none"><td></td><td colspan="${cols-1}" style="padding:0"><div class="detail">${img}${fresh}</div></td></tr>`;
+      const img=`<img src="data:image/png;base64,${r.docking.interaction_png}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff"/>`;
+      h+=`<tr id="sdd${i}" style="display:none"><td></td><td colspan="${cols-1}" style="padding:0"><div class="detail">${img}</div></td></tr>`;
     }
   });
   h+=`</tbody></table></div>`;

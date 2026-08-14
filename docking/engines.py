@@ -67,8 +67,15 @@ def _pdbqt_file_to_rdkit(path):
 class VinaEngine(DockingEngine):
     name = "vina"
 
-    def __init__(self, binary="vina", exhaustiveness=8):
-        self.binary, self.exhaustiveness = binary, exhaustiveness
+    def __init__(self, binary="vina", exhaustiveness=8, cpu=None):
+        """cpu: threads Vina's OWN internal search may use (its --cpu flag).
+           Left at Vina's default (all detected cores) unless set — pass a
+           capped value when running several VinaEngine.dock() calls
+           CONCURRENTLY from different threads (see docking/enrichment.py's
+           fresh_decoy_validation), so N parallel single-core-greedy Vina
+           processes don't all independently try to grab every core and
+           thrash each other for no wall-clock benefit."""
+        self.binary, self.exhaustiveness, self.cpu = binary, exhaustiveness, cpu
 
     def available(self):
         return shutil.which(self.binary) is not None
@@ -80,12 +87,14 @@ class VinaEngine(DockingEngine):
         with tempfile.TemporaryDirectory() as td:
             lig = os.path.join(td, "lig.pdbqt"); out = os.path.join(td, "out.pdbqt")
             open(lig, "w").write(ligand_prep.pdbqt)
-            subprocess.run([self.binary, "--receptor", receptor_profile["receptor_pdbqt"],
-                            "--ligand", lig, "--center_x", str(cx), "--center_y", str(cy),
-                            "--center_z", str(cz), "--size_x", str(sx), "--size_y", str(sy),
-                            "--size_z", str(sz), "--out", out, "--num_modes", str(n_poses),
-                            "--exhaustiveness", str(self.exhaustiveness)],
-                           check=True, capture_output=True, text=True)
+            cmd = [self.binary, "--receptor", receptor_profile["receptor_pdbqt"],
+                  "--ligand", lig, "--center_x", str(cx), "--center_y", str(cy),
+                  "--center_z", str(cz), "--size_x", str(sx), "--size_y", str(sy),
+                  "--size_z", str(sz), "--out", out, "--num_modes", str(n_poses),
+                  "--exhaustiveness", str(self.exhaustiveness)]
+            if self.cpu:
+                cmd += ["--cpu", str(self.cpu)]
+            subprocess.run(cmd, check=True, capture_output=True, text=True)
             scores = [float(m) for m in re.findall(r"REMARK VINA RESULT:\s+([-\d.]+)", open(out).read())]
             mols = _pdbqt_file_to_rdkit(out)
         return [Pose("vina", scores[i] if i < len(scores) else float("nan"),
