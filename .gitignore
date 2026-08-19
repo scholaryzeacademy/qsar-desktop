@@ -21,3 +21,4 @@ frontend/dist/
 frontend/*.tsbuildinfo
 frontend/.env.local
 frontend/.env.*.local
+_decoy_pool_cache.pkl
