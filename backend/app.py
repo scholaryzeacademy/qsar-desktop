@@ -24,8 +24,8 @@ warnings.filterwarnings("ignore")
 
 import pandas as pd
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
-from fastapi.responses import FileResponse, PlainTextResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List
 
@@ -34,10 +34,22 @@ import analysis as A
 import admet as ADMET
 import factory_browser
 
-_here = os.path.dirname(os.path.abspath(__file__))
-
 app = FastAPI(title="PhytoScreen", version="3.0")
 app.include_router(factory_browser.router)
+
+# The UI (frontend/) is a separate app/process — dev server (Vite) or a
+# built static bundle served by anything, no longer served by this backend
+# (see the removed desktop.py / static-mount). No cookies or session auth
+# exist here, so a permissive default is safe; ALLOWED_ORIGINS lets a real
+# deployment lock it down to its actual frontend origin(s).
+_allowed_origins = [o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "*").split(",") if o.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_allowed_origins,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 DISCLAIMER = ("Prioritisation aid, not a substitute for assays. Trust predictions only for "
               "in-domain molecules; treat the top of the list as a shortlist.")
@@ -454,7 +466,12 @@ def gene_structure_candidates(gene_symbol: str):
        structural requirement for it, only a UI convention)."""
     if DOCK_RECOMMEND is None:
         raise HTTPException(503, "Docking package not available")
-    return _structure_candidates_for_gene(gene_symbol.upper())
+    default_pdb = None
+    reg = DOCK_PROFILE.load_registry()
+    src = (reg.get(f"GENE_{gene_symbol.upper()}") or {}).get("pdb_source")
+    if src:
+        default_pdb = src.split("_raw")[0].split(".")[0].upper()
+    return _structure_candidates_for_gene(gene_symbol.upper(), default_pdb)
 
 
 @app.get("/api/targets/{target_id}/binding_site")
@@ -1006,10 +1023,3 @@ def screen_export_csv(jid: str):
                              headers={"Content-Disposition": f'attachment; filename="screen_{jid}.csv"'})
 
 
-# ---------------- single-page UI ----------------
-_static = os.path.join(_here, "static")
-if os.path.isdir(_static):
-    @app.get("/")
-    def index():
-        return FileResponse(os.path.join(_static, "index.html"))
-    app.mount("/static", StaticFiles(directory=_static), name="static")

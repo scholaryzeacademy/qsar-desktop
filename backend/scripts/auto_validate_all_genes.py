@@ -32,7 +32,7 @@ from scripts.panel_candidates import PANEL_CSV
 
 def gene_only_target_ids():
     """Every GENE_<symbol> id the app itself would construct for a no-QSAR-
-       model target (see static/index.html's populateGroupTargets) — every
+       model target (see frontend/src/components/TargetPicker.tsx) — every
        panel CSV gene EXCEPT the ones covered by a real QSAR target_id."""
     df = pd.read_csv(PANEL_CSV)
     all_genes = sorted(df["targetSymbol"].unique())

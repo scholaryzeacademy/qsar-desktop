@@ -1,0 +1,80 @@
+@import "./fonts/fonts.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply bg-canvas text-ink font-sans;
+    font-size: 14.5px;
+    line-height: 1.55;
+  }
+  ::selection {
+    background: #a8e06355;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #c3d3ba transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: #c3d3ba;
+    border-radius: 99px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  .field-label {
+    @apply block text-[11px] font-semibold uppercase tracking-[0.06em] text-brand-700 mt-4 mb-1.5 first:mt-0;
+  }
+  .field-input {
+    @apply w-full rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink
+           placeholder:text-inkmut/70 outline-none transition
+           focus:border-brand-500 focus:ring-2 focus:ring-brand-400/25;
+  }
+  .field-hint {
+    @apply mt-1.5 text-[12px] text-inkmut;
+  }
+  .btn-primary {
+    @apply inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-700 px-4 py-2.5
+           text-[14px] font-semibold text-white shadow-sm transition
+           hover:bg-brand-800 active:scale-[0.985] disabled:cursor-default disabled:opacity-50;
+  }
+  .btn-link {
+    @apply inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-line bg-surface2/60
+           px-3 py-1.5 text-[12.5px] font-semibold text-brand-700 transition
+           hover:bg-surface2 hover:border-line2 disabled:cursor-default disabled:opacity-50;
+  }
+  .card {
+    @apply rounded-2xl border border-line bg-surface shadow-card;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 text-[12px] font-semibold whitespace-nowrap;
+  }
+  .dot {
+    @apply h-[9px] w-[9px] rounded-full shrink-0;
+  }
+  .badge {
+    @apply rounded-full px-2 py-0.5 text-[10.5px] font-bold;
+  }
+  .smi-mono {
+    @apply font-mono text-[12px] text-inkmut break-all;
+  }
+}

@@ -477,25 +477,138 @@
     {
       "target_id": "CHEMBL1951_MAOA",
       "name": "CHEMBL1951_MAOA",
-      "pdb_source": "2Z5X_raw.pdb",
-      "reference_ligand_resname": "DCX",
+      "pdb_source": "2BXS_raw.pdb",
+      "reference_ligand_resname": "MLG",
+      "chain": "A",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        60.315,
-        12.389,
-        -20.29
+        10.165,
+        125.413,
+        51.566
       ],
       "box_size": [
+        27.005,
         20.0,
-        26.336,
-        24.62
+        20.482
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 56,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 57,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 58,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 86,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 164,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 165,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 191,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 192,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 193,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 194,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 200,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 307,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 309,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 319,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 320,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 321,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 334,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 336,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 391,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 428,
+          "resname": "TYR"
+        }
+      ],
+      "blind_center": [
+        17.944,
+        122.662,
+        54.006
+      ],
+      "blind_box_size": [
+        75.18,
+        71.709,
+        66.56
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": null,
-      "enrichment_auc": 0.68,
-      "enrichment_ef20": 1.2,
+      "validated": true,
+      "reference_rmsd": 1.974,
+      "enrichment_auc": 0.691,
+      "enrichment_ef20": 1.8,
       "enrichment_n": 24,
       "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
     },
@@ -664,173 +777,143 @@
     {
       "target_id": "CHEMBL1974_FLT3",
       "name": "CHEMBL1974_FLT3",
-      "pdb_source": "4RT7_raw.pdb",
-      "reference_ligand_resname": "P30",
+      "pdb_source": "6JQR_raw.pdb",
+      "reference_ligand_resname": "C6F",
       "chain": "A",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        -40.601,
-        11.24,
-        -13.828
+        -28.037,
+        -10.362,
+        -28.988
       ],
       "box_size": [
-        31.965,
-        20.48,
-        34.968
+        20.738,
+        35.236,
+        25.253
       ],
       "binding_site_residues": [
         {
           "chain": "A",
-          "resnum": 16,
-          "resname": "LYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 18,
+          "resnum": 46,
           "resname": "LEU"
         },
         {
           "chain": "A",
-          "resnum": 26,
-          "resname": "VAL"
-        },
-        {
-          "chain": "A",
-          "resnum": 42,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 44,
-          "resname": "LYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 58,
-          "resname": "GLU"
-        },
-        {
-          "chain": "A",
-          "resnum": 61,
-          "resname": "MET"
-        },
-        {
-          "chain": "A",
-          "resnum": 62,
-          "resname": "MET"
-        },
-        {
-          "chain": "A",
-          "resnum": 65,
-          "resname": "LEU"
-        },
-        {
-          "chain": "A",
-          "resnum": 71,
-          "resname": "ILE"
-        },
-        {
-          "chain": "A",
-          "resnum": 72,
-          "resname": "VAL"
-        },
-        {
-          "chain": "A",
-          "resnum": 88,
-          "resname": "PHE"
-        },
-        {
-          "chain": "A",
-          "resnum": 89,
-          "resname": "GLU"
-        },
-        {
-          "chain": "A",
-          "resnum": 90,
-          "resname": "TYR"
-        },
-        {
-          "chain": "A",
-          "resnum": 91,
-          "resname": "CYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 92,
-          "resname": "CYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 93,
-          "resname": "TYR"
-        },
-        {
-          "chain": "A",
-          "resnum": 94,
+          "resnum": 47,
           "resname": "GLY"
         },
         {
           "chain": "A",
-          "resnum": 95,
+          "resnum": 48,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 54,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 69,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 71,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 100,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 116,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 117,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 118,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 119,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 120,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 121,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 122,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 123,
           "resname": "ASP"
         },
         {
           "chain": "A",
           "resnum": 126,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 171,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 174,
           "resname": "LEU"
         },
         {
           "chain": "A",
-          "resnum": 132,
-          "resname": "VAL"
-        },
-        {
-          "chain": "A",
-          "resnum": 133,
-          "resname": "HIS"
-        },
-        {
-          "chain": "A",
-          "resnum": 142,
-          "resname": "LEU"
-        },
-        {
-          "chain": "A",
-          "resnum": 151,
-          "resname": "ILE"
-        },
-        {
-          "chain": "A",
-          "resnum": 152,
+          "resnum": 184,
           "resname": "CYS"
         },
         {
           "chain": "A",
-          "resnum": 153,
+          "resnum": 185,
           "resname": "ASP"
         },
         {
           "chain": "A",
-          "resnum": 154,
+          "resnum": 186,
           "resname": "PHE"
         }
       ],
       "blind_center": [
-        -31.343,
-        11.45,
-        -14.508
+        -19.612,
+        -0.212,
+        -23.188
       ],
       "blind_box_size": [
-        65.013,
-        55.579,
-        62.942
+        61.314,
+        60.743,
+        66.381
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 2.015,
-      "enrichment_auc": 0.852,
-      "enrichment_ef20": 2.4,
+      "validated": true,
+      "reference_rmsd": 1.977,
+      "enrichment_auc": 0.859,
+      "enrichment_ef20": 3.0,
       "enrichment_n": 24,
       "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
     },
@@ -1529,22 +1612,110 @@
     {
       "target_id": "CHEMBL2147_PIM1",
       "name": "CHEMBL2147_PIM1",
-      "pdb_source": "3F2A_raw.pdb",
-      "reference_ligand_resname": "985",
+      "pdb_source": "8R0Q_raw.pdb",
+      "reference_ligand_resname": "XGB",
+      "chain": "A",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        73.793,
-        34.666,
-        1.879
+        119.52,
+        203.631,
+        -2.245
       ],
       "box_size": [
         20.0,
-        23.155,
-        25.902
+        23.156,
+        20.0
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 12,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 17,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 20,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 33,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 35,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 66,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 82,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 83,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 84,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 136,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 147,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 148,
+          "resname": "ASP"
+        }
+      ],
+      "blind_center": [
+        127.972,
+        196.007,
+        -2.138
+      ],
+      "blind_box_size": [
+        64.456,
+        61.729,
+        52.594
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false
+      "validated": true,
+      "reference_rmsd": 0.031,
+      "enrichment_auc": 0.551,
+      "enrichment_ef20": 1.2,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
     },
     {
       "target_id": "CHEMBL2148_JAK3",
@@ -3060,26 +3231,119 @@
     {
       "target_id": "CHEMBL2842_MTOR",
       "name": "CHEMBL2842_MTOR",
-      "pdb_source": "1FAP_raw.pdb",
-      "reference_ligand_resname": "RAP",
+      "pdb_source": "8PPZ_raw.pdb",
+      "reference_ligand_resname": "0AN",
+      "chain": "A",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        -8.57,
-        26.895,
-        36.866
+        -9.276,
+        3.902,
+        29.688
       ],
       "box_size": [
-        31.392,
-        24.046,
-        31.684
+        24.872,
+        27.418,
+        25.521
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 26,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 28,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 36,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 37,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 42,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 46,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 54,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 55,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 56,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 59,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 82,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 87,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 90,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 91,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 97,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 99,
+          "resname": "PHE"
+        }
+      ],
+      "blind_center": [
+        -7.702,
+        -3.721,
+        24.16
+      ],
+      "blind_box_size": [
+        47.769,
+        43.094,
+        39.342
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": null,
-      "enrichment_auc": null,
-      "enrichment_ef20": null,
-      "enrichment_n": 0,
+      "validated": true,
+      "reference_rmsd": 1.739,
+      "enrichment_auc": 0.301,
+      "enrichment_ef20": 0.6,
+      "enrichment_n": 24,
       "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
     },
     {
@@ -4025,26 +4289,209 @@
     {
       "target_id": "CHEMBL3572_CETP",
       "name": "CHEMBL3572_CETP",
-      "pdb_source": "4F2A_raw.pdb",
-      "reference_ligand_resname": "PCW",
+      "pdb_source": "4EWS_raw.pdb",
+      "reference_ligand_resname": "DLP",
+      "chain": "A",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        -19.878,
-        16.282,
-        -22.517
+        19.614,
+        16.476,
+        22.768
       ],
       "box_size": [
-        30.42,
-        32.134,
-        31.126
+        30.229,
+        32.035,
+        32.039
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 201,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 202,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 203,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 204,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 207,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 208,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 209,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 232,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 261,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 265,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 266,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 269,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 270,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 273,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 278,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 279,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 280,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 281,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 319,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 320,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 321,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 325,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 327,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 336,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 338,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 340,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 417,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 420,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 421,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 424,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 425,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 428,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 429,
+          "resname": "MET"
+        },
+        {
+          "chain": "A",
+          "resnum": 432,
+          "resname": "LYS"
+        }
+      ],
+      "blind_center": [
+        14.652,
+        4.202,
+        39.15
+      ],
+      "blind_box_size": [
+        66.845,
+        73.456,
+        126.482
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": null,
-      "enrichment_auc": null,
-      "enrichment_ef20": null,
-      "enrichment_n": 0,
+      "reference_rmsd": 5.057,
+      "enrichment_auc": 0.5,
+      "enrichment_ef20": 0.56,
+      "enrichment_n": 18,
       "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
     },
     {
@@ -9897,14 +10344,14 @@
         }
       ],
       "blind_center": [
-        22.971,
-        20.628,
-        21.393
+        22.968,
+        20.629,
+        21.389
       ],
       "blind_box_size": [
-        58.122,
-        53.594,
-        64.107
+        58.203,
+        53.433,
+        64.058
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -10198,136 +10645,206 @@
     {
       "target_id": "GENE_AURKC",
       "name": "GENE_AURKC",
-      "pdb_source": "6GR9_raw.pdb",
-      "reference_ligand_resname": "VX6",
+      "pdb_source": "6GR8_raw.pdb",
+      "reference_ligand_resname": "F8Z",
       "chain": "A",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        30.29,
-        6.223,
-        6.985
+        25.755,
+        7.865,
+        -2.659
       ],
       "box_size": [
-        22.02,
-        30.808,
-        25.144
+        24.402,
+        23.332,
+        33.827
       ],
       "binding_site_residues": [
         {
           "chain": "A",
-          "resnum": 12,
+          "resnum": 17,
           "resname": "LEU"
         },
         {
           "chain": "A",
-          "resnum": 13,
+          "resnum": 18,
           "resname": "GLY"
         },
         {
           "chain": "A",
-          "resnum": 14,
+          "resnum": 19,
           "resname": "LYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 17,
-          "resname": "PHE"
         },
         {
           "chain": "A",
           "resnum": 20,
-          "resname": "VAL"
-        },
-        {
-          "chain": "A",
-          "resnum": 33,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 35,
-          "resname": "LYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 58,
-          "resname": "GLN"
-        },
-        {
-          "chain": "A",
-          "resnum": 67,
-          "resname": "LEU"
-        },
-        {
-          "chain": "A",
-          "resnum": 83,
-          "resname": "LEU"
-        },
-        {
-          "chain": "A",
-          "resnum": 84,
-          "resname": "GLU"
-        },
-        {
-          "chain": "A",
-          "resnum": 85,
-          "resname": "TYR"
-        },
-        {
-          "chain": "A",
-          "resnum": 86,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 87,
-          "resname": "PRO"
-        },
-        {
-          "chain": "A",
-          "resnum": 88,
-          "resname": "ARG"
-        },
-        {
-          "chain": "A",
-          "resnum": 89,
           "resname": "GLY"
         },
         {
           "chain": "A",
+          "resnum": 21,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 22,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 25,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 38,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 40,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 42,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 47,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 52,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 53,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 55,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 56,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 57,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 59,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 72,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 86,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 89,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
           "resnum": 90,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 91,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 94,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 95,
           "resname": "GLU"
         },
         {
           "chain": "A",
           "resnum": 136,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 138,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 139,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 140,
           "resname": "LEU"
         },
         {
           "chain": "A",
-          "resnum": 146,
+          "resnum": 141,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 151,
           "resname": "ALA"
         },
         {
           "chain": "A",
-          "resnum": 147,
+          "resnum": 152,
           "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 153,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 154,
+          "resname": "GLY"
         }
       ],
       "blind_center": [
-        35.269,
-        5.055,
-        19.529
+        19.2,
+        0.304,
+        -2.068
       ],
       "blind_box_size": [
-        66.598,
-        57.767,
-        57.189
+        72.628,
+        52.436,
+        53.694
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 2.482,
+      "validated": true,
+      "reference_rmsd": 1.791,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -11084,18 +11601,18 @@
         }
       ],
       "blind_center": [
-        -37.778,
-        16.033,
-        -15.314
+        -37.777,
+        16.038,
+        -15.307
       ],
       "blind_box_size": [
-        62.033,
-        94.769,
-        64.133
+        62.134,
+        94.731,
+        64.352
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.448,
+      "reference_rmsd": 2.454,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -11767,18 +12284,18 @@
         }
       ],
       "blind_center": [
-        14.389,
-        -8.708,
-        -15.257
+        14.39,
+        -8.709,
+        -15.254
       ],
       "blind_box_size": [
-        60.563,
-        50.08,
-        47.471
+        60.869,
+        49.998,
+        47.533
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.374,
+      "reference_rmsd": 3.016,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -12191,116 +12708,141 @@
     {
       "target_id": "GENE_C5AR1",
       "name": "GENE_C5AR1",
-      "pdb_source": "6C1Q_raw.pdb",
-      "reference_ligand_resname": "9P2",
+      "pdb_source": "6C1R_raw.pdb",
+      "reference_ligand_resname": "EFD",
       "chain": "B",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        -14.894,
-        26.613,
-        43.279
+        12.597,
+        2.525,
+        -45.828
       ],
       "box_size": [
-        26.187,
-        26.081,
-        25.007
+        22.161,
+        28.663,
+        29.134
       ],
       "binding_site_residues": [
         {
           "chain": "A",
-          "resnum": 180,
+          "resnum": 173,
           "resname": "TYR"
         },
         {
           "chain": "A",
-          "resnum": 183,
+          "resnum": 176,
           "resname": "ILE"
         },
         {
           "chain": "A",
-          "resnum": 184,
+          "resnum": 177,
           "resname": "LEU"
         },
         {
           "chain": "A",
-          "resnum": 187,
+          "resnum": 180,
           "resname": "ALA"
         },
         {
           "chain": "A",
-          "resnum": 188,
+          "resnum": 181,
           "resname": "THR"
         },
         {
           "chain": "A",
-          "resnum": 191,
+          "resnum": 183,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 184,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 187,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 207,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 210,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 211,
           "resname": "ALA"
         },
         {
           "chain": "A",
           "resnum": 214,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 217,
-          "resname": "VAL"
+          "resname": "LEU"
         },
         {
           "chain": "A",
           "resnum": 218,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 221,
           "resname": "LEU"
         },
         {
           "chain": "A",
-          "resnum": 225,
+          "resnum": 260,
           "resname": "LEU"
         },
         {
           "chain": "A",
-          "resnum": 267,
+          "resnum": 261,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 264,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 265,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 268,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 269,
           "resname": "LEU"
         },
         {
           "chain": "A",
           "resnum": 271,
-          "resname": "TRP"
+          "resname": "ILE"
         },
         {
           "chain": "A",
           "resnum": 272,
-          "resname": "PRO"
-        },
-        {
-          "chain": "A",
-          "resnum": 275,
-          "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 276,
-          "resname": "LEU"
+          "resname": "CYS"
         }
       ],
       "blind_center": [
-        2.389,
-        32.97,
-        29.831
+        -2.936,
+        6.047,
+        -30.545
       ],
       "blind_box_size": [
-        63.962,
-        50.659,
-        92.921
+        58.466,
+        51.03,
+        97.295
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 3.161,
+      "validated": true,
+      "reference_rmsd": 1.873,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -12487,18 +13029,18 @@
         }
       ],
       "blind_center": [
-        18.26,
-        -23.363,
-        -16.329
+        18.256,
+        -23.367,
+        -16.331
       ],
       "blind_box_size": [
-        62.894,
-        72.257,
-        58.712
+        62.577,
+        72.246,
+        58.953
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.793,
+      "reference_rmsd": 2.777,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -12831,13 +13373,13 @@
         }
       ],
       "blind_center": [
-        34.123,
-        5.082,
-        145.763
+        34.125,
+        5.076,
+        145.765
       ],
       "blind_box_size": [
-        24.183,
-        37.299,
+        24.109,
+        37.441,
         20.0
       ],
       "site_source": "co-crystal_ligand",
@@ -13235,18 +13777,18 @@
         }
       ],
       "blind_center": [
-        -17.787,
-        -36.534,
-        -6.108
+        -17.786,
+        -36.531,
+        -6.109
       ],
       "blind_box_size": [
-        55.107,
-        69.835,
-        61.242
+        55.061,
+        69.752,
+        61.135
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 3.028,
+      "validated": true,
+      "reference_rmsd": 1.773,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -13793,13 +14335,13 @@
       ],
       "blind_center": [
         -36.905,
-        9.64,
-        35.175
+        9.638,
+        35.173
       ],
       "blind_box_size": [
-        60.597,
-        66.403,
-        66.248
+        60.484,
+        66.656,
+        66.344
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -13993,6 +14535,11 @@
         },
         {
           "chain": "A",
+          "resnum": 155,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
           "resnum": 156,
           "resname": "VAL"
         },
@@ -14005,21 +14552,26 @@
           "chain": "A",
           "resnum": 158,
           "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 159,
+          "resname": "ILE"
         }
       ],
       "blind_center": [
         -5.762,
-        -6.243,
-        0.273
+        -6.242,
+        0.275
       ],
       "blind_box_size": [
-        46.148,
-        63.45,
-        50.508
+        46.157,
+        63.357,
+        50.533
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.891,
+      "reference_rmsd": 2.323,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -14229,11 +14781,6 @@
         },
         {
           "chain": "A",
-          "resnum": 52,
-          "resname": "LEU"
-        },
-        {
-          "chain": "A",
           "resnum": 64,
           "resname": "VAL"
         },
@@ -14319,18 +14866,18 @@
         }
       ],
       "blind_center": [
-        16.855,
-        -32.646,
-        -0.137
+        16.86,
+        -32.643,
+        -0.139
       ],
       "blind_box_size": [
-        51.837,
-        65.611,
-        77.028
+        52.482,
+        63.772,
+        76.961
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.282,
+      "reference_rmsd": 3.081,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -14673,11 +15220,6 @@
         },
         {
           "chain": "A",
-          "resnum": 3,
-          "resname": "GLN"
-        },
-        {
-          "chain": "A",
           "resnum": 4,
           "resname": "ILE"
         },
@@ -14838,13 +15380,13 @@
         -32.621
       ],
       "blind_box_size": [
-        55.094,
-        69.808,
-        86.07
+        55.097,
+        69.826,
+        86.216
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.276,
+      "reference_rmsd": 2.893,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -16310,16 +16852,16 @@
       "blind_center": [
         26.11,
         48.862,
-        44.913
+        44.912
       ],
       "blind_box_size": [
-        58.505,
-        58.397,
-        75.883
+        58.436,
+        58.455,
+        75.939
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.5,
+      "reference_rmsd": 3.393,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -20639,14 +21181,14 @@
         }
       ],
       "blind_center": [
-        -20.886,
-        -8.068,
-        1.042
+        -20.887,
+        -8.07,
+        1.04
       ],
       "blind_box_size": [
-        54.341,
-        44.934,
-        62.271
+        54.361,
+        44.766,
+        62.365
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -22458,18 +23000,18 @@
         }
       ],
       "blind_center": [
-        5.283,
-        -51.363,
-        -29.919
+        5.286,
+        -51.36,
+        -29.914
       ],
       "blind_box_size": [
-        68.762,
-        73.448,
-        70.945
+        68.753,
+        71.694,
+        71.006
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.591,
+      "reference_rmsd": 2.632,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -24328,17 +24870,17 @@
       ],
       "blind_center": [
         -16.334,
-        -10.806,
-        -14.572
+        -10.81,
+        -14.566
       ],
       "blind_box_size": [
-        53.105,
-        99.3,
-        57.33
+        51.76,
+        99.665,
+        57.684
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.344,
+      "reference_rmsd": 2.301,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -24613,18 +25155,18 @@
         }
       ],
       "blind_center": [
-        -19.207,
-        -18.08,
-        -8.798
+        -19.21,
+        -18.082,
+        -8.799
       ],
       "blind_box_size": [
-        64.356,
-        63.468,
-        80.958
+        64.639,
+        63.5,
+        80.881
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 2.007,
+      "validated": true,
+      "reference_rmsd": 1.996,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -24869,18 +25411,18 @@
         }
       ],
       "blind_center": [
-        84.52,
-        25.295,
-        44.211
+        84.532,
+        25.306,
+        44.221
       ],
       "blind_box_size": [
-        72.172,
-        84.657,
-        78.815
+        71.867,
+        84.676,
+        78.768
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.83,
+      "reference_rmsd": 2.646,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -27327,17 +27869,22 @@
           "chain": "A",
           "resnum": 155,
           "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 156,
+          "resname": "ALA"
         }
       ],
       "blind_center": [
-        -33.59,
-        41.002,
-        14.497
+        -33.585,
+        41.004,
+        14.501
       ],
       "blind_box_size": [
-        55.673,
-        73.57,
-        59.2
+        55.582,
+        73.253,
+        59.124
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -30136,14 +30683,14 @@
         }
       ],
       "blind_center": [
-        -1.969,
-        -5.743,
-        64.498
+        -1.962,
+        -5.739,
+        64.504
       ],
       "blind_box_size": [
-        65.277,
-        57.163,
-        63.438
+        65.594,
+        57.056,
+        63.082
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -30922,14 +31469,14 @@
         }
       ],
       "blind_center": [
-        -32.605,
-        49.836,
-        3.074
+        -32.606,
+        49.833,
+        3.071
       ],
       "blind_box_size": [
-        47.289,
-        58.113,
-        116.689
+        47.367,
+        57.992,
+        116.11
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
@@ -31279,9 +31826,9 @@
         254.402
       ],
       "blind_box_size": [
-        58.968,
+        59.0,
         45.74,
-        119.612
+        119.605
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -31979,14 +32526,14 @@
         }
       ],
       "blind_center": [
-        -37.056,
-        -49.682,
-        -1.815
+        -37.054,
+        -49.68,
+        -1.816
       ],
       "blind_box_size": [
-        62.02,
-        77.738,
-        64.185
+        61.957,
+        77.799,
+        64.194
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -32461,18 +33008,18 @@
         }
       ],
       "blind_center": [
-        -29.774,
-        2.372,
-        -42.827
+        -29.773,
+        2.374,
+        -42.828
       ],
       "blind_box_size": [
-        73.185,
-        68.443,
-        71.418
+        73.107,
+        68.512,
+        71.337
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.307,
+      "reference_rmsd": 3.288,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -35691,14 +36238,14 @@
         }
       ],
       "blind_center": [
-        11.615,
-        -1.378,
-        33.936
+        11.612,
+        -1.381,
+        33.932
       ],
       "blind_box_size": [
-        93.836,
-        100.096,
-        116.869
+        93.752,
+        100.25,
+        116.788
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
@@ -35849,18 +36396,18 @@
         }
       ],
       "blind_center": [
-        -26.789,
-        -27.107,
-        -11.745
+        -26.783,
+        -27.102,
+        -11.739
       ],
       "blind_box_size": [
-        56.324,
-        49.494,
-        57.739
+        56.3,
+        49.453,
+        57.729
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 2.144,
+      "validated": true,
+      "reference_rmsd": 1.745,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -36462,14 +37009,14 @@
         }
       ],
       "blind_center": [
-        22.007,
-        27.44,
-        45.267
+        22.021,
+        27.451,
+        45.277
       ],
       "blind_box_size": [
-        77.517,
-        68.087,
-        101.274
+        77.613,
+        68.235,
+        100.992
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -36635,18 +37182,18 @@
         }
       ],
       "blind_center": [
-        28.61,
-        3.516,
+        28.614,
+        3.519,
         5.896
       ],
       "blind_box_size": [
-        72.623,
-        54.525,
-        74.589
+        72.636,
+        54.496,
+        74.374
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 4.624,
+      "reference_rmsd": 6.006,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -37737,14 +38284,14 @@
         }
       ],
       "blind_center": [
-        6.039,
-        42.624,
-        17.841
+        6.042,
+        42.625,
+        17.84
       ],
       "blind_box_size": [
-        51.298,
-        53.37,
-        41.459
+        51.496,
+        53.049,
+        41.502
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -38345,11 +38892,6 @@
         },
         {
           "chain": "A",
-          "resnum": 108,
-          "resname": "GLN"
-        },
-        {
-          "chain": "A",
           "resnum": 147,
           "resname": "SER"
         },
@@ -38375,18 +38917,18 @@
         }
       ],
       "blind_center": [
-        -12.701,
-        9.248,
-        15.575
+        -12.704,
+        9.245,
+        15.573
       ],
       "blind_box_size": [
-        65.619,
-        57.652,
-        61.483
+        65.703,
+        57.935,
+        61.658
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.358,
+      "reference_rmsd": 2.34,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -38420,11 +38962,6 @@
           "chain": "A",
           "resnum": 15,
           "resname": "GLY"
-        },
-        {
-          "chain": "A",
-          "resnum": 16,
-          "resname": "LYS"
         },
         {
           "chain": "A",
@@ -38513,18 +39050,18 @@
         }
       ],
       "blind_center": [
-        16.392,
-        -15.675,
-        -1.422
+        16.39,
+        -15.677,
+        -1.421
       ],
       "blind_box_size": [
-        56.233,
-        66.815,
-        65.049
+        56.007,
+        66.872,
+        64.568
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 4.417,
+      "reference_rmsd": 3.177,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -39233,18 +39770,18 @@
         }
       ],
       "blind_center": [
-        -9.788,
-        17.82,
-        30.98
+        -9.789,
+        17.818,
+        30.979
       ],
       "blind_box_size": [
-        110.196,
-        68.296,
-        120.085
+        110.28,
+        68.098,
+        120.087
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 4.907,
+      "reference_rmsd": 4.019,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -39526,14 +40063,14 @@
         }
       ],
       "blind_center": [
-        55.327,
-        -3.837,
-        -21.719
+        55.335,
+        -3.829,
+        -21.714
       ],
       "blind_box_size": [
-        73.011,
-        69.766,
-        55.798
+        72.962,
+        69.768,
+        56.33
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -39945,23 +40482,33 @@
         },
         {
           "chain": "A",
+          "resnum": 187,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 189,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
           "resnum": 190,
           "resname": "GLN"
         }
       ],
       "blind_center": [
-        35.58,
-        17.146,
-        9.609
+        35.588,
+        17.154,
+        9.614
       ],
       "blind_box_size": [
-        53.363,
-        49.296,
-        82.214
+        54.268,
+        49.11,
+        82.201
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.975,
+      "reference_rmsd": 3.14,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -40078,6 +40625,11 @@
         },
         {
           "chain": "A",
+          "resnum": 155,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
           "resnum": 157,
           "resname": "ILE"
         },
@@ -40148,18 +40700,18 @@
         }
       ],
       "blind_center": [
-        33.768,
-        16.762,
-        10.715
+        33.774,
+        16.757,
+        10.711
       ],
       "blind_box_size": [
-        59.779,
-        52.714,
-        75.578
+        60.757,
+        54.136,
+        74.817
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.983,
+      "reference_rmsd": 3.088,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -40329,14 +40881,14 @@
         }
       ],
       "blind_center": [
-        2.579,
-        -41.096,
-        25.68
+        2.578,
+        -41.098,
+        25.678
       ],
       "blind_box_size": [
-        60.136,
-        81.734,
-        73.141
+        60.199,
+        81.691,
+        73.068
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -40580,136 +41132,111 @@
     {
       "target_id": "GENE_KCNK9",
       "name": "GENE_KCNK9",
-      "pdb_source": "3SMK_raw.pdb",
-      "reference_ligand_resname": "CW7",
+      "pdb_source": "3SMO_raw.pdb",
+      "reference_ligand_resname": "FJA",
       "chain": "A",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        23.292,
-        -19.488,
-        -1.59
+        -18.192,
+        -19.92,
+        0.495
       ],
       "box_size": [
-        26.716,
-        23.0,
-        27.371
+        24.843,
+        22.59,
+        22.894
       ],
       "binding_site_residues": [
         {
           "chain": "A",
-          "resnum": 19,
-          "resname": "GLU"
-        },
-        {
-          "chain": "A",
-          "resnum": 27,
-          "resname": "MET"
-        },
-        {
-          "chain": "A",
-          "resnum": 44,
-          "resname": "GLU"
-        },
-        {
-          "chain": "A",
-          "resnum": 47,
+          "resnum": 46,
           "resname": "ASN"
         },
         {
           "chain": "A",
-          "resnum": 48,
-          "resname": "LEU"
-        },
-        {
-          "chain": "A",
-          "resnum": 50,
+          "resnum": 49,
           "resname": "SER"
         },
         {
           "chain": "A",
-          "resnum": 51,
+          "resnum": 50,
           "resname": "VAL"
         },
         {
           "chain": "A",
-          "resnum": 117,
+          "resnum": 53,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 123,
           "resname": "PHE"
         },
         {
           "chain": "A",
-          "resnum": 120,
+          "resnum": 126,
           "resname": "LYS"
         },
         {
           "chain": "A",
-          "resnum": 121,
+          "resnum": 127,
           "resname": "MET"
         },
         {
           "chain": "A",
-          "resnum": 124,
+          "resnum": 130,
           "resname": "ASP"
         },
         {
           "chain": "A",
-          "resnum": 165,
+          "resnum": 171,
           "resname": "PRO"
         },
         {
           "chain": "A",
-          "resnum": 166,
+          "resnum": 172,
           "resname": "ILE"
         },
         {
           "chain": "A",
-          "resnum": 169,
+          "resnum": 175,
           "resname": "GLY"
         },
         {
           "chain": "A",
-          "resnum": 170,
+          "resnum": 176,
           "resname": "LEU"
         },
         {
           "chain": "A",
-          "resnum": 173,
-          "resname": "ASN"
-        },
-        {
-          "chain": "A",
-          "resnum": 208,
-          "resname": "LYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 209,
+          "resnum": 219,
           "resname": "ASP"
         },
         {
           "chain": "A",
-          "resnum": 212,
+          "resnum": 222,
           "resname": "LEU"
         },
         {
           "chain": "A",
-          "resnum": 213,
+          "resnum": 223,
           "resname": "ILE"
         }
       ],
       "blind_center": [
-        16.716,
-        -17.154,
-        7.89
+        -23.608,
+        -16.566,
+        7.976
       ],
       "blind_box_size": [
-        54.187,
-        61.862,
-        57.252
+        54.135,
+        69.583,
+        65.658
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 2.46,
+      "validated": true,
+      "reference_rmsd": 1.823,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -40844,6 +41371,11 @@
       "binding_site_residues": [
         {
           "chain": "A",
+          "resnum": 63,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
           "resnum": 122,
           "resname": "TYR"
         },
@@ -40909,6 +41441,11 @@
         },
         {
           "chain": "A",
+          "resnum": 262,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
           "resnum": 268,
           "resname": "HIS"
         },
@@ -40939,18 +41476,18 @@
         }
       ],
       "blind_center": [
-        23.323,
+        23.322,
         62.705,
-        2.191
+        2.189
       ],
       "blind_box_size": [
-        63.481,
-        66.511,
-        89.624
+        63.469,
+        66.329,
+        89.481
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 2.23,
+      "validated": true,
+      "reference_rmsd": 1.865,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -42567,18 +43104,18 @@
         }
       ],
       "blind_center": [
-        -1.788,
-        117.8,
-        221.073
+        -1.79,
+        117.798,
+        221.074
       ],
       "blind_box_size": [
-        56.457,
-        67.774,
-        66.383
+        56.38,
+        67.732,
+        66.319
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.136,
+      "reference_rmsd": 3.177,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -42770,18 +43307,18 @@
         }
       ],
       "blind_center": [
-        -0.283,
-        -18.825,
-        30.529
+        -0.291,
+        -18.834,
+        30.521
       ],
       "blind_box_size": [
-        51.101,
-        77.092,
-        102.153
+        49.743,
+        77.308,
+        102.249
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.64,
+      "reference_rmsd": 3.165,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -42966,14 +43503,14 @@
         }
       ],
       "blind_center": [
-        18.088,
-        80.645,
-        54.905
+        18.085,
+        80.644,
+        54.913
       ],
       "blind_box_size": [
-        90.058,
-        94.625,
-        128.428
+        90.671,
+        96.215,
+        127.944
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -43029,14 +43566,14 @@
         }
       ],
       "blind_center": [
-        -18.129,
-        -12.682,
-        7.624
+        -18.126,
+        -12.679,
+        7.627
       ],
       "blind_box_size": [
-        67.781,
-        61.179,
-        60.776
+        67.7,
+        61.06,
+        60.83
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -43827,18 +44364,18 @@
         }
       ],
       "blind_center": [
-        39.056,
-        92.404,
-        43.012
+        39.052,
+        92.4,
+        43.01
       ],
       "blind_box_size": [
-        62.041,
-        57.466,
-        69.984
+        61.947,
+        57.303,
+        69.941
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.456,
+      "reference_rmsd": 2.319,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -46263,14 +46800,14 @@
         }
       ],
       "blind_center": [
-        16.457,
-        51.375,
-        52.01
+        16.453,
+        51.368,
+        52.005
       ],
       "blind_box_size": [
-        55.965,
-        51.584,
-        47.466
+        56.414,
+        51.583,
+        47.585
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
@@ -46461,11 +46998,6 @@
         },
         {
           "chain": "A",
-          "resnum": 222,
-          "resname": "GLY"
-        },
-        {
-          "chain": "A",
           "resnum": 223,
           "resname": "SER"
         },
@@ -46486,18 +47018,18 @@
         }
       ],
       "blind_center": [
-        10.35,
-        0.849,
-        -10.498
+        10.42,
+        0.926,
+        -10.425
       ],
       "blind_box_size": [
-        53.427,
-        62.556,
-        60.449
+        53.31,
+        62.649,
+        60.444
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.165,
+      "reference_rmsd": 3.206,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -46940,66 +47472,121 @@
     {
       "target_id": "GENE_MGAT2",
       "name": "GENE_MGAT2",
-      "pdb_source": "5VCR_raw.pdb",
-      "reference_ligand_resname": "IUM",
+      "pdb_source": "5VCM_raw.pdb",
+      "reference_ligand_resname": "UDP",
       "chain": "A",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        41.077,
-        75.562,
-        69.228
+        2.38,
+        -27.737,
+        -35.505
       ],
       "box_size": [
-        20.0,
-        20.0,
-        20.0
+        21.677,
+        25.519,
+        24.34
       ],
       "binding_site_residues": [
         {
           "chain": "A",
-          "resnum": 44,
+          "resnum": 34,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 35,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 36,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 37,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 38,
           "resname": "ARG"
         },
         {
           "chain": "A",
-          "resnum": 176,
-          "resname": "GLU"
-        },
-        {
-          "chain": "A",
-          "resnum": 178,
+          "resnum": 65,
           "resname": "ASP"
         },
         {
           "chain": "A",
-          "resnum": 179,
+          "resnum": 92,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 137,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 140,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 141,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 144,
           "resname": "HIS"
         },
         {
           "chain": "A",
-          "resnum": 211,
-          "resname": "TYR"
+          "resnum": 170,
+          "resname": "GLU"
         },
         {
           "chain": "A",
-          "resnum": 291,
+          "resnum": 171,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 172,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 256,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 284,
           "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 286,
+          "resname": "GLY"
         }
       ],
       "blind_center": [
-        43.158,
-        77.876,
-        77.947
+        5.188,
+        -23.212,
+        -27.9
       ],
       "blind_box_size": [
-        75.963,
-        74.081,
-        54.151
+        63.795,
+        60.927,
+        68.587
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": null,
+      "validated": true,
+      "reference_rmsd": 1.355,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -47555,18 +48142,18 @@
         }
       ],
       "blind_center": [
-        -46.246,
+        -46.245,
         57.776,
-        74.748
+        74.749
       ],
       "blind_box_size": [
-        83.346,
-        78.498,
-        81.068
+        83.205,
+        78.516,
+        80.926
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 2.163,
+      "validated": true,
+      "reference_rmsd": 1.661,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -47796,28 +48383,23 @@
         },
         {
           "chain": "A",
-          "resnum": 136,
-          "resname": "ASN"
-        },
-        {
-          "chain": "A",
           "resnum": 137,
           "resname": "SER"
         }
       ],
       "blind_center": [
-        24.702,
-        -0.067,
-        24.501
+        24.694,
+        -0.074,
+        24.5
       ],
       "blind_box_size": [
-        46.422,
-        47.515,
-        49.872
+        46.316,
+        47.575,
+        49.708
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 2.499,
+      "validated": true,
+      "reference_rmsd": 1.228,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -49334,11 +49916,6 @@
         },
         {
           "chain": "A",
-          "resnum": 785,
-          "resname": "THR"
-        },
-        {
-          "chain": "A",
           "resnum": 787,
           "resname": "ALA"
         },
@@ -49364,11 +49941,6 @@
         },
         {
           "chain": "A",
-          "resnum": 806,
-          "resname": "MET"
-        },
-        {
-          "chain": "A",
           "resnum": 810,
           "resname": "LYS"
         },
@@ -49379,18 +49951,18 @@
         }
       ],
       "blind_center": [
-        24.402,
-        27.333,
-        88.177
+        24.396,
+        27.329,
+        88.172
       ],
       "blind_box_size": [
-        106.713,
-        100.626,
-        94.842
+        106.746,
+        100.636,
+        94.855
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.209,
+      "reference_rmsd": 5.19,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -49427,18 +49999,18 @@
         }
       ],
       "blind_center": [
-        37.772,
-        55.275,
-        -29.834
+        37.768,
+        55.279,
+        -29.836
       ],
       "blind_box_size": [
-        51.352,
-        40.756,
-        40.788
+        51.306,
+        40.822,
+        40.78
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.463,
+      "reference_rmsd": 2.343,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -49565,18 +50137,18 @@
         }
       ],
       "blind_center": [
-        17.743,
-        14.939,
-        -22.91
+        17.745,
+        14.941,
+        -22.909
       ],
       "blind_box_size": [
-        56.142,
-        81.612,
-        60.805
+        56.149,
+        81.488,
+        61.341
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.753,
+      "reference_rmsd": 2.854,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -49887,13 +50459,13 @@
         8.088
       ],
       "blind_box_size": [
-        53.814,
-        69.131,
-        65.8
+        53.799,
+        69.12,
+        65.755
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": null,
+      "reference_rmsd": 3.566,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -50371,11 +50943,6 @@
         },
         {
           "chain": "A",
-          "resnum": 222,
-          "resname": "TYR"
-        },
-        {
-          "chain": "A",
           "resnum": 223,
           "resname": "LYS"
         },
@@ -50387,17 +50954,17 @@
       ],
       "blind_center": [
         -0.81,
-        39.374,
-        27.219
+        39.377,
+        27.22
       ],
       "blind_box_size": [
-        45.128,
-        54.013,
-        72.037
+        44.832,
+        54.059,
+        71.89
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.798,
+      "reference_rmsd": 3.76,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -51457,11 +52024,6 @@
         },
         {
           "chain": "A",
-          "resnum": 81,
-          "resname": "ASP"
-        },
-        {
-          "chain": "A",
           "resnum": 82,
           "resname": "HIS"
         },
@@ -51597,14 +52159,14 @@
         }
       ],
       "blind_center": [
-        18.679,
-        47.189,
-        66.669
+        18.683,
+        47.196,
+        66.673
       ],
       "blind_box_size": [
-        55.151,
-        55.475,
-        53.281
+        55.144,
+        55.58,
+        54.296
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -53677,11 +54239,6 @@
         },
         {
           "chain": "A",
-          "resnum": 737,
-          "resname": "ILE"
-        },
-        {
-          "chain": "A",
           "resnum": 739,
           "resname": "ILE"
         },
@@ -53742,11 +54299,6 @@
         },
         {
           "chain": "A",
-          "resnum": 806,
-          "resname": "MET"
-        },
-        {
-          "chain": "A",
           "resnum": 810,
           "resname": "LYS"
         },
@@ -53757,18 +54309,18 @@
         }
       ],
       "blind_center": [
-        24.394,
-        27.326,
-        88.17
+        24.397,
+        27.328,
+        88.173
       ],
       "blind_box_size": [
-        106.783,
-        100.749,
-        94.649
+        106.735,
+        100.812,
+        94.86
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 4.512,
+      "reference_rmsd": 4.53,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -54384,36 +54936,31 @@
     {
       "target_id": "GENE_PCSK9",
       "name": "GENE_PCSK9",
-      "pdb_source": "6U38_raw.pdb",
-      "reference_ligand_resname": "PVJ",
+      "pdb_source": "6U36_raw.pdb",
+      "reference_ligand_resname": "PVM",
       "chain": "B",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        -64.661,
-        49.049,
-        -23.254
+        92.628,
+        -50.587,
+        22.375
       ],
       "box_size": [
-        23.747,
-        26.66,
-        24.091
+        32.069,
+        29.049,
+        24.384
       ],
       "binding_site_residues": [
         {
           "chain": "A",
-          "resnum": 147,
+          "resnum": 121,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 149,
           "resname": "CYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 152,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 153,
-          "resname": "SER"
         },
         {
           "chain": "A",
@@ -54423,122 +54970,137 @@
         {
           "chain": "A",
           "resnum": 155,
-          "resname": "PRO"
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 156,
+          "resname": "ALA"
         },
         {
           "chain": "A",
           "resnum": 157,
-          "resname": "VAL"
+          "resname": "PRO"
         },
         {
           "chain": "A",
           "resnum": 158,
-          "resname": "ILE"
+          "resname": "GLU"
         },
         {
           "chain": "A",
           "resnum": 159,
-          "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 181,
-          "resname": "ARG"
-        },
-        {
-          "chain": "A",
-          "resnum": 182,
-          "resname": "CYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 183,
           "resname": "VAL"
         },
         {
           "chain": "A",
-          "resnum": 184,
-          "resname": "ASP"
+          "resnum": 160,
+          "resname": "ILE"
         },
         {
           "chain": "A",
-          "resnum": 236,
+          "resnum": 161,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 183,
           "resname": "ARG"
         },
         {
           "chain": "A",
-          "resnum": 279,
+          "resnum": 184,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 185,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 186,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 238,
           "resname": "ARG"
         },
         {
           "chain": "A",
           "resnum": 281,
-          "resname": "VAL"
-        },
-        {
-          "chain": "A",
-          "resnum": 282,
-          "resname": "TRP"
+          "resname": "ARG"
         },
         {
           "chain": "A",
           "resnum": 283,
-          "resname": "SER"
+          "resname": "VAL"
         },
         {
           "chain": "A",
           "resnum": 284,
-          "resname": "ALA"
+          "resname": "TRP"
         },
         {
           "chain": "A",
-          "resnum": 295,
-          "resname": "ILE"
+          "resnum": 285,
+          "resname": "SER"
         },
         {
           "chain": "A",
-          "resnum": 296,
+          "resnum": 286,
           "resname": "ALA"
         },
         {
           "chain": "A",
           "resnum": 297,
-          "resname": "ARG"
+          "resname": "ILE"
         },
         {
           "chain": "A",
           "resnum": 298,
-          "resname": "CYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 299,
           "resname": "ALA"
         },
         {
           "chain": "A",
+          "resnum": 299,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
           "resnum": 300,
-          "resname": "PRO"
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 301,
+          "resname": "ALA"
         },
         {
           "chain": "A",
           "resnum": 302,
+          "resname": "PRO"
+        },
+        {
+          "chain": "A",
+          "resnum": 304,
           "resname": "GLU"
         }
       ],
       "blind_center": [
-        -70.801,
-        44.897,
-        -25.875
+        84.507,
+        -44.767,
+        25.411
       ],
       "blind_box_size": [
-        61.862,
-        89.281,
-        66.972
+        62.246,
+        90.229,
+        67.056
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.563,
+      "reference_rmsd": 4.471,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -55408,14 +55970,14 @@
         }
       ],
       "blind_center": [
-        -22.99,
-        4.214,
-        -31.331
+        -22.991,
+        4.212,
+        -31.332
       ],
       "blind_box_size": [
-        71.74,
-        66.143,
-        66.822
+        71.873,
+        66.176,
+        66.756
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
@@ -55940,14 +56502,14 @@
         }
       ],
       "blind_center": [
-        -22.989,
-        4.212,
-        -31.332
+        -22.993,
+        4.21,
+        -31.334
       ],
       "blind_box_size": [
-        71.636,
-        66.224,
-        66.757
+        71.96,
+        66.181,
+        66.749
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
@@ -56630,14 +57192,14 @@
         }
       ],
       "blind_center": [
-        -79.386,
-        -19.047,
-        68.556
+        -79.465,
+        -19.118,
+        68.482
       ],
       "blind_box_size": [
-        37.303,
-        50.629,
-        44.159
+        37.571,
+        50.517,
+        44.176
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -57182,81 +57744,76 @@
     {
       "target_id": "GENE_PIK3C2A",
       "name": "GENE_PIK3C2A",
-      "pdb_source": "6BU0_raw.pdb",
-      "reference_ligand_resname": "IHP",
+      "pdb_source": "6BTY_raw.pdb",
+      "reference_ligand_resname": "O4B",
       "chain": "B",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        -24.152,
-        3.79,
-        -9.93
+        -20.389,
+        22.294,
+        12.141
       ],
       "box_size": [
-        25.231,
-        24.907,
-        24.448
+        21.622,
+        20.83,
+        23.502
       ],
       "binding_site_residues": [
         {
           "chain": "A",
-          "resnum": 38,
-          "resname": "TYR"
-        },
-        {
-          "chain": "A",
-          "resnum": 40,
-          "resname": "LYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 42,
-          "resname": "TYR"
-        },
-        {
-          "chain": "A",
-          "resnum": 49,
-          "resname": "LYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 52,
-          "resname": "LYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 54,
-          "resname": "LYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 90,
+          "resnum": 108,
           "resname": "LEU"
         },
         {
           "chain": "A",
-          "resnum": 97,
-          "resname": "GLY"
+          "resnum": 112,
+          "resname": "ASP"
         },
         {
           "chain": "A",
-          "resnum": 98,
-          "resname": "ASN"
+          "resnum": 113,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 117,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 119,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 121,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 122,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 123,
+          "resname": "TYR"
         }
       ],
       "blind_center": [
-        -34.17,
-        -8.044,
-        -11.341
+        -8.026,
+        17.05,
+        5.545
       ],
       "blind_box_size": [
-        42.369,
-        51.536,
-        51.473
+        38.74,
+        51.526,
+        48.324
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": null,
+      "validated": true,
+      "reference_rmsd": 1.192,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -58351,11 +58908,6 @@
         },
         {
           "chain": "A",
-          "resnum": 426,
-          "resname": "ASP"
-        },
-        {
-          "chain": "A",
           "resnum": 574,
           "resname": "VAL"
         },
@@ -58366,18 +58918,18 @@
         }
       ],
       "blind_center": [
-        22.313,
-        5.897,
-        56.922
+        22.316,
+        5.896,
+        56.926
       ],
       "blind_box_size": [
-        75.598,
-        77.806,
-        76.614
+        75.086,
+        77.82,
+        76.658
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.694,
+      "reference_rmsd": 2.627,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -61281,11 +61833,6 @@
         },
         {
           "chain": "A",
-          "resnum": 13,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
           "resnum": 15,
           "resname": "VAL"
         },
@@ -61303,6 +61850,11 @@
           "chain": "A",
           "resnum": 27,
           "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 50,
+          "resname": "PHE"
         },
         {
           "chain": "A",
@@ -61331,6 +61883,11 @@
         },
         {
           "chain": "A",
+          "resnum": 83,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
           "resnum": 126,
           "resname": "ASP"
         },
@@ -61356,11 +61913,6 @@
         },
         {
           "chain": "A",
-          "resnum": 281,
-          "resname": "LEU"
-        },
-        {
-          "chain": "A",
           "resnum": 284,
           "resname": "PHE"
         },
@@ -61381,18 +61933,18 @@
         }
       ],
       "blind_center": [
-        65.752,
-        6.613,
-        54.799
+        65.666,
+        6.544,
+        54.733
       ],
       "blind_box_size": [
-        61.669,
-        67.953,
-        67.651
+        60.799,
+        69.002,
+        66.07
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 2.944,
+      "validated": true,
+      "reference_rmsd": 0.838,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -61539,14 +62091,14 @@
         }
       ],
       "blind_center": [
-        18.877,
-        31.458,
+        18.879,
+        31.463,
         39.513
       ],
       "blind_box_size": [
-        53.845,
-        55.255,
-        62.252
+        54.365,
+        55.44,
+        61.237
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -61895,14 +62447,14 @@
         }
       ],
       "blind_center": [
-        11.425,
-        -0.448,
-        17.316
+        11.426,
+        -0.449,
+        17.317
       ],
       "blind_box_size": [
-        60.091,
-        48.724,
-        53.931
+        60.1,
+        48.741,
+        54.05
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -62181,20 +62733,20 @@
     {
       "target_id": "GENE_PSMA2",
       "name": "GENE_PSMA2",
-      "pdb_source": "4R67_raw.pdb",
-      "reference_ligand_resname": "3BV",
-      "chain": "3",
+      "pdb_source": "5LF1_raw.pdb",
+      "reference_ligand_resname": "6VC",
+      "chain": "H",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        -23.965,
-        132.354,
-        -49.924
+        64.136,
+        207.222,
+        44.502
       ],
       "box_size": [
-        27.03,
-        31.927,
-        24.933
+        22.446,
+        27.286,
+        24.139
       ],
       "binding_site_residues": [
         {
@@ -62206,11 +62758,6 @@
           "chain": "A",
           "resnum": 2,
           "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 17,
-          "resname": "ASP"
         },
         {
           "chain": "A",
@@ -62230,7 +62777,7 @@
         {
           "chain": "A",
           "resnum": 22,
-          "resname": "ALA"
+          "resname": "GLU"
         },
         {
           "chain": "A",
@@ -62245,12 +62792,12 @@
         {
           "chain": "A",
           "resnum": 28,
-          "resname": "SER"
+          "resname": "ASP"
         },
         {
           "chain": "A",
           "resnum": 31,
-          "resname": "VAL"
+          "resname": "CYS"
         },
         {
           "chain": "A",
@@ -62259,8 +62806,13 @@
         },
         {
           "chain": "A",
+          "resnum": 35,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
           "resnum": 45,
-          "resname": "MET"
+          "resname": "GLY"
         },
         {
           "chain": "A",
@@ -62275,7 +62827,7 @@
         {
           "chain": "A",
           "resnum": 48,
-          "resname": "GLY"
+          "resname": "THR"
         },
         {
           "chain": "A",
@@ -62289,58 +62841,53 @@
         },
         {
           "chain": "A",
-          "resnum": 51,
-          "resname": "ASP"
-        },
-        {
-          "chain": "A",
           "resnum": 52,
-          "resname": "CYS"
+          "resname": "THR"
         },
         {
           "chain": "A",
-          "resnum": 96,
-          "resname": "SER"
-        },
-        {
-          "chain": "A",
-          "resnum": 129,
+          "resnum": 128,
           "resname": "GLY"
         },
         {
           "chain": "A",
-          "resnum": 130,
+          "resnum": 129,
           "resname": "SER"
         },
         {
           "chain": "A",
-          "resnum": 167,
+          "resnum": 130,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 166,
           "resname": "ASP"
         },
         {
           "chain": "A",
-          "resnum": 169,
-          "resname": "TYR"
+          "resnum": 168,
+          "resname": "GLY"
         },
         {
           "chain": "A",
-          "resnum": 170,
+          "resnum": 169,
           "resname": "SER"
         }
       ],
       "blind_center": [
-        -18.952,
-        115.002,
-        -53.982
+        71.78,
+        214.264,
+        39.496
       ],
       "blind_box_size": [
-        60.817,
-        53.092,
-        44.884
+        54.945,
+        81.645,
+        63.556
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 3.559,
+      "validated": true,
+      "reference_rmsd": 1.57,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -62512,20 +63059,20 @@
     {
       "target_id": "GENE_PSMA4",
       "name": "GENE_PSMA4",
-      "pdb_source": "4R67_raw.pdb",
-      "reference_ligand_resname": "3BV",
-      "chain": "3",
+      "pdb_source": "5LF1_raw.pdb",
+      "reference_ligand_resname": "6VC",
+      "chain": "H",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        -23.965,
-        132.354,
-        -49.924
+        64.136,
+        207.222,
+        44.502
       ],
       "box_size": [
-        27.03,
-        31.927,
-        24.933
+        22.446,
+        27.286,
+        24.139
       ],
       "binding_site_residues": [
         {
@@ -62537,11 +63084,6 @@
           "chain": "A",
           "resnum": 2,
           "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 17,
-          "resname": "ASP"
         },
         {
           "chain": "A",
@@ -62561,7 +63103,7 @@
         {
           "chain": "A",
           "resnum": 22,
-          "resname": "ALA"
+          "resname": "GLU"
         },
         {
           "chain": "A",
@@ -62576,12 +63118,12 @@
         {
           "chain": "A",
           "resnum": 28,
-          "resname": "SER"
+          "resname": "ASP"
         },
         {
           "chain": "A",
           "resnum": 31,
-          "resname": "VAL"
+          "resname": "CYS"
         },
         {
           "chain": "A",
@@ -62590,8 +63132,13 @@
         },
         {
           "chain": "A",
+          "resnum": 35,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
           "resnum": 45,
-          "resname": "MET"
+          "resname": "GLY"
         },
         {
           "chain": "A",
@@ -62606,7 +63153,7 @@
         {
           "chain": "A",
           "resnum": 48,
-          "resname": "GLY"
+          "resname": "THR"
         },
         {
           "chain": "A",
@@ -62621,52 +63168,52 @@
         {
           "chain": "A",
           "resnum": 52,
-          "resname": "CYS"
+          "resname": "THR"
         },
         {
           "chain": "A",
-          "resnum": 96,
-          "resname": "SER"
-        },
-        {
-          "chain": "A",
-          "resnum": 129,
+          "resnum": 128,
           "resname": "GLY"
         },
         {
           "chain": "A",
-          "resnum": 130,
+          "resnum": 129,
           "resname": "SER"
         },
         {
           "chain": "A",
-          "resnum": 167,
+          "resnum": 130,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 166,
           "resname": "ASP"
         },
         {
           "chain": "A",
-          "resnum": 169,
-          "resname": "TYR"
+          "resnum": 168,
+          "resname": "GLY"
         },
         {
           "chain": "A",
-          "resnum": 170,
+          "resnum": 169,
           "resname": "SER"
         }
       ],
       "blind_center": [
-        -18.951,
-        114.999,
-        -53.984
+        71.78,
+        214.264,
+        39.494
       ],
       "blind_box_size": [
-        61.124,
-        53.164,
-        44.692
+        54.899,
+        81.683,
+        63.562
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 3.632,
+      "validated": true,
+      "reference_rmsd": 1.422,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -63104,11 +63651,6 @@
         },
         {
           "chain": "A",
-          "resnum": 51,
-          "resname": "ASP"
-        },
-        {
-          "chain": "A",
           "resnum": 52,
           "resname": "CYS"
         },
@@ -63144,18 +63686,18 @@
         }
       ],
       "blind_center": [
-        -18.946,
-        115.008,
-        -53.976
+        -18.951,
+        115.001,
+        -53.98
       ],
       "blind_box_size": [
-        61.222,
-        52.991,
-        44.89
+        61.539,
+        53.07,
+        44.671
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.571,
+      "reference_rmsd": 3.793,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -63430,18 +63972,18 @@
         }
       ],
       "blind_center": [
-        67.649,
-        -129.825,
-        47.073
+        67.647,
+        -129.827,
+        47.071
       ],
       "blind_box_size": [
-        59.675,
-        61.083,
-        83.972
+        59.647,
+        60.994,
+        83.97
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 4.586,
+      "reference_rmsd": 4.224,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -63450,20 +63992,20 @@
     {
       "target_id": "GENE_PSMB2",
       "name": "GENE_PSMB2",
-      "pdb_source": "4R67_raw.pdb",
-      "reference_ligand_resname": "3BV",
-      "chain": "3",
+      "pdb_source": "5LF1_raw.pdb",
+      "reference_ligand_resname": "6VC",
+      "chain": "H",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        -23.965,
-        132.354,
-        -49.924
+        64.136,
+        207.222,
+        44.502
       ],
       "box_size": [
-        27.03,
-        31.927,
-        24.933
+        22.446,
+        27.286,
+        24.139
       ],
       "binding_site_residues": [
         {
@@ -63475,11 +64017,6 @@
           "chain": "A",
           "resnum": 2,
           "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 17,
-          "resname": "ASP"
         },
         {
           "chain": "A",
@@ -63499,7 +64036,7 @@
         {
           "chain": "A",
           "resnum": 22,
-          "resname": "ALA"
+          "resname": "GLU"
         },
         {
           "chain": "A",
@@ -63514,12 +64051,12 @@
         {
           "chain": "A",
           "resnum": 28,
-          "resname": "SER"
+          "resname": "ASP"
         },
         {
           "chain": "A",
           "resnum": 31,
-          "resname": "VAL"
+          "resname": "CYS"
         },
         {
           "chain": "A",
@@ -63528,8 +64065,13 @@
         },
         {
           "chain": "A",
+          "resnum": 35,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
           "resnum": 45,
-          "resname": "MET"
+          "resname": "GLY"
         },
         {
           "chain": "A",
@@ -63544,7 +64086,7 @@
         {
           "chain": "A",
           "resnum": 48,
-          "resname": "GLY"
+          "resname": "THR"
         },
         {
           "chain": "A",
@@ -63559,52 +64101,52 @@
         {
           "chain": "A",
           "resnum": 52,
-          "resname": "CYS"
+          "resname": "THR"
         },
         {
           "chain": "A",
-          "resnum": 96,
-          "resname": "SER"
-        },
-        {
-          "chain": "A",
-          "resnum": 129,
+          "resnum": 128,
           "resname": "GLY"
         },
         {
           "chain": "A",
-          "resnum": 130,
+          "resnum": 129,
           "resname": "SER"
         },
         {
           "chain": "A",
-          "resnum": 167,
+          "resnum": 130,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 166,
           "resname": "ASP"
         },
         {
           "chain": "A",
-          "resnum": 169,
-          "resname": "TYR"
+          "resnum": 168,
+          "resname": "GLY"
         },
         {
           "chain": "A",
-          "resnum": 170,
+          "resnum": 169,
           "resname": "SER"
         }
       ],
       "blind_center": [
-        -18.948,
-        115.003,
-        -53.979
+        71.779,
+        214.265,
+        39.495
       ],
       "blind_box_size": [
-        60.836,
-        53.052,
-        44.813
+        54.731,
+        82.108,
+        63.535
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 3.57,
+      "validated": true,
+      "reference_rmsd": 1.49,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -63939,20 +64481,20 @@
     {
       "target_id": "GENE_PSMB6",
       "name": "GENE_PSMB6",
-      "pdb_source": "4R67_raw.pdb",
-      "reference_ligand_resname": "3BV",
-      "chain": "3",
+      "pdb_source": "5LF1_raw.pdb",
+      "reference_ligand_resname": "6VC",
+      "chain": "H",
       "receptor_pdbqt": "receptor.pdbqt",
       "receptor_pdb": "receptor_clean.pdb",
       "center": [
-        -23.965,
-        132.354,
-        -49.924
+        64.136,
+        207.222,
+        44.502
       ],
       "box_size": [
-        27.03,
-        31.927,
-        24.933
+        22.446,
+        27.286,
+        24.139
       ],
       "binding_site_residues": [
         {
@@ -63967,11 +64509,6 @@
         },
         {
           "chain": "A",
-          "resnum": 17,
-          "resname": "ASP"
-        },
-        {
-          "chain": "A",
           "resnum": 19,
           "resname": "ARG"
         },
@@ -63988,165 +64525,7 @@
         {
           "chain": "A",
           "resnum": 22,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 23,
-          "resname": "GLY"
-        },
-        {
-          "chain": "A",
-          "resnum": 27,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 28,
-          "resname": "SER"
-        },
-        {
-          "chain": "A",
-          "resnum": 31,
-          "resname": "VAL"
-        },
-        {
-          "chain": "A",
-          "resnum": 33,
-          "resname": "LYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 45,
-          "resname": "MET"
-        },
-        {
-          "chain": "A",
-          "resnum": 46,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 47,
-          "resname": "GLY"
-        },
-        {
-          "chain": "A",
-          "resnum": 48,
-          "resname": "GLY"
-        },
-        {
-          "chain": "A",
-          "resnum": 49,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 50,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 51,
-          "resname": "ASP"
-        },
-        {
-          "chain": "A",
-          "resnum": 52,
-          "resname": "CYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 96,
-          "resname": "SER"
-        },
-        {
-          "chain": "A",
-          "resnum": 129,
-          "resname": "GLY"
-        },
-        {
-          "chain": "A",
-          "resnum": 130,
-          "resname": "SER"
-        },
-        {
-          "chain": "A",
-          "resnum": 167,
-          "resname": "ASP"
-        },
-        {
-          "chain": "A",
-          "resnum": 169,
-          "resname": "TYR"
-        },
-        {
-          "chain": "A",
-          "resnum": 170,
-          "resname": "SER"
-        }
-      ],
-      "blind_center": [
-        -18.952,
-        115.002,
-        -53.982
-      ],
-      "blind_box_size": [
-        60.858,
-        53.123,
-        44.829
-      ],
-      "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 3.512,
-      "enrichment_auc": null,
-      "enrichment_ef20": null,
-      "enrichment_n": null,
-      "enrichment_source": null
-    },
-    {
-      "target_id": "GENE_PSMB5",
-      "name": "GENE_PSMB5",
-      "pdb_source": "5L5X_raw.pdb",
-      "reference_ligand_resname": "04C",
-      "chain": "H",
-      "receptor_pdbqt": "receptor.pdbqt",
-      "receptor_pdb": "receptor_clean.pdb",
-      "center": [
-        60.548,
-        -135.591,
-        39.075
-      ],
-      "box_size": [
-        26.866,
-        24.959,
-        26.428
-      ],
-      "binding_site_residues": [
-        {
-          "chain": "A",
-          "resnum": 1,
-          "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 19,
-          "resname": "ARG"
-        },
-        {
-          "chain": "A",
-          "resnum": 20,
-          "resname": "SER"
-        },
-        {
-          "chain": "A",
-          "resnum": 21,
-          "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 22,
-          "resname": "GLN"
+          "resname": "GLU"
         },
         {
           "chain": "A",
@@ -64162,11 +64541,6 @@
           "chain": "A",
           "resnum": 31,
           "resname": "CYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 32,
-          "resname": "ALA"
         },
         {
           "chain": "A",
@@ -64212,164 +64586,6 @@
           "chain": "A",
           "resnum": 52,
           "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 53,
-          "resname": "GLU"
-        },
-        {
-          "chain": "A",
-          "resnum": 128,
-          "resname": "GLY"
-        },
-        {
-          "chain": "A",
-          "resnum": 129,
-          "resname": "SER"
-        },
-        {
-          "chain": "A",
-          "resnum": 168,
-          "resname": "GLY"
-        },
-        {
-          "chain": "A",
-          "resnum": 169,
-          "resname": "SER"
-        }
-      ],
-      "blind_center": [
-        68.058,
-        -129.649,
-        47.719
-      ],
-      "blind_box_size": [
-        60.259,
-        64.386,
-        85.524
-      ],
-      "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 4.204,
-      "enrichment_auc": null,
-      "enrichment_ef20": null,
-      "enrichment_n": null,
-      "enrichment_source": null
-    },
-    {
-      "target_id": "GENE_PSMB7",
-      "name": "GENE_PSMB7",
-      "pdb_source": "6HUV_raw.pdb",
-      "reference_ligand_resname": "GT8",
-      "chain": "H",
-      "receptor_pdbqt": "receptor.pdbqt",
-      "receptor_pdb": "receptor_clean.pdb",
-      "center": [
-        60.73,
-        -134.831,
-        38.698
-      ],
-      "box_size": [
-        27.387,
-        26.195,
-        26.982
-      ],
-      "binding_site_residues": [
-        {
-          "chain": "A",
-          "resnum": 1,
-          "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 2,
-          "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 19,
-          "resname": "ARG"
-        },
-        {
-          "chain": "A",
-          "resnum": 20,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 21,
-          "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 22,
-          "resname": "GLU"
-        },
-        {
-          "chain": "A",
-          "resnum": 23,
-          "resname": "GLY"
-        },
-        {
-          "chain": "A",
-          "resnum": 31,
-          "resname": "CYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 32,
-          "resname": "SER"
-        },
-        {
-          "chain": "A",
-          "resnum": 33,
-          "resname": "LYS"
-        },
-        {
-          "chain": "A",
-          "resnum": 35,
-          "resname": "HIS"
-        },
-        {
-          "chain": "A",
-          "resnum": 45,
-          "resname": "GLY"
-        },
-        {
-          "chain": "A",
-          "resnum": 46,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 47,
-          "resname": "GLY"
-        },
-        {
-          "chain": "A",
-          "resnum": 48,
-          "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 49,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 50,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
-          "resnum": 52,
-          "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 53,
-          "resname": "ASP"
         },
         {
           "chain": "A",
@@ -64403,18 +64619,339 @@
         }
       ],
       "blind_center": [
-        67.56,
-        -129.697,
-        48.51
+        71.778,
+        214.26,
+        39.493
       ],
       "blind_box_size": [
-        61.037,
-        56.068,
-        81.359
+        55.093,
+        81.638,
+        63.718
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 2.964,
+      "validated": true,
+      "reference_rmsd": 1.569,
+      "enrichment_auc": null,
+      "enrichment_ef20": null,
+      "enrichment_n": null,
+      "enrichment_source": null
+    },
+    {
+      "target_id": "GENE_PSMB5",
+      "name": "GENE_PSMB5",
+      "pdb_source": "5LF1_raw.pdb",
+      "reference_ligand_resname": "6VC",
+      "chain": "H",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        64.136,
+        207.222,
+        44.502
+      ],
+      "box_size": [
+        22.446,
+        27.286,
+        24.139
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 1,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 2,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 19,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 20,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 21,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 22,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 23,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 27,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 31,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 33,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 35,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 45,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 46,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 47,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 48,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 49,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 50,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 52,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 128,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 129,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 130,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 166,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 168,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 169,
+          "resname": "SER"
+        }
+      ],
+      "blind_center": [
+        71.777,
+        214.26,
+        39.488
+      ],
+      "blind_box_size": [
+        54.839,
+        82.042,
+        63.548
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.49,
+      "enrichment_auc": null,
+      "enrichment_ef20": null,
+      "enrichment_n": null,
+      "enrichment_source": null
+    },
+    {
+      "target_id": "GENE_PSMB7",
+      "name": "GENE_PSMB7",
+      "pdb_source": "5LF1_raw.pdb",
+      "reference_ligand_resname": "6VC",
+      "chain": "H",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        64.136,
+        207.222,
+        44.502
+      ],
+      "box_size": [
+        22.446,
+        27.286,
+        24.139
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 1,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 2,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 19,
+          "resname": "ARG"
+        },
+        {
+          "chain": "A",
+          "resnum": 20,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 21,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 22,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 23,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 27,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 28,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 31,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 33,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 35,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 45,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 46,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 47,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 48,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 49,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 50,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 52,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 128,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 129,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 130,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 166,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 168,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 169,
+          "resname": "SER"
+        }
+      ],
+      "blind_center": [
+        71.775,
+        214.26,
+        39.492
+      ],
+      "blind_box_size": [
+        54.936,
+        81.63,
+        63.575
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.793,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -64699,14 +65236,14 @@
         }
       ],
       "blind_center": [
-        -3.007,
-        31.621,
-        -4.756
+        -3.009,
+        31.618,
+        -4.758
       ],
       "blind_box_size": [
-        43.063,
-        53.233,
-        65.129
+        42.287,
+        53.405,
+        65.576
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -65128,14 +65665,14 @@
         }
       ],
       "blind_center": [
-        -36.75,
-        -51.61,
-        2.086
+        -36.747,
+        -51.605,
+        2.091
       ],
       "blind_box_size": [
         85.385,
-        76.614,
-        71.221
+        76.628,
+        71.095
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
@@ -65469,9 +66006,9 @@
         35.343
       ],
       "blind_box_size": [
-        84.994,
-        71.015,
-        70.942
+        85.004,
+        70.997,
+        70.99
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -65988,26 +66525,21 @@
           "chain": "A",
           "resnum": 263,
           "resname": "THR"
-        },
-        {
-          "chain": "A",
-          "resnum": 265,
-          "resname": "GLU"
         }
       ],
       "blind_center": [
-        -15.476,
-        -205.55,
+        -15.487,
+        -205.552,
         29.091
       ],
       "blind_box_size": [
-        60.486,
-        73.705,
-        58.155
+        60.315,
+        73.72,
+        56.519
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 4.848,
+      "reference_rmsd": 5.009,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -66059,14 +66591,14 @@
         }
       ],
       "blind_center": [
-        27.31,
-        170.051,
-        -22.419
+        27.312,
+        170.053,
+        -22.416
       ],
       "blind_box_size": [
-        81.051,
-        59.651,
-        53.142
+        80.944,
+        59.573,
+        53.15
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -68237,11 +68769,6 @@
         },
         {
           "chain": "A",
-          "resnum": 145,
-          "resname": "ILE"
-        },
-        {
-          "chain": "A",
           "resnum": 149,
           "resname": "LEU"
         },
@@ -68307,18 +68834,18 @@
         }
       ],
       "blind_center": [
-        -1.884,
+        -1.885,
         -57.364,
         23.124
       ],
       "blind_box_size": [
-        48.177,
-        84.928,
-        65.205
+        48.184,
+        84.892,
+        65.065
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.165,
+      "reference_rmsd": 2.18,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -68678,13 +69205,13 @@
         -10.382
       ],
       "blind_box_size": [
-        64.148,
-        55.065,
-        118.881
+        64.119,
+        55.356,
+        118.834
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.02,
+      "reference_rmsd": 2.504,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -69082,14 +69609,14 @@
         }
       ],
       "blind_center": [
-        -70.047,
+        -70.044,
         -25.72,
         -1.233
       ],
       "blind_box_size": [
-        79.808,
-        80.063,
-        65.89
+        80.032,
+        80.208,
+        65.816
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -69323,18 +69850,18 @@
         }
       ],
       "blind_center": [
-        23.512,
-        32.849,
-        -0.31
+        23.519,
+        32.854,
+        -0.305
       ],
       "blind_box_size": [
-        79.127,
-        72.019,
-        76.352
+        79.063,
+        71.926,
+        76.349
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.306,
+      "reference_rmsd": 2.32,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -70484,13 +71011,13 @@
         32.71
       ],
       "blind_box_size": [
-        56.13,
-        61.491,
-        70.687
+        56.164,
+        61.42,
+        71.107
       ],
       "site_source": "co-crystal_ligand",
-      "validated": false,
-      "reference_rmsd": 2.348,
+      "validated": true,
+      "reference_rmsd": 1.804,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -72185,11 +72712,6 @@
         },
         {
           "chain": "A",
-          "resnum": 64,
-          "resname": "ALA"
-        },
-        {
-          "chain": "A",
           "resnum": 66,
           "resname": "GLN"
         },
@@ -72227,6 +72749,11 @@
           "chain": "A",
           "resnum": 141,
           "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 148,
+          "resname": "ARG"
         },
         {
           "chain": "A",
@@ -72365,18 +72892,18 @@
         }
       ],
       "blind_center": [
-        10.442,
-        35.785,
-        25.113
+        10.445,
+        35.784,
+        25.117
       ],
       "blind_box_size": [
-        81.613,
-        83.545,
-        97.969
+        81.606,
+        83.995,
+        98.019
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.572,
+      "reference_rmsd": 3.306,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -72639,11 +73166,6 @@
         },
         {
           "chain": "A",
-          "resnum": 308,
-          "resname": "ARG"
-        },
-        {
-          "chain": "A",
           "resnum": 309,
           "resname": "GLN"
         },
@@ -72664,14 +73186,14 @@
         }
       ],
       "blind_center": [
-        -22.747,
-        -12.772,
-        148.939
+        -22.753,
+        -12.776,
+        148.934
       ],
       "blind_box_size": [
-        90.416,
-        77.392,
-        149.673
+        90.192,
+        77.383,
+        149.755
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -74244,17 +74766,17 @@
       ],
       "blind_center": [
         -7.49,
-        -16.51,
-        8.751
+        -16.497,
+        8.744
       ],
       "blind_box_size": [
-        56.957,
-        53.544,
-        53.865
+        57.302,
+        54.199,
+        55.987
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 2.061,
+      "reference_rmsd": 2.082,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -75682,17 +76204,17 @@
       ],
       "blind_center": [
         19.401,
-        3.861,
-        -28.785
+        3.859,
+        -28.788
       ],
       "blind_box_size": [
-        46.661,
-        62.102,
-        76.444
+        46.787,
+        62.18,
+        75.941
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 6.019,
+      "reference_rmsd": 4.612,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -77596,14 +78118,14 @@
         }
       ],
       "blind_center": [
-        -16.947,
-        -5.13,
-        -24.698
+        -16.948,
+        -5.129,
+        -24.697
       ],
       "blind_box_size": [
-        72.529,
-        87.535,
-        76.493
+        72.475,
+        87.457,
+        76.723
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -78643,14 +79165,14 @@
         }
       ],
       "blind_center": [
-        11.803,
-        29.422,
-        -0.349
+        11.805,
+        29.418,
+        -0.343
       ],
       "blind_box_size": [
-        53.291,
-        52.137,
-        69.657
+        53.995,
+        54.436,
+        68.655
       ],
       "site_source": "co-crystal_ligand",
       "validated": false
@@ -79092,18 +79614,18 @@
         }
       ],
       "blind_center": [
-        16.076,
-        59.149,
-        -1.031
+        16.08,
+        59.154,
+        -1.03
       ],
       "blind_box_size": [
-        42.967,
-        48.21,
-        52.317
+        43.664,
+        47.621,
+        52.498
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.959,
+      "reference_rmsd": 4.023,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -79456,18 +79978,18 @@
         }
       ],
       "blind_center": [
-        -12.83,
-        -19.247,
+        -12.828,
+        -19.245,
         -70.659
       ],
       "blind_box_size": [
-        103.719,
-        76.703,
-        114.711
+        103.721,
+        75.912,
+        114.692
       ],
       "site_source": "co-crystal_ligand",
       "validated": false,
-      "reference_rmsd": 3.944,
+      "reference_rmsd": 4.413,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,
@@ -79834,6 +80356,342 @@
       "site_source": "co-crystal_ligand",
       "validated": true,
       "reference_rmsd": 0.168,
+      "enrichment_auc": null,
+      "enrichment_ef20": null,
+      "enrichment_n": null,
+      "enrichment_source": null
+    },
+    {
+      "target_id": "CHEMBL1907601_CDK4_CyclinD1",
+      "name": "CHEMBL1907601_CDK4_CyclinD1",
+      "pdb_source": "7SJ3_raw.pdb",
+      "reference_ligand_resname": "6ZV",
+      "chain": "A",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        12.931,
+        -38.617,
+        10.712
+      ],
+      "box_size": [
+        30.74,
+        23.201,
+        24.303
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 10,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 11,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 12,
+          "resname": "GLY"
+        },
+        {
+          "chain": "A",
+          "resnum": 16,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 19,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 32,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 34,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 48,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 64,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 81,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 83,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 84,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 85,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 86,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 87,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 88,
+          "resname": "GLN"
+        },
+        {
+          "chain": "A",
+          "resnum": 89,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 92,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 127,
+          "resname": "LYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 129,
+          "resname": "GLU"
+        },
+        {
+          "chain": "A",
+          "resnum": 130,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 132,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 142,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 143,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 144,
+          "resname": "PHE"
+        }
+      ],
+      "blind_center": [
+        16.843,
+        -32.649,
+        -0.137
+      ],
+      "blind_box_size": [
+        51.786,
+        65.236,
+        77.715
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": false,
+      "reference_rmsd": 2.429,
+      "enrichment_auc": 0.586,
+      "enrichment_ef20": 1.2,
+      "enrichment_n": 24,
+      "enrichment_source": "real actives (top-8 by measured pChEMBL) vs. property-matched (MW/logP/HBD/HBA/rotatable-bonds/charge) + topologically-dissimilar (Morgan/ECFP4 Tanimoto < 0.25 to every active) decoys drawn from OTHER targets' curated ChEMBL data (DUD-E-style methodology, see scripts/generate_decoys.py) \u2014 'presumed inactive' means 'curated for a different target's assay', not independently confirmed non-binding"
+    },
+    {
+      "target_id": "GENE_DRD1",
+      "name": "GENE_DRD1",
+      "pdb_source": "7JOZ_raw.pdb",
+      "reference_ligand_resname": "VFP",
+      "chain": "R",
+      "receptor_pdbqt": "receptor.pdbqt",
+      "receptor_pdb": "receptor_clean.pdb",
+      "center": [
+        -11.853,
+        -82.726,
+        -44.039
+      ],
+      "box_size": [
+        24.289,
+        28.316,
+        20.223
+      ],
+      "binding_site_residues": [
+        {
+          "chain": "A",
+          "resnum": 239,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 240,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 243,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 244,
+          "resname": "ILE"
+        },
+        {
+          "chain": "A",
+          "resnum": 247,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 248,
+          "resname": "THR"
+        },
+        {
+          "chain": "A",
+          "resnum": 304,
+          "resname": "HIS"
+        },
+        {
+          "chain": "A",
+          "resnum": 305,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 306,
+          "resname": "CYS"
+        },
+        {
+          "chain": "A",
+          "resnum": 307,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 308,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 309,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 310,
+          "resname": "LEU"
+        },
+        {
+          "chain": "A",
+          "resnum": 314,
+          "resname": "TYR"
+        },
+        {
+          "chain": "A",
+          "resnum": 315,
+          "resname": "ALA"
+        },
+        {
+          "chain": "A",
+          "resnum": 318,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 319,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 322,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 385,
+          "resname": "TRP"
+        },
+        {
+          "chain": "A",
+          "resnum": 388,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 389,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 392,
+          "resname": "ASN"
+        },
+        {
+          "chain": "A",
+          "resnum": 410,
+          "resname": "SER"
+        },
+        {
+          "chain": "A",
+          "resnum": 413,
+          "resname": "PHE"
+        },
+        {
+          "chain": "A",
+          "resnum": 414,
+          "resname": "ASP"
+        },
+        {
+          "chain": "A",
+          "resnum": 417,
+          "resname": "VAL"
+        },
+        {
+          "chain": "A",
+          "resnum": 421,
+          "resname": "TRP"
+        }
+      ],
+      "blind_center": [
+        -4.2,
+        -78.813,
+        -50.798
+      ],
+      "blind_box_size": [
+        69.722,
+        106.786,
+        70.645
+      ],
+      "site_source": "co-crystal_ligand",
+      "validated": true,
+      "reference_rmsd": 1.898,
       "enrichment_auc": null,
       "enrichment_ef20": null,
       "enrichment_n": null,

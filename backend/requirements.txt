@@ -1,5 +1,6 @@
-# PhytoScreen Desktop — CPU-only serving app requirements.
+# PhytoScreen backend — CPU-only serving app requirements.
 # Model training lives in the separate factory; not needed here (CLAUDE.md §1).
+# This is the API only — the UI is frontend/ (its own package, npm install).
 #
 # torch MUST be installed from the CPU-only wheel index first, or pip may
 # pull a multi-GB CUDA build you don't need (this app never requires a GPU):
@@ -28,9 +29,6 @@ fastapi==0.139.2
 uvicorn[standard]==0.51.0
 python-multipart==0.0.32
 httpx==0.28.1
-
-# --- desktop shell ---
-pywebview==6.2.1
 
 # --- reporting / bucket files ---
 matplotlib==3.10.9

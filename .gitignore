@@ -13,3 +13,11 @@ docking_targets/
 dist/
 build/
 *.spec
+
+# frontend (React/Vite source in frontend/ — dist/ is its standalone build
+# output, no longer committed now that the backend doesn't serve it)
+frontend/node_modules/
+frontend/dist/
+frontend/*.tsbuildinfo
+frontend/.env.local
+frontend/.env.*.local

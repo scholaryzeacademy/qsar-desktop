@@ -46,8 +46,11 @@ from rdkit import DataStructs
 
 RDLogger.DisableLog("rdApp.*")
 
-CURATED_DIR = "models/curated"
-POOL_CACHE = "scripts/_decoy_pool_cache.pkl"
+CURATED_DIR = "models/curated"   # cwd-relative — repo root, same as models/ everywhere else
+POOL_CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_decoy_pool_cache.pkl")
+                                  # own dir, NOT cwd-relative — a cache file, and this module is
+                                  # reachable live from app.py's /api/docking/enrichment/fresh
+                                  # with the server's cwd (repo root), not scripts/'s own dir
 
 _morgan = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
 

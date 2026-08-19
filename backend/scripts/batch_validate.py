@@ -42,7 +42,8 @@ import os
 import sys
 import subprocess
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(_SCRIPTS_DIR))
 
 from scripts import select_receptor
 from scripts import panel_candidates
@@ -52,8 +53,13 @@ from docking.profile import REGISTRY
 
 DEEP_EXTRA_LIMIT = 10  # extra panel-CSV candidates beyond top-5, tried only if everything else fails
 
-MODELS_DIR = "models"
-LOG_PATH = "scripts/batch_validate_log.jsonl"
+MODELS_DIR = "models"    # cwd-relative — the app/this script must run with the
+                          # repo root as cwd, same as models/docking_targets/
+                          # docking_registry.json (see backend/README notes)
+LOG_PATH = os.path.join(_SCRIPTS_DIR, "batch_validate_log.jsonl")   # own dir,
+                          # NOT cwd-relative — an audit log, not shared data,
+                          # and this module is called from app.py with the
+                          # server's cwd (repo root), not scripts/'s own dir
 PER_TARGET_TIMEOUT = 45 * 60  # seconds; enrichment docks 16 compounds, generous margin
 
 # folder-name suffix -> gene symbol override, for names that aren't a clean
@@ -247,7 +253,13 @@ def _try_candidate(target_id, prior_entry, pdb_id, resname, source=None, csv_ran
         return "skipped"
 
     print(f"[{target_id}] trying {pdb_id} / {resname} / chain {chain} (source={source}, csv_rank={csv_rank}) ...")
-    cmd = [sys.executable, "scripts/validate_target.py", target_id, pdb_id, resname, "--chain", chain]
+    # Absolute script path (subprocess.run resolves a relative one against the
+    # CALLER's cwd, not this file's own directory — that's the repo root when
+    # invoked from app.py, not backend/scripts/). cwd is deliberately left as
+    # the parent's own (unset here -> inherited) so validate_target.py's own
+    # cwd-relative models/docking_registry.json/docking_targets resolution
+    # still lands on the repo root, same as everywhere else in the app.
+    cmd = [sys.executable, os.path.join(_SCRIPTS_DIR, "validate_target.py"), target_id, pdb_id, resname, "--chain", chain]
     # NOTE: validate_target.py's receptor-prep step (docking/receptor_prep.py
     # prepare_receptor) overwrites the registry entry for target_id with a
     # bare, unvalidated profile as soon as it runs — BEFORE redocking or

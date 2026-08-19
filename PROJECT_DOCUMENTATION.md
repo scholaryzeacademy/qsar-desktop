@@ -1,6 +1,6 @@
-# PhytoScreen Desktop — Project Documentation
+# PhytoScreen — Project Documentation
 
-**A local, offline, CPU-only desktop application for prioritising chemical compounds against validated biological drug targets.**
+**A local, offline, CPU-only tool for prioritising chemical compounds against validated biological drug targets.**
 
 Prepared: 2026-08-08
 
@@ -15,7 +15,7 @@ PhytoScreen Desktop is a self-contained research tool that takes one or more mol
 3. A **structure-based docking** estimate (AutoDock Vina) — a 3D physical pose and binding-affinity score against the target's crystal structure, for targets where the receptor has been prepared and validated.
 4. A ranked, evidence-annotated shortlist that fuses all of the above, with every claim traceable to a real number and every caveat stated explicitly.
 
-The whole system runs **locally, with no internet dependency at inference time, on CPU only** (no GPU required to *use* the app — GPU was used only to *train* the underlying QSAR models). It ships as a native desktop window (PyWebview) wrapping a FastAPI backend, or can be built into a standalone Windows `.exe` (PyInstaller).
+The whole system runs **locally, with no internet dependency at inference time, on CPU only** (no GPU required to *use* the app — GPU was used only to *train* the underlying QSAR models). It ships as two independent local services: a FastAPI JSON API (`backend/`) and a React single-page UI (`frontend/`), talking to each other over HTTP/CORS — no bundled desktop window, no PyInstaller build.
 
 The guiding design principle throughout the codebase is what its own internal documentation calls **"calibrated honesty"**: the application never fabricates a number it cannot support. Confidence tiers are derived from real held-out test error, not an invented interval; out-of-domain predictions are shown but explicitly not trusted; docking targets are only marked "validated" after passing a real geometric reproducibility test; and every metric a user sees traces back to a specific file in a specific target's training bucket, downloadable from the app itself.
 
@@ -27,7 +27,7 @@ The guiding design principle throughout the codebase is what its own internal do
 2. **Make every prediction inspectable.** A researcher (or their reviewer) should be able to trace any number back to the model that produced it, the data it was trained on, and the validation evidence for that model — not treat the tool as a black box.
 3. **Never silently overstate confidence.** Predictions outside a model's training chemistry, targets whose docking receptor hasn't been geometrically validated, and ADMET flags are all surfaced as caveats attached to the result, not filtered out or hidden.
 4. **Combine two independent lines of evidence** (ligand-based QSAR potency and structure-based docking) so a compound's ranking isn't dependent on a single method's blind spots.
-5. **Be practically deployable** to a non-technical end user (a single native desktop window, one `.exe`, no server to manage).
+5. **Be practically deployable**: two small local processes (`uvicorn` + a static frontend build) with no database, no external services required at inference time, and no GPU.
 
 ---
 
@@ -35,11 +35,15 @@ The guiding design principle throughout the codebase is what its own internal do
 
 ```
                     ┌─────────────────────────┐
-                    │   desktop.py (PyWebview) │  native window, launches the backend
+                    │ frontend/ (React + Vite) │  Screen / Predict / ADMET /
+                    │ served independently —    │  Compare / Docking / Target Info
+                    │ dev server or static build│
                     └────────────┬────────────┘
-                                 │
+                                 │  HTTP + CORS  (/api/*)
                     ┌────────────▼────────────┐
                     │   app.py (FastAPI)       │  mounts every feature as a REST API
+                    │   backend/, run from the │  (backend/, no UI, no static files)
+                    │   repo root via --app-dir│
                     └───┬────┬────┬────┬───┬──┘
        ┌────────────────┘    │    │    │   └───────────────┐
        ▼                     ▼    ▼    ▼                   ▼
@@ -52,7 +56,7 @@ The guiding design principle throughout the codebase is what its own internal do
 │ confidence   │   │              │  │            │  │ bucket file)  │
 │ screen.py    │   └──────────────┘  └────────────┘  └──────────────┘
 └──────┬───────┘
-       │  reads
+       │  reads (relative to the repo root — see §8)
        ▼
 ┌─────────────────────────────┐      ┌──────────────────────────┐
 │ models/<target_id>/          │      │ docking_targets/<id>/     │
@@ -60,22 +64,17 @@ The guiding design principle throughout the codebase is what its own internal do
 │ (AutoGluon + Chemprop,       │      │ + docking_registry.json  │
 │ read-only, 101 GB / 52 tgts) │      │ (validated / unvalidated)│
 └─────────────────────────────┘      └──────────────────────────┘
-
-                    ┌─────────────────────────┐
-                    │ static/index.html        │  single-page UI:
-                    │ (vanilla JS, no build     │  Screen / Predict / ADMET /
-                    │  step)                    │  Compare / Docking / Target Info
-                    └─────────────────────────┘
 ```
 
 **Key architectural rule (enforced by module boundaries):** `serving/model_adapter.py` is the *only* module that imports AutoGluon or Chemprop directly. Everything else calls `load_target()` / `Target.predict_smiles()`. Similarly, `docking/` is the only place that imports RDKit-for-docking, Meeko, PoseBusters, or subprocess-calls Vina. This isolation means a failure or absence of one heavy dependency (e.g. no GPU, no Vina binary, no ADMET-AI installed) degrades that one feature gracefully instead of crashing the whole app.
+
+**Frontend/backend boundary:** the backend (`backend/`) is a pure JSON API — it has never known anything about HTML/CSS/JS since the rewrite; it doesn't serve or reference `frontend/` in any way. The two are connected only by HTTP calls to `/api/*` plus a permissive-by-default CORS policy (`ALLOWED_ORIGINS`, backend/app.py). This replaces the previous model, where `app.py` also served a single hand-written `static/index.html` and a `desktop.py` wrapped the whole thing in a native PyWebview window — both removed.
 
 ### 3.1 Component inventory
 
 | Component | Responsibility |
 |---|---|
-| `desktop.py` | Launches the FastAPI backend on a free local port in a background thread, waits for `/api/health`, opens a native PyWebview window pointed at it. Falls back to printing a plain `http://localhost:PORT/` URL if no native GUI backend is available. |
-| `app.py` | FastAPI app; defines every REST endpoint (`/api/predict`, `/api/admet`, `/api/predict_multi`, `/api/docking/*`, `/api/screen`, `/api/targets`, `/api/health`) and mounts `factory_browser`'s router and the static UI. |
+| `app.py` | FastAPI app; defines every REST endpoint (`/api/predict`, `/api/admet`, `/api/predict_multi`, `/api/docking/*`, `/api/screen`, `/api/targets`, `/api/health`) and mounts `factory_browser`'s router. Pure API — no UI, no static files. CORS-enabled for the separately-run frontend. |
 | `serving/model_adapter.py` | Loads a target's model bucket (AutoGluon `TabularPredictor` + Chemprop D-MPNN checkpoint), runs the two-stage inference pipeline, applies the applicability-domain gate and confidence tiering. Bounded LRU cache (default 2 targets in memory at once — buckets are large). |
 | `serving/featurize.py` | SMILES → the exact feature space the models were trained on (RDKit 2D descriptors by name + MACCS keys + Morgan/ECFP4 fingerprint). Includes a startup **self-check** that asserts every column a target's model expects can actually be produced, so a descriptor-naming drift fails loudly instead of silently zero-filling and corrupting predictions. |
 | `serving/applicability.py` | Applicability-domain (AD) gate: mean absolute z-score of a query molecule's features against the target's own training-set feature statistics. Above threshold (default 3.0) → "out of domain", never given a trusted potency number. |
@@ -85,7 +84,7 @@ The guiding design principle throughout the codebase is what its own internal do
 | `admet.py` / `admet_endpoints.py` / `admet_service.py` | Two-layer ADMET profiling: always-on deterministic rules (RDKit) + an optional learned layer (ADMET-AI) that runs in an isolated worker process so it can never freeze the main app (§4.5). |
 | `docking/` (10 modules) | Full structure-based docking stack: receptor preparation, ligand preparation, the Vina engine, the PoseBusters physical-validity gate, pose consensus/confidence, optional GNINA CNN rescoring, and 2D interaction diagrams (§4.6). |
 | `factory_browser.py` | `/api/factory/*` — lists, annotates, and serves (individually or as one zip) every file in a target's training bucket, so the underlying evidence for any metric is always one click away ("Target Info" tab). |
-| `static/index.html` | The entire frontend: one hand-written HTML/CSS/vanilla-JS file (no build step, no framework), with six tabs — Screen, Predict, ADMET, Compare, Docking, Target Info. |
+| `frontend/` | The entire UI: React + TypeScript + Tailwind, built with Vite, six tabs — Screen, Predict, ADMET, Compare, Docking, Target Info. Its own package (`frontend/package.json`), run/built independently of the backend (`npm run dev` / `npm run build`); talks to the API purely over `fetch()`. |
 | `models/<target_id>/` | Per-target, read-only training output (see §6). Not shipped in source control (101 GB); the app reads it directly. |
 | `docking_targets/<target_id>/` + `docking_registry.json` | Prepared receptors (PDBQT + cleaned PDB) and their validation record (center/box, reference RMSD, enrichment AUC, `validated: true/false`). |
 
@@ -353,48 +352,52 @@ Stated as plainly as the codebase itself states them — this list is deliberate
 
 ## 8. Deployment
 
-- **Development**: `python desktop.py` — starts the FastAPI backend on a free local port and opens it in a native PyWebview window; falls back to printing a plain browser URL if no native GUI backend is available on the machine.
-- **Optional ADMET-AI worker**: `uvicorn admet_service:app --host 127.0.0.1 --port 8100`, started separately.
-- **Windows `.exe` build**: PyInstaller (`pyinstaller --windowed --name PhytoScreen ...`, full flags in `BUILD_WINDOWS.md`), bundling `static/`, `docking/`, `docking_registry.json`, and `--collect-all` for RDKit/AutoGluon/Chemprop/Lightning/PoseBusters/Meeko/gemmi plus hidden imports for LightGBM etc.
+Two independent local processes — no bundled desktop window, no PyInstaller build.
+
+- **Backend**: `uvicorn app:app --app-dir backend --host 127.0.0.1 --port 8000`, run **from the repo root**. `--app-dir backend` puts `backend/` on `sys.path` (so `app`, `docking`, `serving`, etc. import); the working directory stays the repo root, which is what `models/`, `docking_targets/`, and `docking_registry.json` are resolved relative to (`TARGETS_DIR`/`DOCKING_TARGETS_DIR`/`DOCKING_REGISTRY` env vars, all cwd-relative by default). Running it from inside `backend/` instead would silently point those at empty `backend/models/` etc. — the test suite (`pytest backend/tests`, also from the repo root) exercises the same resolution.
+- **Optional ADMET-AI worker**: `uvicorn admet_service:app --app-dir backend --host 127.0.0.1 --port 8100`, started separately.
+- **Frontend**: `cd frontend && npm run dev` (Vite dev server, proxies `/api` to `:8000`) for development, or `npm run build` for a standalone static bundle (`frontend/dist/`) served by anything and pointed at the backend via `VITE_API_BASE` + the backend's `ALLOWED_ORIGINS` CORS setting.
 
 ---
 
 ## 9. Appendix — file/module map
 
 ```
-app.py                    FastAPI backend, all REST endpoints
-desktop.py                native-window launcher
-analysis.py                multi-target / Compare analysis
-admet.py / admet_endpoints.py / admet_service.py    ADMET (deterministic + learned worker)
-factory_browser.py        /api/factory/* — Target Info tab
-serving/
-  model_adapter.py          bucket loading, two-stage inference, LRU cache
-  featurize.py               SMILES -> training feature space + self-check
-  applicability.py           AD z-score gate
-  confidence.py              honest confidence tiers
-  screen.py                  the 8-step Screen pipeline
-docking/
-  receptor_prep.py           one-time receptor prep (this session's bug fixes live here)
-  ligand_prep.py              SMILES -> 3D -> PDBQT
-  engines.py                  VinaEngine, GninaRescorer
-  validity.py                 PoseBusters gate
-  consensus.py                 pose selection + confidence
-  rmsd.py                      atom-map-safe RMSD
-  profile.py                   registry load/save, portable receptor paths
-  pipeline.py                  dock_compound (per-compound), redock_reference (validation)
-  interactions.py / interaction_diagram.py    interaction detection + 2D diagram rendering
-  availability.py               reports which docking tools/binaries are present
-scripts/
-  validate_target.py           generic per-target docking validation (existing)
-  enrichment_test.py            AUC / EF@20% enrichment metrics (existing)
-  select_receptor.py            NEW — automated PDB/ligand candidate selection
-  detect_chain.py                NEW — auto chain detection (duplicate-ligand fix)
-  pdb_fetch.py                   NEW — mmCIF fallback fetch
-  generate_decoys.py             NEW — real DUD-E-style decoy generation
-  batch_validate.py              NEW — orchestrates validate_target.py across all targets
-static/index.html          entire frontend (six tabs, vanilla JS)
+backend/
+  app.py                    FastAPI backend, all REST endpoints (CORS-enabled, no UI)
+  analysis.py                multi-target / Compare analysis
+  admet.py / admet_endpoints.py / admet_service.py    ADMET (deterministic + learned worker)
+  factory_browser.py        /api/factory/* — Target Info tab
+  serving/
+    model_adapter.py          bucket loading, two-stage inference, LRU cache
+    featurize.py               SMILES -> training feature space + self-check
+    applicability.py           AD z-score gate
+    confidence.py              honest confidence tiers
+    screen.py                  the 8-step Screen pipeline
+  docking/
+    receptor_prep.py           one-time receptor prep (this session's bug fixes live here)
+    ligand_prep.py              SMILES -> 3D -> PDBQT
+    engines.py                  VinaEngine, GninaRescorer
+    validity.py                 PoseBusters gate
+    consensus.py                 pose selection + confidence
+    rmsd.py                      atom-map-safe RMSD
+    profile.py                   registry load/save, portable receptor paths
+    pipeline.py                  dock_compound (per-compound), redock_reference (validation)
+    interactions.py / interaction_diagram.py    interaction detection + 2D diagram rendering
+    availability.py               reports which docking tools/binaries are present
+  scripts/
+    validate_target.py           generic per-target docking validation (existing)
+    enrichment_test.py            AUC / EF@20% enrichment metrics (existing)
+    select_receptor.py            automated PDB/ligand candidate selection
+    detect_chain.py                auto chain detection (duplicate-ligand fix)
+    pdb_fetch.py                   mmCIF fallback fetch
+    generate_decoys.py             real DUD-E-style decoy generation
+    batch_validate.py              orchestrates validate_target.py across all targets
+  tests/                       39 pytest tests across 6 files (§5.2) — run as `pytest backend/tests`
+                                from the repo root, same as the app itself (see §8)
+frontend/                    entire UI: React + TypeScript + Tailwind (Vite), six tabs,
+                              its own package (npm install / npm run dev / npm run build)
 models/<target_id>/         per-target QSAR training bucket (read-only, not in git)
 docking_targets/<target_id>/  prepared receptors (read-only, not in git)
 docking_registry.json       docking target registry + validation record
-tests/                       39 pytest tests across 6 files (§5.2)
 ```
