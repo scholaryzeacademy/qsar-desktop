@@ -234,6 +234,7 @@ def run(target_id, smiles_list, make_diagram=True, progress=None, advanced=None)
                 "residue_overlap_pct": d.get("residue_overlap_pct"),
                 "enrichment_percentile": d.get("enrichment_percentile"),
                 "enrichment_context": d.get("enrichment_context"),
+                "pose_pdb": d.get("pose_pdb"),
             } if d else None),
             "admet": a,
             "fused_score": round(fused, 4) if fused is not None else None,
