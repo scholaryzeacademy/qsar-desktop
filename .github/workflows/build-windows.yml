@@ -86,14 +86,17 @@ jobs:
         env:
           DOWNLOAD_BASE_URL: ${{ vars.DOWNLOAD_BASE_URL }}
         run: |
+          # Get-Content and Set-Content on the SAME file in one pipeline
+          # deadlocks on Windows (Get-Content still holds a read handle
+          # when Set-Content opens it for writing) — materialize into a
+          # variable first so the read is fully done before the write starts.
           if ($env:DOWNLOAD_BASE_URL) {
-            (Get-Content installer/PhytoScreen.bat) -replace '__DOWNLOAD_BASE_URL__', $env:DOWNLOAD_BASE_URL |
-              Set-Content installer/PhytoScreen.bat
+            $lines = (Get-Content installer/PhytoScreen.bat) -replace '__DOWNLOAD_BASE_URL__', $env:DOWNLOAD_BASE_URL
           } else {
             Write-Host "DOWNLOAD_BASE_URL repo variable is unset — using backend/downloads.py's built-in default bucket."
-            Get-Content installer/PhytoScreen.bat | Where-Object { $_ -notmatch '__DOWNLOAD_BASE_URL__' } |
-              Set-Content installer/PhytoScreen.bat
+            $lines = Get-Content installer/PhytoScreen.bat | Where-Object { $_ -notmatch '__DOWNLOAD_BASE_URL__' }
           }
+          Set-Content installer/PhytoScreen.bat -Value $lines
 
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
