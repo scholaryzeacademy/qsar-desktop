@@ -161,20 +161,50 @@ def _drop_oxt(pdb_path):
         f.writelines(kept)
 
 
+def _mk_prepare_receptor_inprocess(clean_pdb, stem):
+    """Call meeko's mk_prepare_receptor CLI script's own main() in-process,
+       instead of shelling out to the 'mk_prepare_receptor.py' console-
+       script launcher pip generates in a venv's Scripts/ folder — that
+       launcher genuinely doesn't exist in a frozen PyInstaller build (no
+       venv, no PATH-discoverable executable), even though the underlying
+       meeko PACKAGE is fully bundled (--collect-all meeko in
+       BUILD_WINDOWS.md — the CLI script's own source, meeko/cli/
+       mk_prepare_receptor.py, is a normal file inside that package).
+       Sidesteps subprocess+PATH entirely — works identically whether
+       frozen or not, and surfaces real Python exceptions (an RDKit
+       sanitization failure, say) directly instead of parsed subprocess
+       stderr text. Returns True if meeko ran (success or a real prep
+       failure, raised as RuntimeError); False if meeko itself can't be
+       imported at all, so the caller can fall back to prepare_receptor."""
+    import sys, io, contextlib
+    try:
+        from meeko.cli import mk_prepare_receptor as _mk_cli
+    except Exception:
+        return False
+    old_argv = sys.argv
+    sys.argv = ["mk_prepare_receptor.py", "--read_pdb", clean_pdb, "-o", stem, "-p"]
+    err_buf = io.StringIO()
+    try:
+        with contextlib.redirect_stderr(err_buf):
+            _mk_cli.main()
+    except SystemExit as e:
+        if e.code not in (0, None):
+            raise RuntimeError(f"mk_prepare_receptor failed on {clean_pdb}:\n{err_buf.getvalue()}") from e
+    except Exception as e:
+        raise RuntimeError(f"mk_prepare_receptor failed on {clean_pdb}: {e}\n{err_buf.getvalue()}") from e
+    finally:
+        sys.argv = old_argv
+    return True
+
+
 # ---------- step 4: receptor PDBQT (Meeko) ----------
 def receptor_to_pdbqt(clean_pdb, out_pdbqt):
-    """Prefer Meeko's mk_prepare_receptor CLI (permissive); fall back to prepare_receptor."""
-    if shutil.which("mk_prepare_receptor.py"):
-        stem = out_pdbqt[:-6] if out_pdbqt.endswith(".pdbqt") else out_pdbqt
-        try:
-            subprocess.run(["mk_prepare_receptor.py", "--read_pdb", clean_pdb, "-o", stem, "-p"],
-                           check=True, capture_output=True, text=True)
-        except subprocess.CalledProcessError as e:
-            # surface meeko's actual error — a bare CalledProcessError hides the
-            # one line (usually an RDKit sanitization failure on a specific
-            # residue) that says WHY prep failed, forcing anyone debugging this
-            # to blindly re-run the subprocess by hand to find out.
-            raise RuntimeError(f"mk_prepare_receptor.py failed on {clean_pdb}:\n{e.stderr}") from e
+    """Prefer Meeko's mk_prepare_receptor (in-process — see
+       _mk_prepare_receptor_inprocess); fall back to prepare_receptor
+       (ADFR/MGLTools, a real external binary the desktop app doesn't
+       bundle — genuinely optional)."""
+    stem = out_pdbqt[:-6] if out_pdbqt.endswith(".pdbqt") else out_pdbqt
+    if _mk_prepare_receptor_inprocess(clean_pdb, stem):
         cand = stem + ".pdbqt"
         if os.path.exists(cand):
             if cand != out_pdbqt:
