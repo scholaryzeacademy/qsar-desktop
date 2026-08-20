@@ -90,7 +90,7 @@ export function ScreenTab() {
     <div className="mx-auto grid max-w-[1280px] grid-cols-1 items-start gap-5 lg:grid-cols-[350px_1fr]">
       <aside className="card sticky top-[78px] max-h-[calc(100vh-96px)] overflow-y-auto p-[18px]">
         <SectionIntro title="Screen compounds" sub="Full pipeline: parse → featurise → AD → QSAR → ADMET → docking → ranked shortlist." />
-        <TargetPicker targetId={targetId} onChange={setTargetId} />
+        <TargetPicker targetId={targetId} onChange={setTargetId} need={["model", "docking"]} />
         {!geneOnly && <WhyThisButton targetId={targetId} key={targetId} />}
         <div className="mt-3">
           <DockingModeSection adv={adv} targetId={targetId} />

@@ -57,6 +57,14 @@ export function TargetInfoIcon(p: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+export function DownloadIcon(p: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...p}>
+      <path d="M12 3v12M7 10l5 5 5-5" />
+      <path d="M4 19h16" />
+    </svg>
+  );
+}
 
 /** Signature mark: a leaf silhouette built from a molecular node lattice —
     phyto (leaf) + chem (bonds/atoms) in one motif. Reused as the brand

@@ -33,9 +33,11 @@ from serving import model_adapter as MA
 import analysis as A
 import admet as ADMET
 import factory_browser
+import downloads
 
 app = FastAPI(title="PhytoScreen", version="3.0")
 app.include_router(factory_browser.router)
+app.include_router(downloads.router)
 
 # The UI (frontend/) is a separate app/process — dev server (Vite) or a
 # built static bundle served by anything, no longer served by this backend

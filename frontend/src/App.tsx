@@ -7,10 +7,11 @@ import { AdmetTab } from "./tabs/AdmetTab";
 import { CompareTab } from "./tabs/CompareTab";
 import { DockingTab } from "./tabs/DockingTab";
 import { TargetInfoTab } from "./tabs/TargetInfoTab";
+import { DownloadsTab } from "./tabs/DownloadsTab";
 
 function initialTab(): TabId {
   const h = window.location.hash.replace("#", "");
-  if (["screen", "predict", "admet", "compare", "docking", "target"].includes(h)) return h as TabId;
+  if (["screen", "predict", "admet", "compare", "docking", "target", "downloads"].includes(h)) return h as TabId;
   return "screen";
 }
 
@@ -45,6 +46,9 @@ export default function App() {
         </div>
         <div className={tab === "target" ? "" : "hidden"}>
           <TargetInfoTab />
+        </div>
+        <div className={tab === "downloads" ? "" : "hidden"}>
+          <DownloadsTab />
         </div>
       </Shell>
     </AppDataProvider>

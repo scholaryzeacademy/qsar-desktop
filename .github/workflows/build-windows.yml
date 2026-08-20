@@ -1,0 +1,117 @@
+name: Build Windows installer
+
+# PyInstaller doesn't cross-compile, so the .exe can only be produced by an
+# actual Windows build — this runs the whole BUILD_WINDOWS.md flow on a
+# GitHub-hosted windows-latest runner and hands back an installer, so a
+# real Windows machine is never required to produce one. See
+# BUILD_WINDOWS.md for the equivalent manual steps and what to do if a
+# rebuild here reports a missing module.
+#
+# Requires one repo Actions **variable** (Settings > Secrets and variables
+# > Actions > Variables), not a secret — it's just a public HTTPS URL, the
+# installed app never holds AWS credentials (see backend/downloads.py):
+#   DOWNLOAD_BASE_URL = https://<your-bucket-or-cdn>
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*.*.*"]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install backend dependencies (CPU-only torch first)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r backend/requirements.txt
+          pip install pyinstaller
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Determine version
+        id: ver
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.0.0-dev.${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: PyInstaller (see BUILD_WINDOWS.md for what each flag is for)
+        run: >
+          pyinstaller --noconfirm --windowed --name PhytoScreen
+          --add-data "frontend/dist;frontend/dist"
+          --add-data "backend/docking;docking"
+          --add-data "docking_registry.json;."
+          --add-data "bin;bin"
+          --collect-all rdkit
+          --collect-all autogluon
+          --collect-all chemprop
+          --collect-all lightning
+          --collect-all posebusters
+          --collect-all meeko
+          --collect-all gemmi
+          --hidden-import lightgbm
+          --hidden-import catboost
+          --hidden-import xgboost
+          --hidden-import uvicorn
+          --hidden-import pywebview
+          desktop.py
+
+      - name: Fill in DOWNLOAD_BASE_URL for the launcher
+        # backend/downloads.py already bakes in the project's real R2
+        # bucket as its own default, so this repo variable only exists to
+        # let a fork/different build point at a DIFFERENT bucket without
+        # a code change. If it's unset, drop the `set DOWNLOAD_BASE_URL=`
+        # line entirely (not "set it to empty") — an explicitly-empty env
+        # var would override that code-level default with "", which is
+        # not the same as leaving it unset. See installer/PhytoScreen.bat.
+        shell: pwsh
+        env:
+          DOWNLOAD_BASE_URL: ${{ vars.DOWNLOAD_BASE_URL }}
+        run: |
+          if ($env:DOWNLOAD_BASE_URL) {
+            (Get-Content installer/PhytoScreen.bat) -replace '__DOWNLOAD_BASE_URL__', $env:DOWNLOAD_BASE_URL |
+              Set-Content installer/PhytoScreen.bat
+          } else {
+            Write-Host "DOWNLOAD_BASE_URL repo variable is unset — using backend/downloads.py's built-in default bucket."
+            Get-Content installer/PhytoScreen.bat | Where-Object { $_ -notmatch '__DOWNLOAD_BASE_URL__' } |
+              Set-Content installer/PhytoScreen.bat
+          }
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
+            /DMyAppVersion=${{ steps.ver.outputs.version }} `
+            installer\phytoscreen.iss
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PhytoScreenSetup
+          path: installer/dist_installer/PhytoScreenSetup.exe
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: installer/dist_installer/PhytoScreenSetup.exe

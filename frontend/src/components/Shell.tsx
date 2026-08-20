@@ -1,7 +1,7 @@
 import { useAppData } from "../lib/AppDataContext";
-import { AdmetIcon, CompareIcon, DockingIcon, LeafLattice, PredictIcon, ScreenIcon, TargetInfoIcon } from "./Icons";
+import { AdmetIcon, CompareIcon, DockingIcon, DownloadIcon, LeafLattice, PredictIcon, ScreenIcon, TargetInfoIcon } from "./Icons";
 
-export type TabId = "screen" | "predict" | "admet" | "compare" | "docking" | "target";
+export type TabId = "screen" | "predict" | "admet" | "compare" | "docking" | "target" | "downloads";
 
 const TABS: { id: TabId; label: string; icon: (p: any) => JSX.Element }[] = [
   { id: "screen", label: "Screen", icon: ScreenIcon },
@@ -10,6 +10,7 @@ const TABS: { id: TabId; label: string; icon: (p: any) => JSX.Element }[] = [
   { id: "compare", label: "Compare", icon: CompareIcon },
   { id: "docking", label: "Docking", icon: DockingIcon },
   { id: "target", label: "Target Info", icon: TargetInfoIcon },
+  { id: "downloads", label: "Downloads", icon: DownloadIcon },
 ];
 
 export function Shell({ tab, onTab, children }: { tab: TabId; onTab: (t: TabId) => void; children: React.ReactNode }) {

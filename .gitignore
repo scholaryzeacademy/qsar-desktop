@@ -14,6 +14,10 @@ dist/
 build/
 *.spec
 
+# S3 upload staging for the Downloads tab (backend/scripts/build_download_manifest.py)
+# — regenerated from models/+docking_targets/, not source code
+_download_staging/
+
 # frontend (React/Vite source in frontend/ — dist/ is its standalone build
 # output, no longer committed now that the backend doesn't serve it)
 frontend/node_modules/

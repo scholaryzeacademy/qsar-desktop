@@ -284,3 +284,31 @@ export interface BucketFile {
   annotation?: string;
   category: string;
 }
+
+// ---------- on-demand downloads (Downloads tab) ----------
+export interface DownloadKindStatus {
+  available: boolean;
+  installed: boolean;
+  size?: number;
+}
+export interface DownloadTargetRow {
+  target_id: string;
+  model: DownloadKindStatus;
+  docking: DownloadKindStatus;
+}
+export interface DownloadsStatus {
+  download_base_url: string | null;
+  targets: DownloadTargetRow[];
+}
+export interface DownloadStartResponse {
+  job_id: string | null;
+  already_installed?: boolean;
+}
+export interface DownloadJobStatus {
+  target_id: string;
+  kind: "model" | "docking";
+  state: "starting" | "downloading" | "extracting" | "done" | "error";
+  done: number;
+  total: number;
+  error?: string | null;
+}

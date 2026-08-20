@@ -8,6 +8,9 @@ import type {
   DiseaseTarget,
   DockJobStatus,
   DockingStatus,
+  DownloadJobStatus,
+  DownloadStartResponse,
+  DownloadsStatus,
   PredictResponse,
   ReceptorProfile,
   RecommendationResponse,
@@ -176,5 +179,32 @@ export const submitScreen = (target_id: string, smiles: string[], advanced: Adva
   api<{ job_id: string }>("/api/screen/submit", json({ target_id, smiles, advanced }));
 export const screenJob = (jid: string) => api<ScreenJobStatus>(`/api/screen/job/${jid}`);
 export const screenExportUrl = (jid: string) => apiUrl(`/api/screen/job/${jid}/export.csv`);
+
+// ---------- on-demand downloads ----------
+export const downloadsStatus = () => api<DownloadsStatus>("/api/downloads/status");
+export const startDownload = (targetId: string, kind: "model" | "docking") =>
+  api<DownloadStartResponse>(`/api/downloads/target/${encodeURIComponent(targetId)}?kind=${kind}`, { method: "POST" });
+export const downloadProgress = (jobId: string) => api<DownloadJobStatus>(`/api/downloads/progress/${jobId}`);
+
+/** Starts (or no-ops if already installed) one target/kind download and
+    polls it to completion — the one poll-loop implementation shared by
+    the Downloads tab and the target pickers' inline auto-download, so
+    there's a single place that knows how to drive a download job. */
+export async function ensureDownloaded(
+  targetId: string,
+  kind: "model" | "docking",
+  onProgress?: (p: DownloadJobStatus) => void
+): Promise<void> {
+  const start = await startDownload(targetId, kind);
+  if (!start.job_id) return; // already installed
+  const jobId = start.job_id;
+  while (true) {
+    await sleep(700);
+    const p = await pollRetry(() => downloadProgress(jobId));
+    onProgress?.(p);
+    if (p.state === "done") return;
+    if (p.state === "error") throw new ApiError(p.error || `Download failed for ${targetId} (${kind}).`);
+  }
+}
 
 export { ApiError };
