@@ -153,8 +153,18 @@ jobs:
           if (-not $port) { Fail "Backend never reported its port within 60s — see the log above." }
           $base = "http://127.0.0.1:$port"
 
-          try { Invoke-RestMethod "$base/api/health" -TimeoutSec 10 | Out-Null }
-          catch { Fail "GET /api/health failed: $_" }
+          # The app's own log already proves the backend answered ITS OWN
+          # internal health probe (that's what "backend is up, serving"
+          # above means — see _wait_up() in desktop.py) — a few retries
+          # here absorb a slow first external connection (seen once: cold
+          # process, CI runner contention) without masking a real failure,
+          # since a genuinely dead backend would fail all 5 attempts too.
+          $healthOk = $false
+          for ($i = 0; $i -lt 5; $i++) {
+            try { Invoke-RestMethod "$base/api/health" -TimeoutSec 10 | Out-Null; $healthOk = $true; break }
+            catch { Start-Sleep -Seconds 2 }
+          }
+          if (-not $healthOk) { Fail "GET /api/health failed after 5 attempts." }
 
           # Download a real, small target from the live bucket — exercises
           # the exact download->extract->load pipeline a real user hits.
