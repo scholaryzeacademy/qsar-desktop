@@ -1,7 +1,56 @@
 import { useState } from "react";
 import * as api from "../lib/api";
+import { apiUrl } from "../lib/api";
+import { combinePdbText, fetchTextCached } from "../lib/mol3d";
 import type { AdvancedDockingBody, DockResultRow } from "../lib/types";
 import { PoseViewer } from "./PoseViewer";
+
+/** Downloads the receptor+pose "complex" PDB for one docked compound —
+    the same two structures PoseViewer already renders together in 3D,
+    just written out as a real file. receptorPdbPath is the file that was
+    ACTUALLY docked against for this job (from the job's own response),
+    not necessarily whatever the target's current default happens to be
+    now. */
+export function DownloadComplexButton({
+  smiles,
+  posePdb,
+  receptorPdbPath,
+}: {
+  smiles: string;
+  posePdb?: string | null;
+  receptorPdbPath?: string | null;
+}) {
+  const [busy, setBusy] = useState(false);
+  if (!posePdb) return null;
+
+  const run = async () => {
+    setBusy(true);
+    try {
+      const receptorPdb = receptorPdbPath
+        ? await fetchTextCached(apiUrl(`/api/docking/receptor_file?path=${encodeURIComponent(receptorPdbPath)}`))
+        : null;
+      const text = receptorPdb ? combinePdbText(receptorPdb, posePdb) : posePdb;
+      const blob = new Blob([text], { type: "chemical/x-pdb" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const safeName = smiles.replace(/[^A-Za-z0-9]+/g, "_").slice(0, 40) || "compound";
+      a.href = url;
+      a.download = `${safeName}${receptorPdb ? "_complex" : "_pose"}.pdb`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <button type="button" className="btn-link" disabled={busy} onClick={run}>
+      {busy ? "Preparing…" : receptorPdbPath ? "Download complex (PDB)" : "Download pose (PDB)"}
+    </button>
+  );
+}
 
 export function EnrichmentChip({ r }: { r: Pick<DockResultRow, "enrichment_percentile" | "enrichment_context"> }) {
   const pct = r.enrichment_percentile;
@@ -133,6 +182,11 @@ export function DockDetailPanel({ r, receptorPdbPath }: { r: DockResultRow; rece
       )}
       <InteractionTable interactions={r.interactions} />
       {r.pose_pdb && <PoseViewer posePdb={r.pose_pdb} receptorPdbPath={receptorPdbPath} interactions={r.interactions} />}
+      {r.pose_pdb && (
+        <div className="mt-2">
+          <DownloadComplexButton smiles={r.smiles} posePdb={r.pose_pdb} receptorPdbPath={receptorPdbPath} />
+        </div>
+      )}
     </div>
   );
 }

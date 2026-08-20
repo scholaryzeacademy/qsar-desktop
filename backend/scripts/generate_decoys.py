@@ -46,7 +46,10 @@ from rdkit import DataStructs
 
 RDLogger.DisableLog("rdApp.*")
 
-CURATED_DIR = "models/curated"   # cwd-relative — repo root, same as models/ everywhere else
+CURATED_DIR = os.environ.get("CURATED_DATA_DIR", "models/curated")   # cwd-relative by
+                          # default (repo root, same as models/ everywhere else) — the
+                          # desktop app overrides this to point at its bundled read-only
+                          # copy (see desktop.py, BUILD_WINDOWS.md's --add-data entry)
 POOL_CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_decoy_pool_cache.pkl")
                                   # own dir, NOT cwd-relative — a cache file, and this module is
                                   # reachable live from app.py's /api/docking/enrichment/fresh

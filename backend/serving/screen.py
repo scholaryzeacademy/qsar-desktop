@@ -274,4 +274,9 @@ def run(target_id, smiles_list, make_diagram=True, progress=None, advanced=None)
         "docking_note": docking_note,
         "docking_caveat": custom_caveat,
         "methods_note": methods_note,
+        # Lets the UI combine a shortlist row's pose_pdb with the actual
+        # receptor that was docked against, for a per-compound "download
+        # complex PDB" button — mirrors /api/docking/submit's job dict,
+        # which already carries this for the plain Docking tab.
+        "receptor_pdb_path": dprofile.get("receptor_pdb") if dock_ran and dprofile else None,
     }

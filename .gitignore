@@ -5,8 +5,15 @@ __pycache__/
 _archive/
 MODELS/
 
-# large read-only model-factory output & receptor data — not source code
-models/
+# large read-only model-factory output & receptor data — not source code.
+# models/curated/ is the one exception: small (~15MB) curated-compound
+# source data that fresh/on-demand decoy generation needs bundled with
+# the app (see BUILD_WINDOWS.md's --add-data entry for it) — a plain
+# "models/" pattern can't be re-included per-subdirectory (git won't
+# un-exclude a path whose parent directory is itself excluded), hence
+# models/* instead of models/ here.
+models/*
+!models/curated
 docking_targets/
 .venv/
 *.egg-info/

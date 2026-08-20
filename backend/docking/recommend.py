@@ -55,14 +55,21 @@ def _target_gene_map():
 
 
 def list_diseases():
-    """Diseases from the panel CSV that have >=1 associated target among
-       ours, sorted by name."""
+    """Every disease in the panel CSV, sorted by name — NOT restricted to
+       diseases tied to a target we happen to have a local QSAR model
+       for right now. That restriction made sense for the old static web
+       deployment (models/ never changed while the server ran, so "ours"
+       was a fixed, complete set); it's wrong for the desktop app's
+       download-on-demand workflow, where a disease not yet showing a
+       locally-downloaded QSAR target is still real and worth browsing —
+       targets_for_disease() already shows the full target landscape
+       (QSAR-modeled or docking-only) for whatever disease gets picked
+       here, has_qsar_model correctly reflecting what's actually
+       downloaded."""
     df = _panel_df()
     if df is None:
         return []
-    _, g2t = _target_gene_map()
-    ours = df[df["targetSymbol"].isin(g2t.keys())]
-    out = (ours[["diseaseId", "diseaseName", "is_therapeutic_area"]]
+    out = (df[["diseaseId", "diseaseName", "is_therapeutic_area"]]
            .drop_duplicates(subset=["diseaseId"])
            .sort_values("diseaseName"))
     return [

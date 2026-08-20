@@ -11,7 +11,7 @@ import { WhyThisButton } from "../components/RecommendationPanel";
 import { SectionIntro, ResultHeader, ResultName, Stat } from "../components/Shell";
 import { ConfidenceDot, Disclaimer, EmptyState, ErrorBox, Notice } from "../components/Feedback";
 import { LeafLattice } from "../components/Icons";
-import { EnrichmentChip, FreshDecoyButton } from "../components/DockingPieces";
+import { DownloadComplexButton, EnrichmentChip, FreshDecoyButton } from "../components/DockingPieces";
 import { tierClass } from "../lib/tierClass";
 import type { AdvancedDockingBody, DockResultRow, ScreenResult } from "../lib/types";
 
@@ -253,6 +253,11 @@ function ScreenResults({ d, jobId, advanced }: { d: ScreenResult; jobId: string;
                           <td colSpan={20} className="border-b border-surface2 bg-surface2/40 p-0">
                             <div className="px-5 py-3.5">
                               <img src={`data:image/png;base64,${r.docking!.interaction_png}`} className="max-w-full rounded-lg border border-line bg-white" />
+                              {r.docking!.pose_pdb && (
+                                <div className="mt-2">
+                                  <DownloadComplexButton smiles={r.smiles} posePdb={r.docking!.pose_pdb} receptorPdbPath={d.receptor_pdb_path} />
+                                </div>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -342,6 +347,11 @@ function GeneOnlyDockResults({
                             <img src={`data:image/png;base64,${r.interaction_png}`} className="max-w-full rounded-lg border border-line bg-white" />
                           ) : (
                             <div className="text-[13px] text-inkmut">No interaction diagram for this pose.</div>
+                          )}
+                          {r.pose_pdb && (
+                            <div className="mt-2">
+                              <DownloadComplexButton smiles={r.smiles} posePdb={r.pose_pdb} receptorPdbPath={receptorPdbPath} />
+                            </div>
                           )}
                         </div>
                       </td>

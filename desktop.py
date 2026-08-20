@@ -247,6 +247,12 @@ def main():
         # anything that reads them.
         os.environ.setdefault("DOCKING_REGISTRY", os.path.join(FROZEN_ROOT, "docking_registry.json"))
         os.environ.setdefault("PANEL_RESULTS_CSV", os.path.join(FROZEN_ROOT, "panel_results_v2.csv"))
+        # Same bug, same fix: backend/scripts/generate_decoys.py's curated-
+        # compound pool (fresh/on-demand decoy generation) reads
+        # models/curated/*.csv, bundled read-only the same way — not part
+        # of the on-demand download system (see BUILD_WINDOWS.md's
+        # --add-data entry for it).
+        os.environ.setdefault("CURATED_DATA_DIR", os.path.join(FROZEN_ROOT, "models", "curated"))
 
     _log(f"[desktop] starting (frozen={getattr(sys, 'frozen', False)}, cwd={os.getcwd()})")
     _put_bundled_binaries_on_path()

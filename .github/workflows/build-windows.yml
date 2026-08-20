@@ -73,6 +73,7 @@ jobs:
           --add-data "frontend/dist;frontend/dist"
           --add-data "docking_registry.json;."
           --add-data "panel_results_v2.csv;."
+          --add-data "models/curated;models/curated"
           --add-data "bin;bin"
           --collect-all rdkit
           --collect-all autogluon
@@ -84,6 +85,8 @@ jobs:
           --collect-all webview
           --collect-all admet_ai
           --collect-all cuik_molmaker
+          --collect-all openmm
+          --collect-all pdbfixer
           --hidden-import lightgbm
           --hidden-import catboost
           --hidden-import xgboost
@@ -105,6 +108,18 @@ jobs:
           echo "dist/PhytoScreen is ${size_mb} MB"
           if [ "$size_mb" -lt 200 ]; then
             echo "::error::dist/PhytoScreen is only ${size_mb} MB — a real build with torch/rdkit/autogluon/chemprop should be hundreds of MB+. A dependency likely failed to install silently. Check the 'Install backend dependencies' and 'PyInstaller' step logs above for ERROR lines."
+            exit 1
+          fi
+
+          # models/curated/ is bundled directly (--add-data), not
+          # downloaded — a real shipped bug: fresh/on-demand decoy
+          # generation silently built an empty pool without it. Confirm
+          # the actual CSVs landed in the bundle, not just that
+          # --add-data didn't error (it wouldn't, even for zero files).
+          curated_count=$(find dist/PhytoScreen -path "*/models/curated/*.csv" | wc -l)
+          echo "Bundled models/curated/ CSVs: ${curated_count}"
+          if [ "$curated_count" -lt 1 ]; then
+            echo "::error::No models/curated/*.csv files found in the bundle — fresh decoy generation's compound pool will be empty. Check the --add-data \"models/curated;models/curated\" entry and that models/curated/ exists in the checkout."
             exit 1
           fi
 

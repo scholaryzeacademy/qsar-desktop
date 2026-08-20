@@ -43,6 +43,22 @@ export function drawBoxShapes(viewer: any, center: [number, number, number], siz
   });
 }
 
+/** Combines a receptor PDB and a docked ligand-pose PDB into one
+    downloadable "complex" file — same two structures PoseViewer already
+    loads as separate 3Dmol models for VISUALIZATION, just concatenated
+    as text for a real file. Strips any existing END/ENDMDL from each
+    part (so the receptor's own terminator doesn't cut the file short)
+    and adds a TER between chains plus a single trailing END. */
+export function combinePdbText(receptorPdb: string, posePdb: string): string {
+  const strip = (s: string) =>
+    s
+      .split("\n")
+      .filter((line) => !/^(END|ENDMDL)\s*$/.test(line.trim()))
+      .join("\n")
+      .replace(/\n+$/, "");
+  return `${strip(receptorPdb)}\nTER\n${strip(posePdb)}\nEND\n`;
+}
+
 export const MIN_BOX_DIM = 4.0;
 
 export const HANDLE_SPECS = [

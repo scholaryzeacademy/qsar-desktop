@@ -99,6 +99,7 @@ From the project root:
       --add-data "frontend/dist;frontend/dist" ^
       --add-data "docking_registry.json;." ^
       --add-data "panel_results_v2.csv;." ^
+      --add-data "models/curated;models/curated" ^
       --add-data "bin;bin" ^
       --collect-all rdkit ^
       --collect-all autogluon ^
@@ -110,6 +111,8 @@ From the project root:
       --collect-all webview ^
       --collect-all admet_ai ^
       --collect-all cuik_molmaker ^
+      --collect-all openmm ^
+      --collect-all pdbfixer ^
       --hidden-import lightgbm ^
       --hidden-import catboost ^
       --hidden-import xgboost ^
@@ -199,6 +202,34 @@ Windows CI now actually downloads a real target and runs a real
 `/api/predict` call (see the "Verify..." step) instead of only checking
 that the app *starts* — a healthy backend and a working prediction are
 different guarantees, and this exact bug is what proved it.
+
+### Why `--collect-all openmm`/`--collect-all pdbfixer`
+`docking/receptor_prep.py` uses `PDBFixer` (repairing a manually-picked
+structure — missing atoms, missing hydrogens) whenever a user selects a
+structure OTHER than the pre-baked default (which ships already
+prepared, so this code path never runs for it). Both `openmm` and
+`pdbfixer` ship real data on disk their code loads at runtime — OpenMM's
+forcefield/topology XML files (`openmm/app/data/*.xml`) and PDBFixer's
+per-residue template PDBs (`pdbfixer/templates/*.pdb`) — invisible to
+plain import analysis the same way `cuik_molmaker`'s files were. Missing
+this doesn't break the default docking flow at all (masking it easily)
+— only manual structure selection, failing as `[Errno 2] No such file
+or directory: '...\_internal\openmm\app\data\...'`.
+
+### Why `--add-data "models/curated;models/curated"`
+Fresh/on-demand decoy generation (`backend/scripts/generate_decoys.py`'s
+`build_pool()`) reads every OTHER target's curated compounds from
+`models/curated/*.csv` to build a property-matched decoy pool — real
+source data (~15MB), not something inference-time can compute from
+nothing. Unlike `models/<target_id>/` (downloaded on demand from R2 —
+see `backend/scripts/build_download_manifest.py`), `models/curated/`
+was never part of that manifest at all, so a fresh install has zero
+curated CSVs: `build_pool()`'s glob finds nothing, returns an empty
+pool, and decoy selection breaks downstream. Small and read-only enough
+to just bundle directly into the installer instead of adding it to the
+download-on-demand system — `desktop.py` points `CURATED_DATA_DIR` at
+`FROZEN_ROOT` when frozen, same pattern as `DOCKING_REGISTRY`/
+`PANEL_RESULTS_CSV`.
 
 ### Why `--hidden-import lightgbm/catboost/xgboost`
 AutoGluon's stacked ensembles are built from these base learners — the

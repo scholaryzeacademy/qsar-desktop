@@ -218,6 +218,7 @@ export interface ScreenResult {
   docking_note?: string;
   shortlist: ScreenShortlistRow[];
   skipped: string[];
+  receptor_pdb_path?: string | null;
 }
 
 export interface ScreenJobStatus {
