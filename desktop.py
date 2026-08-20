@@ -40,6 +40,23 @@
 """
 import os, sys, threading, socket, time, contextlib, traceback, datetime
 
+# A --windowed PyInstaller build has NO console at all on Windows —
+# sys.stdout/sys.stderr are None, not just redirected/closed. print()
+# specifically special-cases this and silently no-ops (documented CPython
+# behavior for exactly this GUI-subsystem scenario), but plenty of library
+# code doesn't: it pokes sys.stdout/stderr directly (.isatty(), .write(),
+# .fileno(), ...) and crashes with AttributeError the instant it runs.
+# Found via uvicorn's own colorized-logging formatter, which calls
+# sys.stdout.isatty() during Config.__init__ — caught by the Windows CI
+# step that actually launches the built exe (see build-windows.yml) before
+# this ever reached a real user a second time. Give every library a real,
+# harmless writable stream instead of None, as early as possible (module
+# import time, before anything else runs).
+if sys.stdout is None or sys.stderr is None:
+    _null = open(os.devnull, "w")
+    sys.stdout = sys.stdout or _null
+    sys.stderr = sys.stderr or _null
+
 HOST = "127.0.0.1"
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 FROZEN_ROOT = getattr(sys, "_MEIPASS", REPO_ROOT)
@@ -152,7 +169,11 @@ def start_server(port):
         import uvicorn
         app = build_app()
         _log(f"[desktop] backend built OK, starting uvicorn on port {port}")
-        uvicorn.run(app, host=HOST, port=port, log_level="warning")
+        # log_config=None: skip uvicorn's own logging setup entirely — its
+        # colorized console formatter is what crashed on sys.stdout=None
+        # above, and we don't use console-visible uvicorn logs anyway
+        # (desktop.log is this app's actual diagnostic trail).
+        uvicorn.run(app, host=HOST, port=port, log_level="warning", log_config=None)
     except Exception:
         # Runs in a daemon thread — an uncaught exception here is normally
         # invisible (default threading.excepthook prints to a stderr that
