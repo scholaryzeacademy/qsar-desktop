@@ -234,7 +234,7 @@ export function TargetBrowser({
           })}
         </div>
       )}
-      <DownloadGateBar gate={gateApi.gate} onRetry={gateApi.retry} />
+      <DownloadGateBar gate={gateApi.gate} onRetry={gateApi.retry} onStop={gateApi.stop} />
 
       {targetId && !gateApi.gate.active && (
         <div className="mt-3">

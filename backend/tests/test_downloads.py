@@ -132,6 +132,48 @@ def test_checksum_mismatch_rejected(client, monkeypatch, isolated_dirs):
     assert "checksum" in p["error"]
 
 
+class _SlowFakeStreamResponse(_FakeStreamResponse):
+    """Sleeps between chunks so a test has a real window to POST /cancel
+       while the download is still in flight, instead of it finishing
+       before the cancel request even lands."""
+    def iter_bytes(self, chunk_size=1024 * 1024):
+        for chunk in super().iter_bytes(chunk_size):
+            time.sleep(0.05)
+            yield chunk
+
+
+def test_cancel_stops_an_in_flight_download(client, monkeypatch, isolated_dirs):
+    models_dir, _ = isolated_dirs
+    monkeypatch.setattr(D, "DOWNLOAD_BASE_URL", "http://fake")
+    monkeypatch.setattr(D, "_manifest_cache", {"data": None, "fetched_at": 0.0})
+    # many small chunks (chunk_size=1) so the cancel flag gets checked
+    # many times before the (tiny) payload could finish on its own
+    zb = _zip_bytes("FAKE_T4", {"a.txt": b"x" * 200})
+    manifest = {"targets": {"FAKE_T4": {"qsar_model": {"size": len(zb), "sha256": hashlib.sha256(zb).hexdigest()}, "docking": None}}}
+    monkeypatch.setattr(D.httpx, "get", lambda url, timeout=15: _FakeManifestResponse(manifest))
+    monkeypatch.setattr(
+        D.httpx, "stream",
+        lambda method, url, timeout=60: _FakeStreamCtx(_SlowFakeStreamResponse(zb)),
+    )
+    real_iter_bytes = _SlowFakeStreamResponse.iter_bytes
+    _SlowFakeStreamResponse.iter_bytes = lambda self, chunk_size=1024 * 1024: real_iter_bytes(self, chunk_size=1)
+
+    job_id = client.post("/api/downloads/target/FAKE_T4", params={"kind": "model"}).json()["job_id"]
+    time.sleep(0.15)  # let a few chunks through first
+    r = client.post(f"/api/downloads/cancel/{job_id}")
+    assert r.status_code == 200
+
+    p = _poll(client, job_id, tries=100)
+    assert p["state"] == "cancelled", p
+    assert not (models_dir / "FAKE_T4").exists()
+    _SlowFakeStreamResponse.iter_bytes = real_iter_bytes
+
+
+def test_cancel_unknown_job_404s(client):
+    r = client.post("/api/downloads/cancel/does-not-exist")
+    assert r.status_code == 404
+
+
 def test_extract_rejects_path_traversal(tmp_path, isolated_dirs):
     models_dir, _ = isolated_dirs
     buf = io.BytesIO()

@@ -107,6 +107,7 @@ export function FreshDecoyButton({ smiles, targetId, advanced }: { smiles: strin
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState("Run Fresh Decoy Validation");
   const [status, setStatus] = useState<{ kind: "muted" | "ok" | "err"; text: string } | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
 
   const run = async () => {
     if (!targetId) {
@@ -118,15 +119,20 @@ export function FreshDecoyButton({ smiles, targetId, advanced }: { smiles: strin
     setStatus({ kind: "muted", text: "Generating ~50 decoys matched to this compound…" });
     try {
       const sub = await api.submitFreshDecoy(targetId, smiles, advanced);
+      setJobId(sub.job_id);
       let j;
       while (true) {
         await api.sleep(2000);
         j = await api.pollRetry(() => api.freshDecoyJob(sub.job_id));
-        if (j.status === "done" || j.status === "error") break;
+        if (j.status === "done" || j.status === "error" || j.status === "cancelled") break;
         const done = j.done || 0;
         const total = j.total || "?";
         setStatus({ kind: "muted", text: `Docking ${done}/${total}…` });
         setLabel(`Docking ${done}/${total}…`);
+      }
+      if (j.status === "cancelled") {
+        setStatus({ kind: "muted", text: "Stopped by user." });
+        return;
       }
       if (j.status === "error") {
         setStatus({ kind: "err", text: j.error || "failed" });
@@ -145,7 +151,17 @@ export function FreshDecoyButton({ smiles, targetId, advanced }: { smiles: strin
       setStatus({ kind: "err", text: e.message || "Error" });
     } finally {
       setBusy(false);
+      setJobId(null);
       setLabel("Run Fresh Decoy Validation");
+    }
+  };
+
+  const stop = async () => {
+    if (!jobId) return;
+    try {
+      await api.cancelFreshDecoy(jobId);
+    } catch {
+      /* the poll loop will still surface a final status either way */
     }
   };
 
@@ -154,6 +170,11 @@ export function FreshDecoyButton({ smiles, targetId, advanced }: { smiles: strin
       <button type="button" className="btn-link" disabled={busy} onClick={run}>
         {label}
       </button>
+      {busy && jobId && (
+        <button type="button" className="btn-link ml-1.5" onClick={stop}>
+          Stop
+        </button>
+      )}
       {status && (
         <div
           className={`mt-1.5 max-w-[220px] text-[12px] ${

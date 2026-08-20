@@ -72,6 +72,8 @@ function DockingReady() {
   const [results, setResults] = useState<DockResultRow[] | null>(null);
   const [receptorPdbPath, setReceptorPdbPath] = useState<string | null>(null);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [cancelled, setCancelled] = useState(false);
 
   const run = async () => {
     setError("");
@@ -96,22 +98,27 @@ function DockingReady() {
       return;
     }
     setState("submitting");
+    setCancelled(false);
     try {
       const r = await api.submitDocking(targetId, smilesList, advBody);
       setCaveat(r.caveat || null);
+      setJobId(r.job_id);
       setState("polling");
       while (true) {
         await api.sleep(2000);
         const s = await api.pollRetry(() => api.dockingJob(r.job_id));
-        if (s.status === "done") {
+        if (s.status === "done" || s.status === "cancelled") {
           setResults(s.results);
           setReceptorPdbPath(s.receptor_pdb_path || null);
+          setCancelled(s.status === "cancelled");
           setState("done");
+          setJobId(null);
           return;
         }
         if (s.status === "error") {
           setError(s.error || "failed");
           setState("error");
+          setJobId(null);
           return;
         }
         setProgress({ done: s.done, total: s.total });
@@ -119,6 +126,16 @@ function DockingReady() {
     } catch (e: any) {
       setError(e.message || "Error");
       setState("error");
+      setJobId(null);
+    }
+  };
+
+  const stop = async () => {
+    if (!jobId) return;
+    try {
+      await api.cancelDocking(jobId);
+    } catch {
+      /* the poll loop will still surface a final status either way */
     }
   };
 
@@ -145,6 +162,13 @@ function DockingReady() {
           <div className="px-8 py-16 text-center text-inkmut">
             {caveat && <Notice>{caveat}</Notice>}
             {state === "submitting" ? "Submitting…" : progress ? `Docking ${progress.done}/${progress.total}… (minutes per compound)` : "Working…"}
+            {state === "polling" && jobId && (
+              <div className="mt-3">
+                <button type="button" className="btn-link" onClick={stop}>
+                  Stop
+                </button>
+              </div>
+            )}
           </div>
         )}
         {state === "error" && (
@@ -154,7 +178,10 @@ function DockingReady() {
           </>
         )}
         {state === "done" && results && (
-          <DockResultsTable results={results} caveat={caveat} receptorPdbPath={receptorPdbPath} targetId={targetId} advanced={adv.getAdvanced()} />
+          <>
+            {cancelled && <Notice>Stopped — showing the {results.length} compound(s) that finished docking before the stop request.</Notice>}
+            <DockResultsTable results={results} caveat={caveat} receptorPdbPath={receptorPdbPath} targetId={targetId} advanced={adv.getAdvanced()} />
+          </>
         )}
       </main>
     </div>

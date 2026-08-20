@@ -13,6 +13,7 @@ interface JobState {
   done: number;
   total: number;
   error?: string | null;
+  jobId?: string | null;
 }
 
 export function DownloadsTab() {
@@ -51,8 +52,11 @@ export function DownloadsTab() {
     activeRef.current.add(jobKey);
     setJobs((j) => ({ ...j, [jobKey]: { state: "starting", done: 0, total: 0, error: null } }));
     try {
-      await api.ensureDownloaded(targetId, kind, (p) =>
-        setJobs((j) => ({ ...j, [jobKey]: { state: p.state, done: p.done, total: p.total, error: p.error } }))
+      await api.ensureDownloaded(
+        targetId,
+        kind,
+        (p) => setJobs((j) => ({ ...j, [jobKey]: { ...j[jobKey], state: p.state, done: p.done, total: p.total, error: p.error } })),
+        (jobId) => setJobs((j) => ({ ...j, [jobKey]: { ...j[jobKey], jobId } }))
       );
       setJobs((j) => {
         const { [jobKey]: _drop, ...rest } = j;
@@ -64,6 +68,16 @@ export function DownloadsTab() {
       setJobs((j) => ({ ...j, [jobKey]: { state: "error", done: 0, total: 0, error: e.message || "Error" } }));
     } finally {
       activeRef.current.delete(jobKey);
+    }
+  };
+
+  const stopDownload = async (targetId: string, kind: Kind) => {
+    const jobId = jobs[key(targetId, kind)]?.jobId;
+    if (!jobId) return;
+    try {
+      await api.cancelDownload(jobId);
+    } catch {
+      /* the poll loop will still surface a final status either way */
     }
   };
 
@@ -131,11 +145,13 @@ export function DownloadsTab() {
                         status={row.model}
                         job={jobs[key(row.target_id, "model")]}
                         onDownload={() => startDownload(row.target_id, "model")}
+                        onStop={() => stopDownload(row.target_id, "model")}
                       />
                       <DownloadCell
                         status={row.docking}
                         job={jobs[key(row.target_id, "docking")]}
                         onDownload={() => startDownload(row.target_id, "docking")}
+                        onStop={() => stopDownload(row.target_id, "docking")}
                       />
                     </tr>
                   ))}
@@ -153,10 +169,12 @@ function DownloadCell({
   status,
   job,
   onDownload,
+  onStop,
 }: {
   status: { available: boolean; installed: boolean; size?: number };
   job?: JobState;
   onDownload: () => void;
+  onStop: () => void;
 }) {
   if (!status.available) {
     return <td className="py-2 pr-3 text-inkmut">—</td>;
@@ -176,8 +194,13 @@ function DownloadCell({
           <div className="h-1.5 overflow-hidden rounded-full bg-surface2">
             <div className="h-full rounded-full bg-brand-500 transition-all duration-300" style={{ width: `${pct}%` }} />
           </div>
-          <div className="mt-0.5 text-[10.5px] text-inkmut">
-            {job.state === "extracting" ? "Extracting…" : `${pct}% of ${fmtBytes(job.total)}`}
+          <div className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-inkmut">
+            <span>{job.state === "extracting" ? "Extracting…" : `${pct}% of ${fmtBytes(job.total)}`}</span>
+            {job.jobId && (
+              <button type="button" className="text-brand-700 underline" onClick={onStop}>
+                Stop
+              </button>
+            )}
           </div>
         </div>
       </td>

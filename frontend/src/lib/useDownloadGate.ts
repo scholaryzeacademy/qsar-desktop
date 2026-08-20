@@ -12,9 +12,10 @@ export interface GateState {
   done: number;
   total: number;
   error: string | null;
+  jobId: string | null;
 }
 
-export const IDLE_GATE: GateState = { active: false, kind: null, done: 0, total: 0, error: null };
+export const IDLE_GATE: GateState = { active: false, kind: null, done: 0, total: 0, error: null, jobId: null };
 
 /** Shared by every target-selection UI (TargetBrowser, PlainTargetSelect):
     makes the picker manifest-aware (the option list can include real
@@ -80,9 +81,12 @@ export function useDownloadGate(need: Kind[], onReady: (id: string) => void) {
     setPendingId(id);
     try {
       for (const kind of missing) {
-        setGate({ active: true, kind, done: 0, total: 0, error: null });
-        await api.ensureDownloaded(id, kind, (p) =>
-          setGate({ active: true, kind, done: p.done, total: p.total, error: null })
+        setGate({ active: true, kind, done: 0, total: 0, error: null, jobId: null });
+        await api.ensureDownloaded(
+          id,
+          kind,
+          (p) => setGate((g) => ({ active: true, kind, done: p.done, total: p.total, error: null, jobId: g.jobId })),
+          (jobId) => setGate((g) => ({ ...g, jobId }))
         );
       }
       setGate(IDLE_GATE);
@@ -90,12 +94,21 @@ export function useDownloadGate(need: Kind[], onReady: (id: string) => void) {
       refresh();
       onReady(id);
     } catch (e: any) {
-      setGate((g) => ({ ...g, active: false, error: e.message || "Download failed." }));
+      setGate((g) => ({ ...g, active: false, error: e.message || "Download failed.", jobId: null }));
     }
   };
 
   const retry = () => {
     if (pendingId) select(pendingId);
+  };
+
+  const stop = async () => {
+    if (!gate.jobId) return;
+    try {
+      await api.cancelDownload(gate.jobId);
+    } catch {
+      /* the poll loop will still surface a final status either way */
+    }
   };
 
   const downloadHint = (id: string): string => {
@@ -116,5 +129,5 @@ export function useDownloadGate(need: Kind[], onReady: (id: string) => void) {
       .map((t) => t.target_id);
   }, [manifest, manifestEnabled, installedIds]);
 
-  return { gate, pendingId, select, retry, isReady, downloadHint, downloadableExtraIds };
+  return { gate, pendingId, select, retry, stop, isReady, downloadHint, downloadableExtraIds };
 }

@@ -39,6 +39,22 @@ app = FastAPI(title="PhytoScreen", version="3.0")
 app.include_router(factory_browser.router)
 app.include_router(downloads.router)
 
+
+class JobCancelled(Exception):
+    """Raised from inside a background job's progress callback / per-item
+       loop once its job dict's 'cancel_requested' flag has been set (via
+       a POST .../cancel/{jid} endpoint) — the owning work() function
+       catches this SEPARATELY from a real error, marking the job
+       'cancelled' rather than 'error'. Python threads can't be killed
+       safely; this cooperative check at natural per-item checkpoints
+       (one compound, one decoy, one downloaded chunk) is the standard
+       safe way to stop a long-running background job partway through."""
+
+
+def _check_cancelled(job):
+    if job.get("cancel_requested"):
+        raise JobCancelled()
+
 # The UI (frontend/) is a separate app/process — dev server (Vite) or a
 # built static bundle served by anything, no longer served by this backend
 # (see the removed desktop.py / static-mount). No cookies or session auth
@@ -850,6 +866,7 @@ def _run_docking_job(jid):
         try:
             from docking.enrichment import annotate_with_reference
             for s in job["smiles"]:
+                _check_cancelled(job)
                 result = DOCK_PIPE.dock_compound(
                     job["profile"], s, engine=job["engine"], rescorer=job["rescorer"],
                     n_poses=job["n_poses"], make_diagram=True)
@@ -863,9 +880,21 @@ def _run_docking_job(jid):
                 job["done"] += 1
             job["status"] = "done"; job["smiles"] = None; job["profile"] = None
             job["engine"] = None; job["rescorer"] = None
+        except JobCancelled:
+            job["status"] = "cancelled"; job["smiles"] = None; job["profile"] = None
+            job["engine"] = None; job["rescorer"] = None
         except Exception as e:
             job["status"] = "error"; job["error"] = str(e)
     threading.Thread(target=work, daemon=True).start()
+
+
+@app.post("/api/docking/cancel/{jid}")
+def docking_cancel(jid: str):
+    job = _DOCK_JOBS.get(jid)
+    if not job:
+        raise HTTPException(404, "unknown job")
+    job["cancel_requested"] = True
+    return {"ok": True}
 
 
 @app.get("/api/docking/job/{jid}")
@@ -874,7 +903,11 @@ def docking_job(jid: str):
     if not job:
         raise HTTPException(404, "unknown job")
     r = {"status": job["status"], "done": job["done"], "total": job["total"], "caveat": job.get("caveat")}
-    if job["status"] == "done":
+    if job["status"] in ("done", "cancelled"):
+        # Cancelled still returns whatever compounds finished docking
+        # before the stop request landed, rather than throwing that work
+        # away — the per-compound loop only checks cancel_requested
+        # BETWEEN compounds, so job["results"] already has real ones.
         r["results"] = job["results"]
         r["receptor_pdb_path"] = job.get("receptor_pdb_path")
     if job["status"] == "error":
@@ -919,16 +952,28 @@ def enrichment_fresh_submit(body: FreshDecoyBody):
             from docking.enrichment import fresh_decoy_validation
 
             def on_progress(done, total):
+                _check_cancelled(job)
                 job["done"] = done
                 job["total"] = total
 
             job["result"] = fresh_decoy_validation(body.target_id, body.smiles, profile,
                                                     engine=engine, n_decoys=body.n_decoys, progress_cb=on_progress)
             job["status"] = "done"
+        except JobCancelled:
+            job["status"] = "cancelled"
         except Exception as e:
             job["status"] = "error"; job["error"] = str(e)
     threading.Thread(target=work, daemon=True).start()
     return {"job_id": jid}
+
+
+@app.post("/api/docking/enrichment/fresh/cancel/{jid}")
+def enrichment_fresh_cancel(jid: str):
+    job = _ENRICHMENT_JOBS.get(jid)
+    if not job:
+        raise HTTPException(404, "unknown job")
+    job["cancel_requested"] = True
+    return {"ok": True}
 
 
 @app.get("/api/docking/enrichment/fresh/job/{jid}")
@@ -976,6 +1021,8 @@ def _run_screen_job(jid, target_id, smiles, advanced=None):
 
     def on_progress(step, label, done=None, total=None):
         job = _SCREEN_JOBS[jid]
+        _check_cancelled(job)   # step 6 (docking) calls this once per compound —
+                                 # the only per-item checkpoint the pipeline has
         job["step"] = step; job["step_label"] = label; job["done"] = done; job["total"] = total
 
     def work():
@@ -985,9 +1032,20 @@ def _run_screen_job(jid, target_id, smiles, advanced=None):
             result = SCREEN.run(target_id, smiles, progress=on_progress, advanced=advanced)
             job["result"] = result
             job["status"] = "done"
+        except JobCancelled:
+            job["status"] = "cancelled"
         except Exception as e:
             job["status"] = "error"; job["error"] = str(e)
     threading.Thread(target=work, daemon=True).start()
+
+
+@app.post("/api/screen/cancel/{jid}")
+def screen_cancel(jid: str):
+    job = _SCREEN_JOBS.get(jid)
+    if not job:
+        raise HTTPException(404, "unknown job")
+    job["cancel_requested"] = True
+    return {"ok": True}
 
 
 @app.get("/api/screen/job/{jid}")

@@ -187,7 +187,7 @@ export interface DockResultRow {
 }
 
 export interface DockJobDone {
-  status: "done";
+  status: "done" | "cancelled";
   done: number;
   total: number;
   caveat?: string | null;
@@ -228,7 +228,7 @@ export interface ScreenResult {
 }
 
 export interface ScreenJobStatus {
-  status: "queued" | "running" | "done" | "error";
+  status: "queued" | "running" | "done" | "error" | "cancelled";
   step?: number;
   step_label?: string;
   total_steps?: number;
@@ -314,7 +314,7 @@ export interface DownloadStartResponse {
 export interface DownloadJobStatus {
   target_id: string;
   kind: "model" | "docking";
-  state: "starting" | "downloading" | "extracting" | "done" | "error";
+  state: "starting" | "downloading" | "extracting" | "done" | "error" | "cancelled";
   done: number;
   total: number;
   error?: string | null;

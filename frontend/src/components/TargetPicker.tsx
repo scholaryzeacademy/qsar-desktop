@@ -46,7 +46,7 @@ export function PlainTargetSelect({ targetId, onChange }: { targetId: string; on
           </option>
         ))}
       </select>
-      <DownloadGateBar gate={gateApi.gate} onRetry={gateApi.retry} />
+      <DownloadGateBar gate={gateApi.gate} onRetry={gateApi.retry} onStop={gateApi.stop} />
       <div className="field-hint">
         {current ? (
           <>

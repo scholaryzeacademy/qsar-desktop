@@ -28,12 +28,13 @@ const SCREEN_STEPS = [
 
 type FlowState =
   | { kind: "idle" }
-  | { kind: "steps"; step: number; note: string }
+  | { kind: "steps"; step: number; note: string; jobId: string }
   | { kind: "dock-submit" }
-  | { kind: "dock-poll"; done: number; total: number; caveat: string | null }
+  | { kind: "dock-poll"; done: number; total: number; caveat: string | null; jobId: string }
   | { kind: "error"; message: string }
+  | { kind: "cancelled" }
   | { kind: "screen-done"; result: ScreenResult; jobId: string; targetId: string; advanced: AdvancedDockingBody | null }
-  | { kind: "dock-done"; results: DockResultRow[]; receptorPdbPath: string | null; targetId: string; advanced: AdvancedDockingBody | null; caveat: string | null };
+  | { kind: "dock-done"; results: DockResultRow[]; receptorPdbPath: string | null; targetId: string; advanced: AdvancedDockingBody | null; caveat: string | null; cancelled?: boolean };
 
 export function ScreenTab() {
   const { dockingStatus } = useAppData();
@@ -58,34 +59,55 @@ export function ScreenTab() {
         }
         setFlow({ kind: "dock-submit" });
         const r = await api.submitDocking(targetId, smiles, advBody);
-        setFlow({ kind: "dock-poll", done: 0, total: r.total, caveat: r.caveat || null });
+        setFlow({ kind: "dock-poll", done: 0, total: r.total, caveat: r.caveat || null, jobId: r.job_id });
         while (true) {
           await api.sleep(2000);
           const s = await api.pollRetry(() => api.dockingJob(r.job_id));
-          if (s.status === "done") {
-            setFlow({ kind: "dock-done", results: s.results, receptorPdbPath: s.receptor_pdb_path || null, targetId, advanced: advBody, caveat: r.caveat || null });
+          if (s.status === "done" || s.status === "cancelled") {
+            setFlow({
+              kind: "dock-done",
+              results: s.results,
+              receptorPdbPath: s.receptor_pdb_path || null,
+              targetId,
+              advanced: advBody,
+              caveat: r.caveat || null,
+              cancelled: s.status === "cancelled",
+            });
             return;
           }
           if (s.status === "error") throw new Error(s.error || "failed");
-          setFlow({ kind: "dock-poll", done: s.done, total: s.total, caveat: r.caveat || null });
+          setFlow({ kind: "dock-poll", done: s.done, total: s.total, caveat: r.caveat || null, jobId: r.job_id });
         }
       }
 
-      setFlow({ kind: "steps", step: 0, note: "Submitting…" });
       const r = await api.submitScreen(targetId, smiles, advBody);
+      setFlow({ kind: "steps", step: 0, note: "Submitting…", jobId: r.job_id });
       while (true) {
         const s = await api.pollRetry(() => api.screenJob(r.job_id));
         if (s.status === "error") throw new Error(s.error || "Screen failed.");
+        if (s.status === "cancelled") {
+          setFlow({ kind: "cancelled" });
+          return;
+        }
         if (s.status === "done" && s.result) {
           setFlow({ kind: "screen-done", result: s.result, jobId: r.job_id, targetId, advanced: advBody });
           return;
         }
         const note = s.step === 6 && s.total ? `Docking ${s.done || 0}/${s.total}…` : s.step_label || "Working…";
-        setFlow({ kind: "steps", step: s.step || 0, note });
+        setFlow({ kind: "steps", step: s.step || 0, note, jobId: r.job_id });
         await api.sleep(900);
       }
     } catch (e: any) {
       setFlow({ kind: "error", message: e.message || "Error" });
+    }
+  };
+
+  const stop = async () => {
+    try {
+      if (flow.kind === "dock-poll") await api.cancelDocking(flow.jobId);
+      else if (flow.kind === "steps") await api.cancelScreen(flow.jobId);
+    } catch {
+      /* the poll loop will still surface a final status either way */
     }
   };
 
@@ -112,27 +134,43 @@ export function ScreenTab() {
       </aside>
       <main className="card min-h-[60vh] overflow-hidden">
         {flow.kind === "idle" && <EmptyState title="Run the full pipeline" hint="Select a target and enter molecules to run the full 8-step pipeline." />}
-        {flow.kind === "steps" && <StepsView step={flow.step} note={flow.note} />}
+        {flow.kind === "steps" && <StepsView step={flow.step} note={flow.note} onStop={stop} />}
         {(flow.kind === "dock-submit" || flow.kind === "dock-poll") && (
           <div className="px-8 py-16 text-center text-inkmut">
             {flow.kind === "dock-poll" && flow.caveat && <Notice>{flow.caveat}</Notice>}
             {flow.kind === "dock-submit" ? "Submitting…" : `Docking ${flow.done}/${flow.total}… (minutes per compound)`}
+            {flow.kind === "dock-poll" && (
+              <div className="mt-3">
+                <button type="button" className="btn-link" onClick={stop}>
+                  Stop
+                </button>
+              </div>
+            )}
           </div>
         )}
         {flow.kind === "error" && <ErrorBox message={flow.message} />}
+        {flow.kind === "cancelled" && <Notice>Stopped by user before it finished — no partial result to show for a mid-pipeline stop.</Notice>}
         {flow.kind === "screen-done" && <ScreenResults d={flow.result} jobId={flow.jobId} advanced={flow.advanced} />}
-        {flow.kind === "dock-done" && <GeneOnlyDockResults results={flow.results} receptorPdbPath={flow.receptorPdbPath} targetId={flow.targetId} advanced={flow.advanced} caveat={flow.caveat} />}
+        {flow.kind === "dock-done" && (
+          <>
+            {flow.cancelled && <Notice>Stopped — showing the {flow.results.length} compound(s) that finished docking before the stop request.</Notice>}
+            <GeneOnlyDockResults results={flow.results} receptorPdbPath={flow.receptorPdbPath} targetId={flow.targetId} advanced={flow.advanced} caveat={flow.caveat} />
+          </>
+        )}
       </main>
     </div>
   );
 }
 
-function StepsView({ step, note }: { step: number; note: string }) {
+function StepsView({ step, note, onStop }: { step: number; note: string; onStop: () => void }) {
   return (
     <div className="mx-auto flex max-w-[460px] flex-col gap-1.5 py-8">
       <div className="mb-1.5 flex flex-col items-center gap-2 text-center text-[12.5px] text-inkmut">
         <LeafLattice className="h-7 w-7 text-brand-500" spin />
         Step {step}/8 — {note}
+        <button type="button" className="btn-link" onClick={onStop}>
+          Stop
+        </button>
       </div>
       {SCREEN_STEPS.map((label, i) => {
         const n = i + 1;

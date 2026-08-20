@@ -60,6 +60,13 @@ _jobs_lock = threading.Lock()
 _jobs = {}  # job_id -> {"target_id","kind","state","done","total","error"}
 
 
+class _DownloadCancelled(Exception):
+    """Raised from inside the streaming-download loop once cancel_requested
+       is set (via POST .../cancel/{job_id}) — checked once per 1MB chunk,
+       the natural checkpoint for a job that can otherwise run for minutes
+       on a large model bucket."""
+
+
 def _kind_dir(kind):
     return MA.TARGETS_DIR if kind == "model" else DOCKING_TARGETS_DIR
 
@@ -130,6 +137,16 @@ def start_download(target_id: str, kind: str = Query(..., pattern="^(model|docki
     return {"job_id": job_id}
 
 
+@router.post("/cancel/{job_id}")
+def cancel(job_id: str):
+    with _jobs_lock:
+        job = _jobs.get(job_id)
+        if job is None:
+            raise HTTPException(404, "unknown job")
+        job["cancel_requested"] = True
+    return {"ok": True}
+
+
 @router.get("/progress/{job_id}")
 def progress(job_id: str):
     with _jobs_lock:
@@ -198,6 +215,9 @@ def _run_download(job_id, target_id, kind, info):
             done = 0
             with open(tmp_zip, "wb") as f:
                 for chunk in r.iter_bytes(chunk_size=1024 * 1024):
+                    with _jobs_lock:
+                        if _jobs[job_id].get("cancel_requested"):
+                            raise _DownloadCancelled()
                     f.write(chunk)
                     sha256.update(chunk)
                     done += len(chunk)
@@ -210,6 +230,8 @@ def _run_download(job_id, target_id, kind, info):
         _set(job_id, state="extracting")
         _extract_zip(tmp_zip, target_id, dest_root)
         _set(job_id, state="done")
+    except _DownloadCancelled:
+        _set(job_id, state="cancelled")
     except Exception as e:
         _set(job_id, state="error", error=str(e))
     finally:
