@@ -4,7 +4,7 @@ import { useAppData } from "../lib/AppDataContext";
 import { useAdvancedDocking, isGeneOnly } from "../lib/useAdvancedDocking";
 import { useMoleculeInput } from "../lib/useMoleculeInput";
 import { MoleculeInputPanel } from "../components/MoleculeInputPanel";
-import { TargetPicker } from "../components/TargetPicker";
+import { TargetBrowser } from "../components/TargetBrowser";
 import { DockingModeSection } from "../components/DockingModeSection";
 import { AdvancedSettingsPanel } from "../components/AdvancedSettingsPanel";
 import { WhyThisButton } from "../components/RecommendationPanel";
@@ -93,7 +93,7 @@ export function ScreenTab() {
     <div className="mx-auto grid max-w-[1280px] grid-cols-1 items-start gap-5 lg:grid-cols-[350px_1fr]">
       <aside className="card sticky top-[78px] max-h-[calc(100vh-96px)] overflow-y-auto p-[18px]">
         <SectionIntro title="Screen compounds" sub="Full pipeline: parse → featurise → AD → QSAR → ADMET → docking → ranked shortlist." />
-        <TargetPicker targetId={targetId} onChange={setTargetId} need={["model", "docking"]} />
+        <TargetBrowser targetId={targetId} onChange={setTargetId} need={["model", "docking"]} adv={adv} />
         {!geneOnly && <WhyThisButton targetId={targetId} key={targetId} />}
         <div className="mt-3">
           <DockingModeSection adv={adv} targetId={targetId} />

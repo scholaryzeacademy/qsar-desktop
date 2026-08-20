@@ -2,7 +2,7 @@ import { Fragment, useState } from "react";
 import * as api from "../lib/api";
 import { useAppData } from "../lib/AppDataContext";
 import { useAdvancedDocking, isGeneOnly } from "../lib/useAdvancedDocking";
-import { TargetPicker } from "../components/TargetPicker";
+import { TargetBrowser } from "../components/TargetBrowser";
 import { DockingModeSection } from "../components/DockingModeSection";
 import { AdvancedSettingsPanel } from "../components/AdvancedSettingsPanel";
 import { SectionIntro } from "../components/Shell";
@@ -126,7 +126,7 @@ function DockingReady() {
     <div className="mx-auto grid max-w-[1280px] grid-cols-1 items-start gap-5 lg:grid-cols-[350px_1fr]">
       <aside className="card sticky top-[78px] max-h-[calc(100vh-96px)] overflow-y-auto p-[18px]">
         <SectionIntro title="Structure-based docking" sub="AutoDock Vina + PoseBusters physical-validity gate." />
-        <TargetPicker targetId={targetId} onChange={setTargetId} need={["docking"]} />
+        <TargetBrowser targetId={targetId} onChange={setTargetId} need={["docking"]} adv={adv} />
         <div className="mt-3">
           <DockingModeSection adv={adv} targetId={targetId} />
         </div>
