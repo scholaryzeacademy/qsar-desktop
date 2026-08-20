@@ -32,6 +32,16 @@ jobs:
           node-version: "20"
 
       - name: Install backend dependencies (CPU-only torch first)
+        # shell: bash (not the Windows default, pwsh) so this actually
+        # stops on the FIRST failing command — pwsh only fails a
+        # multi-line run block on its LAST command's exit code, so an
+        # earlier `pip install` failing here (as pywebview==5.5 briefly
+        # did — a version that never existed on PyPI) got silently
+        # skipped, PyInstaller then "succeeded" bundling almost nothing,
+        # and the whole build looked green. bash's default -e wrapper
+        # (GitHub Actions always adds -eo pipefail for shell: bash)
+        # makes that class of failure impossible to miss again.
+        shell: bash
         run: |
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install -r backend/requirements.txt
@@ -39,6 +49,7 @@ jobs:
 
       - name: Build frontend
         working-directory: frontend
+        shell: bash
         run: |
           npm ci
           npm run build
@@ -73,6 +84,24 @@ jobs:
           --hidden-import uvicorn
           --hidden-import pywebview
           desktop.py
+
+      - name: Sanity-check the bundle isn't near-empty
+        # A real onedir bundle with torch+rdkit+autogluon+chemprop is
+        # solidly in the hundreds-of-MB-to-multi-GB range. 200MB is a
+        # conservative floor no real build should ever be near, but a
+        # broken one (e.g. a dependency silently failed to install, so
+        # PyInstaller only bundled the stdlib + desktop.py) lands at
+        # ~10MB — this is what would have caught that exact failure
+        # immediately instead of shipping a fake installer.
+        shell: bash
+        run: |
+          size_bytes=$(du -sb dist/PhytoScreen | cut -f1)
+          size_mb=$((size_bytes / 1024 / 1024))
+          echo "dist/PhytoScreen is ${size_mb} MB"
+          if [ "$size_mb" -lt 200 ]; then
+            echo "::error::dist/PhytoScreen is only ${size_mb} MB — a real build with torch/rdkit/autogluon/chemprop should be hundreds of MB+. A dependency likely failed to install silently. Check the 'Install backend dependencies' and 'PyInstaller' step logs above for ERROR lines."
+            exit 1
+          fi
 
       - name: Fill in DOWNLOAD_BASE_URL for the launcher
         # backend/downloads.py already bakes in the project's real R2

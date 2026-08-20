@@ -51,7 +51,7 @@ openbabel==3.2.1
 plip==3.0.0
 
 # --- desktop shell (see desktop.py / BUILD_WINDOWS.md) ---
-pywebview==5.5
+pywebview==6.2.1
 
 # --- tests ---
 pytest==9.1.1
