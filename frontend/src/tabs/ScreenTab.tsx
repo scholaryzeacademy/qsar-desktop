@@ -1,5 +1,6 @@
 import { Fragment, useState } from "react";
 import * as api from "../lib/api";
+import { useAppData } from "../lib/AppDataContext";
 import { useAdvancedDocking, isGeneOnly } from "../lib/useAdvancedDocking";
 import { useMoleculeInput } from "../lib/useMoleculeInput";
 import { MoleculeInputPanel } from "../components/MoleculeInputPanel";
@@ -35,11 +36,13 @@ type FlowState =
   | { kind: "dock-done"; results: DockResultRow[]; receptorPdbPath: string | null; targetId: string; advanced: AdvancedDockingBody | null; caveat: string | null };
 
 export function ScreenTab() {
+  const { dockingStatus } = useAppData();
   const [targetId, setTargetId] = useState("");
   const adv = useAdvancedDocking(targetId);
   const mol = useMoleculeInput();
   const [flow, setFlow] = useState<FlowState>({ kind: "idle" });
   const geneOnly = isGeneOnly(targetId);
+  const dockDetail = dockingStatus?.target_details?.find((d: any) => d.target_id === targetId) ?? null;
 
   const run = async () => {
     try {
@@ -98,7 +101,7 @@ export function ScreenTab() {
         <div className="mt-3">
           <MoleculeInputPanel state={mol} />
         </div>
-        <AdvancedSettingsPanel adv={adv} openByDefault={geneOnly} />
+        <AdvancedSettingsPanel key={targetId} adv={adv} openByDefault={!!targetId} validated={dockDetail?.validated ?? null} />
         <button
           className="btn-primary mt-[18px]"
           onClick={run}

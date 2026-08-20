@@ -107,6 +107,7 @@ From the project root:
       --collect-all meeko ^
       --collect-all gemmi ^
       --collect-all webview ^
+      --collect-all admet_ai ^
       --hidden-import lightgbm ^
       --hidden-import catboost ^
       --hidden-import xgboost ^

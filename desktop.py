@@ -26,9 +26,14 @@
                                        same as this file tells Python
                                        where to look at RUN time)
 
-  The ADMET-AI worker (backend/admet_service.py) is optional and started
-  separately exactly as before; the desktop app talks to it over the same
-  local URL (ADMET_SERVICE_URL, see backend/admet.py).
+  The ADMET-AI worker (backend/admet_service.py) is a separate process
+  for the split web deployment, started by hand — nobody does that for a
+  double-clicked desktop app, so this file starts it itself, in its own
+  background thread on its own port (see start_admet_worker() below),
+  giving full ADMET endpoint parity with a "both processes running" web
+  deployment automatically. Set ADMET_SERVICE_URL yourself before
+  launching to point at a real separately-run worker instead (e.g. a
+  shared one) — this file leaves that alone rather than overriding it.
 
   --windowed (no console) means print()/stderr go nowhere a user can
   ever see — a startup failure used to just look like "nothing happens."
@@ -184,6 +189,36 @@ def start_server(port):
         _log(f"[desktop] backend thread crashed:\n{_server_error[-1]}")
 
 
+def start_admet_worker(port):
+    """The learned ADMET-AI layer (backend/admet_service.py) is normally a
+       SEPARATE process the web deployment's operator starts by hand
+       (see README.md) — nobody does that for a double-clicked desktop
+       app, so without this, admet.py's health check against
+       ADMET_SERVICE_URL always fails and the app silently falls back to
+       deterministic-only results, looking like fewer ADMET endpoints
+       than "the web version." Runs in its own background thread here
+       instead, giving the same automatic parity with zero setup.
+
+       This is a weaker isolation boundary than a real separate process
+       (a hard crash — not just a Python exception — could in principle
+       still affect this process), but admet.py's own health-check +
+       graceful-degrade design (unavailable -> deterministic layer only)
+       already covers the common failure mode (admet-ai missing/broken),
+       and failure here must never be allowed to affect the main backend
+       thread — hence the broad except below, unlike start_server()'s
+       (whose failure IS fatal to the whole app)."""
+    try:
+        if BACKEND_DIR not in sys.path:
+            sys.path.insert(0, BACKEND_DIR)
+        import uvicorn
+        import admet_service
+        _log(f"[desktop] starting ADMET-AI worker on port {port}")
+        uvicorn.run(admet_service.app, host=HOST, port=port, log_level="warning", log_config=None)
+    except Exception:
+        _log(f"[desktop] ADMET-AI worker failed to start (non-fatal — "
+             f"the deterministic ADMET layer still works):\n{traceback.format_exc()}")
+
+
 def main():
     # working directory drives where models/, docking_targets/,
     # docking_registry.json resolve (see backend/serving/model_adapter.py,
@@ -194,6 +229,15 @@ def main():
 
     _log(f"[desktop] starting (frozen={getattr(sys, 'frozen', False)}, cwd={os.getcwd()})")
     _put_bundled_binaries_on_path()
+
+    # Must happen BEFORE build_app() ever imports backend/app.py -> admet.py,
+    # since admet.py reads ADMET_SERVICE_URL once, at import time — setting
+    # it later would be a no-op. An explicit ADMET_SERVICE_URL already set
+    # (e.g. pointing at a real separately-run worker) is left alone.
+    if "ADMET_SERVICE_URL" not in os.environ:
+        admet_port = _free_port()
+        os.environ["ADMET_SERVICE_URL"] = f"http://{HOST}:{admet_port}"
+        threading.Thread(target=start_admet_worker, args=(admet_port,), daemon=True).start()
 
     port = _free_port()
     threading.Thread(target=start_server, args=(port,), daemon=True).start()

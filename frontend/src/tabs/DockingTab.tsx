@@ -61,8 +61,10 @@ function CheckLine({ ok, name, desc }: { ok: boolean; name: string; desc?: strin
 }
 
 function DockingReady() {
+  const { dockingStatus } = useAppData();
   const [targetId, setTargetId] = useState("");
   const adv = useAdvancedDocking(targetId);
+  const dockDetail = dockingStatus?.target_details?.find((d: any) => d.target_id === targetId) ?? null;
   const [smiles, setSmiles] = useState("");
   const [state, setState] = useState<"idle" | "submitting" | "polling" | "error" | "done">("idle");
   const [error, setError] = useState("");
@@ -132,7 +134,7 @@ function DockingReady() {
           SMILES (one per line)
         </label>
         <textarea className="field-input min-h-[100px] resize-y font-mono text-[12.5px]" value={smiles} onChange={(e) => setSmiles(e.target.value)} />
-        <AdvancedSettingsPanel adv={adv} openByDefault={isGeneOnly(targetId)} />
+        <AdvancedSettingsPanel key={targetId} adv={adv} openByDefault={!!targetId} validated={dockDetail?.validated ?? null} />
         <button className="btn-primary mt-[18px]" onClick={run} disabled={state === "submitting" || state === "polling" || adv.preparingStructure}>
           {adv.preparingStructure ? "Preparing structure…" : "Dock compounds"}
         </button>

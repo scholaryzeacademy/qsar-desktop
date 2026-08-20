@@ -8,7 +8,20 @@ const STATUS_CLS: Record<string, string> = {
   err: "text-clay",
 };
 
-export function AdvancedSettingsPanel({ adv, openByDefault = false }: { adv: AdvancedDockingState; openByDefault?: boolean }) {
+export function AdvancedSettingsPanel({
+  adv,
+  openByDefault = false,
+  validated = null,
+}: {
+  adv: AdvancedDockingState;
+  openByDefault?: boolean;
+  /** Whether the current automatic-default structure passed reference-
+      redocking validation (docking_registry.json's `validated` flag for
+      this target) — shown next to the "automatic default" badge so the
+      default's pass/fail status is visible without digging into Target
+      Info. null = unknown/not a QSAR-modeled target with registry data. */
+  validated?: boolean | null;
+}) {
   const [open, setOpen] = useState(openByDefault);
 
   return (
@@ -49,7 +62,12 @@ export function AdvancedSettingsPanel({ adv, openByDefault = false }: { adv: Adv
                   ]
                     .filter(Boolean)
                     .join(" · ");
-                  const on = adv.pickedPdb === c.pdb_id;
+                  // No explicit manual pick yet -> visually treat the
+                  // registry's current automatic default as the selected
+                  // one (it already IS what a submit would use), so the
+                  // user sees what's actually going to run without having
+                  // to click anything first.
+                  const on = adv.pickedPdb ? adv.pickedPdb === c.pdb_id : c.is_current_default;
                   return (
                     <div
                       key={c.pdb_id}
@@ -60,7 +78,13 @@ export function AdvancedSettingsPanel({ adv, openByDefault = false }: { adv: Adv
                       <span className="flex-1 text-inkmut">
                         rank #{c.csv_rank ?? "?"} · {c.resname} · {q}
                       </span>
-                      {c.is_current_default && <span className="badge bg-brand-500/15 text-brand-800">automatic default</span>}
+                      {c.is_current_default && (
+                        <span className="flex items-center gap-1">
+                          <span className="badge bg-brand-500/15 text-brand-800">automatic default</span>
+                          {validated === true && <span className="badge bg-brand-500/15 text-brand-800">✓ validated</span>}
+                          {validated === false && <span className="badge bg-amber/15 text-amber">⚠ not yet validated</span>}
+                        </span>
+                      )}
                     </div>
                   );
                 })}
