@@ -45,10 +45,11 @@ biopython==1.87
 pdbfixer==1.12.0
 openmm==8.5.2
 gemmi==0.7.5
-# openbabel MUST be installed before plip (plip's own build script otherwise tries to
-# compile an old pinned openbabel version from source): pip install openbabel==3.2.1
-openbabel==3.2.1
-plip==3.0.0
+# plip/openbabel (gold-standard 2D interaction typing) are intentionally
+# NOT here — see requirements-optional.txt. Both are lazily imported
+# inside try/except in docking/interaction_diagram.py and the app
+# falls back to a built-in distance-based detector if they're absent,
+# so a bare `pip install -r requirements.txt` (this file) always works.
 
 # --- desktop shell (see desktop.py / BUILD_WINDOWS.md) ---
 pywebview==6.2.1

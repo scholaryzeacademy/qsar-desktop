@@ -29,7 +29,8 @@ bucket (a fork, a private staging bucket, etc).
     cd ..
 
     # optional, for gold-standard interaction typing (falls back to a
-    # built-in distance-based detector if absent — the app still works):
+    # built-in distance-based detector if absent — the app still works;
+    # see backend/requirements-optional.txt for why this is conda, not pip):
     conda install -c conda-forge plip openbabel
 
 AutoDock Vina is a hard requirement for docking to activate at all —

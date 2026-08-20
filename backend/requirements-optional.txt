@@ -1,0 +1,24 @@
+# Optional: gold-standard PLIP-based 2D protein-ligand interaction typing
+# (backend/docking/interaction_diagram.py). Not installed by default (not
+# in requirements.txt, not installed by the Windows CI build) because
+# neither is reliably pip-installable on a bare machine:
+#
+#   openbabel's PyPI sdist has no Windows wheel — pip tries to compile
+#   SWIG bindings against the real OpenBabel C++ library from source,
+#   which needs a full C++ toolchain + the library itself pre-installed
+#   and fails on a bare CI runner ("Unable to find 'openbabel/base.h'" etc).
+#
+#   plip's own setup script has the same problem if openbabel isn't
+#   already present as a real library, not just the Python package.
+#
+# Install both via conda instead, where prebuilt binary packages exist:
+#   conda install -c conda-forge plip openbabel
+#
+# Genuinely optional: docking/interaction_diagram.py's plip_available()
+# try/except-gates every import, and detect_with_plip() is only ever
+# called as a first attempt before an unconditional built-in distance-
+# based fallback (backend/docking/interactions.py) — the Docking tab's
+# interaction diagrams work either way, just with a less detailed
+# interaction classification when this file's packages are absent.
+openbabel==3.2.1
+plip==3.0.0
