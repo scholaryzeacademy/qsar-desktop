@@ -72,6 +72,7 @@ jobs:
           --paths backend
           --add-data "frontend/dist;frontend/dist"
           --add-data "docking_registry.json;."
+          --add-data "panel_results_v2.csv;."
           --add-data "bin;bin"
           --collect-all rdkit
           --collect-all autogluon
@@ -115,9 +116,13 @@ jobs:
         # which plain import analysis never bundles (see BUILD_WINDOWS.md's
         # "Why --collect-all cuik_molmaker"). A healthy backend and a
         # working prediction are different guarantees; this step checks
-        # both, plus the ADMET-AI worker, by driving the exact same flow
-        # a real user does: download a real (small, ~10MB) target from
-        # the live bucket, predict against it, and profile with ADMET.
+        # both, plus the ADMET-AI worker and every bundled read-only data
+        # file (docking_registry.json, panel_results_v2.csv — another
+        # real shipped bug: both silently loaded empty in a frozen onedir
+        # build), by driving the exact same flow a real user does:
+        # download a real (small, ~10MB) target from the live bucket,
+        # predict against it, profile with ADMET, and confirm diseases/
+        # docking targets both come back non-empty.
         # --windowed has no console to report failures through, so
         # desktop.py always writes to a log file
         # (%LOCALAPPDATA%\PhytoScreen\desktop.log) — read it for both the
@@ -190,8 +195,29 @@ jobs:
           }
           Write-Host "ADMET-AI worker OK: learned layer available."
 
+          # Bundled read-only data files (docking_registry.json,
+          # panel_results_v2.csv) — a real, previously-shipped bug: both
+          # loaded as empty/None in a frozen onedir build (PyInstaller's
+          # _internal/ layout vs. desktop.py's cwd — see BUILD_WINDOWS.md),
+          # silently (no exception), so disease search and every target's
+          # validated badge just showed nothing. Predict/ADMET working
+          # doesn't exercise either file, so this needs its own check.
+          try { $diseases = Invoke-RestMethod "$base/api/diseases" -TimeoutSec 10 }
+          catch { Fail "GET /api/diseases threw: $_" }
+          if (-not $diseases.diseases -or $diseases.diseases.Count -eq 0) {
+            Fail "GET /api/diseases returned zero diseases — panel_results_v2.csv likely isn't resolving in this frozen build."
+          }
+          Write-Host "Diseases OK: $($diseases.diseases.Count) diseases."
+
+          try { $dockStatus = Invoke-RestMethod "$base/api/docking/status" -TimeoutSec 10 }
+          catch { Fail "GET /api/docking/status threw: $_" }
+          if (-not $dockStatus.target_details -or $dockStatus.target_details.Count -eq 0) {
+            Fail "GET /api/docking/status returned zero target_details — docking_registry.json likely isn't resolving in this frozen build."
+          }
+          Write-Host "Docking registry OK: $($dockStatus.target_details.Count) targets."
+
           Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
-          Write-Host "Full end-to-end verification passed: startup, real predict, and ADMET-AI all OK."
+          Write-Host "Full end-to-end verification passed: startup, real predict, ADMET-AI, diseases, and docking registry all OK."
 
       - name: Fill in DOWNLOAD_BASE_URL for the launcher
         # backend/downloads.py already bakes in the project's real R2

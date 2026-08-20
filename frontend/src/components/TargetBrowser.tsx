@@ -112,20 +112,41 @@ export function TargetBrowser({
         });
     }
     if (!q) return [];
+    const detailsById = new Map((dockingStatus?.target_details || []).map((d: any) => [d.target_id, d]));
     const installed: Row[] = targets
       .filter((t) => t.target_id.toLowerCase().includes(q))
-      .map((t) => ({
-        value: t.target_id,
-        label: t.target_id,
-        marker: "validated",
-        sub: `${t.n_compounds ?? "?"} compounds · test R² ${t.test_r2 ?? "—"}`,
-      }));
+      .map((t) => {
+        const det = detailsById.get(t.target_id) as any;
+        const marker: Row["marker"] = det ? (det.validated ? "validated" : "unvalidated") : "validated";
+        return {
+          value: t.target_id,
+          label: t.target_id,
+          marker,
+          sub: `${t.n_compounds ?? "?"} compounds · test R² ${t.test_r2 ?? "—"}`,
+        };
+      });
     const installedIds = new Set(installed.map((r) => r.value));
     const downloadable: Row[] = gateApi.downloadableExtraIds
       .filter((id) => !installedIds.has(id) && id.toLowerCase().includes(q))
-      .map((id) => ({ value: id, label: id, marker: "not-downloaded", sub: "not downloaded yet" }));
-    return [...installed, ...downloadable].slice(0, 25);
-  }, [diseaseId, ranked, targetQuery, targets, gateApi.downloadableExtraIds]);
+      .map((id) => ({ value: id, label: id, marker: "not-downloaded" as const, sub: "not downloaded yet" }));
+    const coveredIds = new Set([...installedIds, ...downloadable.map((r) => r.value)]);
+    // Every OTHER registry target (almost entirely docking-only, no QSAR
+    // model — the ones a disease-independent search used to miss
+    // entirely) — matched by symbol (GENE_<symbol>) or raw id.
+    const dockingOnly: Row[] = (dockingStatus?.target_details || [])
+      .filter((d: any) => {
+        if (coveredIds.has(d.target_id)) return false;
+        const symbol = d.target_id.startsWith("GENE_") ? d.target_id.slice(5) : d.target_id;
+        return d.target_id.toLowerCase().includes(q) || symbol.toLowerCase().includes(q);
+      })
+      .map((d: any) => ({
+        value: d.target_id,
+        label: d.target_id.startsWith("GENE_") ? d.target_id.slice(5) : d.target_id,
+        marker: "docking-only" as const,
+        sub: `docking only, no QSAR model · ${d.validated ? "✓ structure validated" : "⚠ structure not yet validated"}`,
+      }));
+    return [...installed, ...downloadable, ...dockingOnly].slice(0, 30);
+  }, [diseaseId, ranked, targetQuery, targets, gateApi.downloadableExtraIds, dockingStatus]);
 
   const selectedRow = rows.find((r) => r.value === targetId);
   const dockDetail = dockingStatus?.target_details?.find((d: any) => d.target_id === targetId) ?? null;

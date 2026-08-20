@@ -220,12 +220,33 @@ def start_admet_worker(port):
 
 
 def main():
-    # working directory drives where models/, docking_targets/,
-    # docking_registry.json resolve (see backend/serving/model_adapter.py,
-    # backend/docking/profile.py) — default it to the exe's own folder
-    # when frozen, so a double-clicked PhytoScreen.exe works from any cwd.
+    # working directory drives where models/, docking_targets/ (USER data,
+    # downloaded on demand — see downloads.py) resolve — default it to the
+    # exe's own folder when frozen, so a double-clicked PhytoScreen.exe
+    # works from any cwd and downloaded data lands somewhere a user would
+    # actually find it, not buried inside PyInstaller's own _internal/.
     if getattr(sys, "frozen", False):
         os.chdir(os.path.dirname(sys.executable))
+
+        # docking_registry.json and panel_results_v2.csv are READ-ONLY data
+        # bundled INTO the app (via --add-data — see BUILD_WINDOWS.md) —
+        # for a PyInstaller 6.x onedir build these land in _internal/
+        # (== FROZEN_ROOT/sys._MEIPASS), which is NOT the same folder as
+        # the exe itself (sys.executable's dirname, set as cwd just above).
+        # Both backend/docking/profile.py's DOCKING_REGISTRY and
+        # backend/scripts/panel_candidates.py's PANEL_RESULTS_CSV default
+        # to a bare relative filename resolved against cwd — silently
+        # finding nothing there (no error: os.path.exists() just returns
+        # False, so the registry loads as {} and the disease/target panel
+        # as empty) rather than the real bundled copy in _internal/. This
+        # is why disease search and target validation badges showed
+        # nothing in a real frozen build despite dev-mode testing (where
+        # cwd == the repo root == where these files actually live)
+        # working fine the whole time. Point both at FROZEN_ROOT
+        # explicitly — must happen before build_app() ever imports
+        # anything that reads them.
+        os.environ.setdefault("DOCKING_REGISTRY", os.path.join(FROZEN_ROOT, "docking_registry.json"))
+        os.environ.setdefault("PANEL_RESULTS_CSV", os.path.join(FROZEN_ROOT, "panel_results_v2.csv"))
 
     _log(f"[desktop] starting (frozen={getattr(sys, 'frozen', False)}, cwd={os.getcwd()})")
     _put_bundled_binaries_on_path()

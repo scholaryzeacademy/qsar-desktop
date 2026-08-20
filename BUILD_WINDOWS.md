@@ -98,6 +98,7 @@ From the project root:
       --paths backend ^
       --add-data "frontend/dist;frontend/dist" ^
       --add-data "docking_registry.json;." ^
+      --add-data "panel_results_v2.csv;." ^
       --add-data "bin;bin" ^
       --collect-all rdkit ^
       --collect-all autogluon ^
@@ -124,6 +125,26 @@ built from this output via Inno Setup — see `installer/phytoscreen.iss`
 and `.github/workflows/build-windows.yml`, which runs this whole flow on
 a GitHub-hosted Windows runner (PyInstaller does not cross-compile, so
 the .exe itself can only be produced by an actual Windows build).
+
+### Why `docking_registry.json`/`panel_results_v2.csv` need explicit env vars in desktop.py, not just `--add-data`
+`--add-data "X;."` bundles the file, but doesn't make it resolvable
+by a bare relative-path lookup: for a PyInstaller 6.x **onedir** build,
+`--add-data` files land in `_internal/` (`sys._MEIPASS`), a *sibling* of
+`PhytoScreen.exe`, not the same folder — but `desktop.py` sets the
+process's working directory to `os.path.dirname(sys.executable)` (the
+*outer* folder, deliberately — that's where `models/`/`docking_targets/`
+should land when the Downloads tab creates them, not buried inside
+`_internal/`). `backend/docking/profile.py`'s `DOCKING_REGISTRY` and
+`backend/scripts/panel_candidates.py`'s `PANEL_RESULTS_CSV` both default
+to a bare relative filename resolved against *cwd* — which finds nothing
+in the outer folder, silently: no exception, `os.path.exists()` just
+returns `False`, so the registry loads as `{}` and the disease/target
+panel as empty, rather than erroring. This is why disease search and
+target validation showed nothing in a real frozen build — dev-mode
+testing never catches it, since there `cwd` already equals the repo
+root, exactly where these files really live unfrozen. `desktop.py` now
+sets both env vars explicitly to `FROZEN_ROOT` (`sys._MEIPASS`) when
+frozen, before `backend/app.py` is ever imported.
 
 ### Why `--paths backend`
 `desktop.py` imports `backend/app.py` dynamically (`sys.path.insert(0,
