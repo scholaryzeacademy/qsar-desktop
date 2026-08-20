@@ -112,7 +112,16 @@ def grouped_learned(row):
         if tone == "bad":
             flags.append(f"{label} ({disp})")
     return {"available": True, "source": "ADMET-AI",
-            "groups": {g: v for g, v in groups.items() if v}, "flags": flags}
+            "groups": {g: v for g, v in groups.items() if v}, "flags": flags,
+            # Every column ADMET-AI actually returned for this compound —
+            # groups/flags above are a curated SUBSET for the UI (see
+            # admet_endpoints.py's own docstring: "Any ADMET-AI column not
+            # listed here is shown under 'Other'" — in practice, dropped
+            # entirely rather than rendered). This is the full row (every
+            # physicochemical descriptor, task prediction, and
+            # *_drugbank_approved_percentile), so a "download everything"
+            # CSV export doesn't need a second backend round-trip.
+            "raw": row}
 
 def attach_learned(det_profiles, predictions):
     """predictions: {standardised_smiles: {col: val}}. Merge grouped learned into det profiles."""

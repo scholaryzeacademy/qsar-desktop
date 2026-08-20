@@ -6,6 +6,46 @@ import { SectionIntro } from "../components/Shell";
 import { Disclaimer, EmptyState, ErrorBox, Notice, ProgressBar, Spinner } from "../components/Feedback";
 import type { AdmetProfile, AdmetResponse } from "../lib/types";
 
+function csvCell(v: unknown): string {
+  if (v === null || v === undefined) return "";
+  const s = String(v);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+/** Every ADMET-AI column across every profile (not just the curated
+    subset the results table shows), one row per submitted compound —
+    see admet.py's grouped_learned() "raw" field. Unparsed compounds or
+    ones the worker had no prediction for still get a row (smiles only,
+    columns blank) rather than being silently dropped. */
+function downloadAdmetCsv(d: AdmetResponse) {
+  const rawKeys: string[] = [];
+  const seen = new Set<string>();
+  for (const p of d.profiles) {
+    for (const k of Object.keys(p.learned?.raw || {})) {
+      if (!seen.has(k)) {
+        seen.add(k);
+        rawKeys.push(k);
+      }
+    }
+  }
+  const header = ["smiles", ...rawKeys];
+  const lines = [header.map(csvCell).join(",")];
+  for (const p of d.profiles) {
+    const smiles = p.standardised_smiles || p.input_smiles;
+    const raw = p.learned?.raw || {};
+    lines.push([smiles, ...rawKeys.map((k) => raw[k])].map(csvCell).join(","));
+  }
+  const blob = new Blob([lines.join("\n") + "\n"], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "admet_full.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 const GROUP_ORDER = ["Absorption", "Distribution", "Metabolism", "Excretion", "Toxicity", "Other"];
 const TONE_BORDER: Record<string, string> = {
   good: "border-l-brand-500",
@@ -92,6 +132,11 @@ function AdmetResults({ d }: { d: AdmetResponse }) {
         Drug-likeness flags are informational — natural products often violate them while remaining bioactive. They are never used to filter compounds.
         {learnedOn ? " Learned endpoints from ADMET-AI." : ""}
       </Disclaimer>
+      <div className="flex justify-end px-5 pt-2">
+        <button type="button" className="btn-link" onClick={() => downloadAdmetCsv(d)}>
+          Download all data (CSV)
+        </button>
+      </div>
       <div className="max-h-[calc(100vh-260px)] overflow-y-auto overflow-x-hidden">
         <table className="w-full table-fixed border-collapse text-[13px]">
           <thead>

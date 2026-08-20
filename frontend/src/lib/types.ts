@@ -73,6 +73,12 @@ export interface AdmetProfile {
     note?: string;
     flags?: any[];
     groups?: Record<string, { label: string; display: string; tone: string; percentile?: number | null }[]>;
+    /** Every column ADMET-AI actually returned for this compound (all
+        physicochemical descriptors, task predictions, and
+        *_drugbank_approved_percentile fields) — groups/flags above are
+        only the curated subset shown in the UI. Used for the "Download
+        all data (CSV)" export. */
+    raw?: Record<string, number | string | boolean | null>;
   };
 }
 
