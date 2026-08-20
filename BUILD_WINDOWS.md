@@ -95,8 +95,8 @@ Start the ADMET-AI worker separately if you want the learned ADMET layer
 From the project root:
     pip install pyinstaller
     pyinstaller --noconfirm --windowed --name PhytoScreen ^
+      --paths backend ^
       --add-data "frontend/dist;frontend/dist" ^
-      --add-data "backend/docking;docking" ^
       --add-data "docking_registry.json;." ^
       --add-data "bin;bin" ^
       --collect-all rdkit ^
@@ -106,11 +106,11 @@ From the project root:
       --collect-all posebusters ^
       --collect-all meeko ^
       --collect-all gemmi ^
+      --collect-all webview ^
       --hidden-import lightgbm ^
       --hidden-import catboost ^
       --hidden-import xgboost ^
       --hidden-import uvicorn ^
-      --hidden-import pywebview ^
       desktop.py
 The .exe lands in `dist\PhytoScreen\PhytoScreen.exe` (onedir — not
 onefile; deliberately, given how many native extensions are involved).
@@ -122,6 +122,39 @@ built from this output via Inno Setup — see `installer/phytoscreen.iss`
 and `.github/workflows/build-windows.yml`, which runs this whole flow on
 a GitHub-hosted Windows runner (PyInstaller does not cross-compile, so
 the .exe itself can only be produced by an actual Windows build).
+
+### Why `--paths backend`
+`desktop.py` imports `backend/app.py` dynamically (`sys.path.insert(0,
+BACKEND_DIR); import app`) so it never has to physically move or copy
+that file. That trick works at RUN time because desktop.py itself edits
+`sys.path` before the import — but PyInstaller decides what to bundle at
+BUILD time, from its own static analysis, and has no way to know about a
+sys.path edit that only happens once the frozen app is already running.
+Without `--paths backend` telling it where to look, PyInstaller can't
+resolve `import app` at all, and silently omits backend/app.py and
+everything it imports (`serving/`, `analysis.py`, `admet.py`,
+`factory_browser.py`, `downloads.py`, `docking/`) from the bundle
+entirely — the build still "succeeds" (PyInstaller doesn't hard-fail on
+an unresolvable import inside a function body) and produces a
+plausible-looking .exe that does nothing when run, since `import app`
+raises `ModuleNotFoundError` the moment it actually executes. This
+exact failure shipped once — desktop.py's persistent log
+(`%LOCALAPPDATA%\PhytoScreen\desktop.log` on Windows) plus a startup
+message box exist specifically so it can never fail this silently again.
+
+### Why `--collect-all webview`, not `--hidden-import pywebview`
+The PyPI package is named `pywebview`, but the actual importable Python
+module is `webview` (`import webview`, as desktop.py does) — pointing
+`--hidden-import` at the wrong name (`pywebview`) makes it a silent
+no-op. Worse, a plain hidden-import only pulls in `.py` files anyway;
+`webview`'s Windows GUI backend ships real binary assets alongside its
+code — `WebView2Loader.dll`, `Microsoft.Web.WebView2.*.dll`, and its
+JS bridge files — that the native window genuinely can't render without.
+`--collect-all webview` (matching the module name, like every other
+`--collect-all` entry here — PyInstaller's collect flags key off the
+importable name, not the PyPI distribution name; `--collect-all
+autogluon` for the `autogluon.tabular` package is the same pattern)
+pulls in both the code and those binaries in one go.
 
 ### Why `--hidden-import lightgbm/catboost/xgboost`
 AutoGluon's stacked ensembles are built from these base learners — the

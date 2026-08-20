@@ -69,8 +69,8 @@ jobs:
       - name: PyInstaller (see BUILD_WINDOWS.md for what each flag is for)
         run: >
           pyinstaller --noconfirm --windowed --name PhytoScreen
+          --paths backend
           --add-data "frontend/dist;frontend/dist"
-          --add-data "backend/docking;docking"
           --add-data "docking_registry.json;."
           --add-data "bin;bin"
           --collect-all rdkit
@@ -80,11 +80,11 @@ jobs:
           --collect-all posebusters
           --collect-all meeko
           --collect-all gemmi
+          --collect-all webview
           --hidden-import lightgbm
           --hidden-import catboost
           --hidden-import xgboost
           --hidden-import uvicorn
-          --hidden-import pywebview
           desktop.py
 
       - name: Sanity-check the bundle isn't near-empty
@@ -104,6 +104,46 @@ jobs:
             echo "::error::dist/PhytoScreen is only ${size_mb} MB — a real build with torch/rdkit/autogluon/chemprop should be hundreds of MB+. A dependency likely failed to install silently. Check the 'Install backend dependencies' and 'PyInstaller' step logs above for ERROR lines."
             exit 1
           fi
+
+      - name: Verify the built exe actually starts the backend
+        # A correctly-SIZED bundle can still be functionally broken (this
+        # shipped once: backend/app.py's whole import tree was silently
+        # missing because PyInstaller couldn't see desktop.py's runtime
+        # sys.path trick — see BUILD_WINDOWS.md's "Why --paths backend").
+        # --windowed means the app has no console to report that kind of
+        # failure through, so desktop.py always writes to a log file
+        # (%LOCALAPPDATA%\PhytoScreen\desktop.log) — actually launch the
+        # frozen exe here and wait for its "backend is up, serving" line,
+        # not just the PyInstaller build log, before this is ever allowed
+        # to become a release. Doesn't need pywebview's native window to
+        # succeed (that needs a real display and isn't what this checks)
+        # — only that the FastAPI backend itself came up correctly.
+        shell: pwsh
+        run: |
+          $logPath = Join-Path $env:LOCALAPPDATA "PhytoScreen\desktop.log"
+          if (Test-Path $logPath) { Remove-Item $logPath -Force }
+          $proc = Start-Process -FilePath "dist\PhytoScreen\PhytoScreen.exe" -PassThru
+          $ok = $false
+          for ($i = 0; $i -lt 60; $i++) {
+            Start-Sleep -Seconds 1
+            if (Test-Path $logPath) {
+              $content = Get-Content $logPath -Raw
+              if ($content -match "backend is up, serving") { $ok = $true; break }
+              if ($content -match "FATAL") { break }
+            }
+          }
+          if (Test-Path $logPath) {
+            Write-Host "--- desktop.log ---"
+            Get-Content $logPath
+          } else {
+            Write-Host "desktop.log was never created."
+          }
+          Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+          if (-not $ok) {
+            Write-Error "The built exe's backend never reported 'up, serving' within 60s — see the log above for the actual cause."
+            exit 1
+          }
+          Write-Host "Backend startup verified OK."
 
       - name: Fill in DOWNLOAD_BASE_URL for the launcher
         # backend/downloads.py already bakes in the project's real R2
