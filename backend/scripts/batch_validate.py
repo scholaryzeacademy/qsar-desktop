@@ -53,9 +53,13 @@ from docking.profile import REGISTRY
 
 DEEP_EXTRA_LIMIT = 10  # extra panel-CSV candidates beyond top-5, tried only if everything else fails
 
-MODELS_DIR = "models"    # cwd-relative — the app/this script must run with the
-                          # repo root as cwd, same as models/docking_targets/
-                          # docking_registry.json (see backend/README notes)
+MODELS_DIR = os.environ.get("TARGETS_DIR", "models")  # same env var + default
+                          # as serving/model_adapter.py's TARGETS_DIR — must
+                          # match, since this drives which targets recommend.py
+                          # considers "usable" (has a real QSAR model); a
+                          # hardcoded "models" here would silently disagree
+                          # with a custom TARGETS_DIR override (see
+                          # BUILD_WINDOWS.md's "local override paths").
 LOG_PATH = os.path.join(_SCRIPTS_DIR, "batch_validate_log.jsonl")   # own dir,
                           # NOT cwd-relative — an audit log, not shared data,
                           # and this module is called from app.py with the

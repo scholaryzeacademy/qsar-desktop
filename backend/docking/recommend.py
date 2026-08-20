@@ -39,9 +39,16 @@ def _panel_df():
     return pd.read_csv(PANEL_CSV)
 
 
-@functools.lru_cache(maxsize=1)
 def _target_gene_map():
-    """(target_id -> gene, gene -> target_id) for our QSAR-modeled targets."""
+    """(target_id -> gene, gene -> target_id) for our QSAR-modeled targets.
+
+       Deliberately NOT cached (unlike _panel_df(), which parses a static
+       37MB CSV that never changes at runtime): usable_targets() is a
+       cheap os.listdir() scan of TARGETS_DIR, and the desktop app's
+       Downloads tab lets a user add a new target's model bucket mid-
+       session — caching this would keep is_current_default/
+       has_qsar_model answering as if that download never happened until
+       the app restarts."""
     t2g = {tid: gene_for_target(tid) for tid in usable_targets()}
     g2t = {g: t for t, g in t2g.items()}
     return t2g, g2t
