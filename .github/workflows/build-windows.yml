@@ -82,6 +82,7 @@ jobs:
           --collect-all gemmi
           --collect-all webview
           --collect-all admet_ai
+          --collect-all cuik_molmaker
           --hidden-import lightgbm
           --hidden-import catboost
           --hidden-import xgboost
@@ -106,45 +107,91 @@ jobs:
             exit 1
           fi
 
-      - name: Verify the built exe actually starts the backend
-        # A correctly-SIZED bundle can still be functionally broken (this
-        # shipped once: backend/app.py's whole import tree was silently
-        # missing because PyInstaller couldn't see desktop.py's runtime
-        # sys.path trick — see BUILD_WINDOWS.md's "Why --paths backend").
-        # --windowed means the app has no console to report that kind of
-        # failure through, so desktop.py always writes to a log file
-        # (%LOCALAPPDATA%\PhytoScreen\desktop.log) — actually launch the
-        # frozen exe here and wait for its "backend is up, serving" line,
-        # not just the PyInstaller build log, before this is ever allowed
-        # to become a release. Doesn't need pywebview's native window to
-        # succeed (that needs a real display and isn't what this checks)
-        # — only that the FastAPI backend itself came up correctly.
+      - name: Verify the built exe actually WORKS (not just starts)
+        # A previous round of this shipped a build that started cleanly
+        # (backend imported, /api/health served fine) but crashed the
+        # instant anyone actually ran a real prediction — chemprop's
+        # featurizer needs cuik_molmaker's native library + data files,
+        # which plain import analysis never bundles (see BUILD_WINDOWS.md's
+        # "Why --collect-all cuik_molmaker"). A healthy backend and a
+        # working prediction are different guarantees; this step checks
+        # both, plus the ADMET-AI worker, by driving the exact same flow
+        # a real user does: download a real (small, ~10MB) target from
+        # the live bucket, predict against it, and profile with ADMET.
+        # --windowed has no console to report failures through, so
+        # desktop.py always writes to a log file
+        # (%LOCALAPPDATA%\PhytoScreen\desktop.log) — read it for both the
+        # startup port and any crash diagnostics.
         shell: pwsh
         run: |
+          $ErrorActionPreference = "Stop"
           $logPath = Join-Path $env:LOCALAPPDATA "PhytoScreen\desktop.log"
           if (Test-Path $logPath) { Remove-Item $logPath -Force }
           $proc = Start-Process -FilePath "dist\PhytoScreen\PhytoScreen.exe" -PassThru
-          $ok = $false
+          $port = $null
           for ($i = 0; $i -lt 60; $i++) {
             Start-Sleep -Seconds 1
             if (Test-Path $logPath) {
               $content = Get-Content $logPath -Raw
-              if ($content -match "backend is up, serving") { $ok = $true; break }
+              if ($content -match "backend built OK, starting uvicorn on port (\d+)") { $port = $Matches[1] }
+              if ($content -match "backend is up, serving") { break }
               if ($content -match "FATAL") { break }
             }
           }
-          if (Test-Path $logPath) {
+          function Fail($msg) {
             Write-Host "--- desktop.log ---"
-            Get-Content $logPath
-          } else {
-            Write-Host "desktop.log was never created."
-          }
-          Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
-          if (-not $ok) {
-            Write-Error "The built exe's backend never reported 'up, serving' within 60s — see the log above for the actual cause."
+            if (Test-Path $logPath) { Get-Content $logPath } else { Write-Host "(never created)" }
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+            Write-Error $msg
             exit 1
           }
-          Write-Host "Backend startup verified OK."
+          if (-not $port) { Fail "Backend never reported its port within 60s — see the log above." }
+          $base = "http://127.0.0.1:$port"
+
+          try { Invoke-RestMethod "$base/api/health" -TimeoutSec 10 | Out-Null }
+          catch { Fail "GET /api/health failed: $_" }
+
+          # Download a real, small target from the live bucket — exercises
+          # the exact download->extract->load pipeline a real user hits.
+          try {
+            $job = Invoke-RestMethod -Method Post "$base/api/downloads/target/CHEMBL1951_MAOA?kind=model" -TimeoutSec 15
+          } catch { Fail "POST /api/downloads/target failed: $_" }
+          if ($job.job_id) {
+            $done = $false
+            for ($i = 0; $i -lt 90; $i++) {
+              Start-Sleep -Seconds 1
+              $p = Invoke-RestMethod "$base/api/downloads/progress/$($job.job_id)" -TimeoutSec 10
+              if ($p.state -eq "done") { $done = $true; break }
+              if ($p.state -eq "error") { Fail "Model download failed: $($p.error)" }
+            }
+            if (-not $done) { Fail "Model download never finished within 90s." }
+          }
+
+          # The actual bug this step exists to catch: a real prediction.
+          try {
+            $pred = Invoke-RestMethod -Method Post "$base/api/predict" -TimeoutSec 60 `
+              -ContentType "application/json" -Body '{"target_id":"CHEMBL1951_MAOA","smiles":["CCO"]}'
+          } catch { Fail "POST /api/predict threw: $_" }
+          if (-not $pred.in_domain -or $pred.in_domain.Count -eq 0 -or $null -eq $pred.in_domain[0].predicted_pIC50) {
+            Fail "predict() ran but returned no usable prediction: $($pred | ConvertTo-Json -Depth 5)"
+          }
+          Write-Host "Predict OK: pIC50=$($pred.in_domain[0].predicted_pIC50)"
+
+          # ADMET-AI worker: same chemprop/cuik_molmaker dependency, started
+          # automatically by desktop.py (see start_admet_worker()) — confirm
+          # its learned layer, not just the always-on deterministic one.
+          try {
+            $admet = Invoke-RestMethod -Method Post "$base/api/admet" -TimeoutSec 30 `
+              -ContentType "application/json" -Body '{"target_id":"_","smiles":["CCO"]}'
+          } catch { Fail "POST /api/admet threw: $_" }
+          $learned = $admet.profiles[0].learned
+          if (-not $learned.available) {
+            Fail "ADMET-AI worker's learned layer is unavailable: $($learned.note)"
+          }
+          Write-Host "ADMET-AI worker OK: learned layer available."
+
+          Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+          Write-Host "Full end-to-end verification passed: startup, real predict, and ADMET-AI all OK."
 
       - name: Fill in DOWNLOAD_BASE_URL for the launcher
         # backend/downloads.py already bakes in the project's real R2

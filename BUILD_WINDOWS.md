@@ -108,6 +108,7 @@ From the project root:
       --collect-all gemmi ^
       --collect-all webview ^
       --collect-all admet_ai ^
+      --collect-all cuik_molmaker ^
       --hidden-import lightgbm ^
       --hidden-import catboost ^
       --hidden-import xgboost ^
@@ -156,6 +157,27 @@ JS bridge files — that the native window genuinely can't render without.
 importable name, not the PyPI distribution name; `--collect-all
 autogluon` for the `autogluon.tabular` package is the same pattern)
 pulls in both the code and those binaries in one go.
+
+### Why `--collect-all cuik_molmaker`
+`chemprop`'s own featurizer (`chemprop/featurizers/molgraph/molecule.py`)
+imports `cuik_molmaker` — a separate compiled package (a C++ extension
+module plus a sibling native library it loads at runtime, plus JSON
+normalization data) that neither `--collect-all chemprop` nor plain
+import analysis fully captures, since it's not a subpackage of chemprop
+and its binary/data files are invisible to static analysis either way.
+Missing this doesn't fail the build or even fail `import app` — the
+whole ML stack imports fine — it only breaks the instant a REAL
+prediction actually runs the Chemprop forward pass, as
+`WinError3: The system cannot find the path specified` pointing at
+`_internal\cuik_molmake...`. Also breaks the ADMET-AI worker the same
+way, less obviously: `admet-ai` is itself built on chemprop
+(`admet_ai/admet_model.py` imports directly from `chemprop.models`), so
+its model fails to load for the identical reason, silently reported as
+just "worker unavailable" rather than this specific error. This is why
+Windows CI now actually downloads a real target and runs a real
+`/api/predict` call (see the "Verify..." step) instead of only checking
+that the app *starts* — a healthy backend and a working prediction are
+different guarantees, and this exact bug is what proved it.
 
 ### Why `--hidden-import lightgbm/catboost/xgboost`
 AutoGluon's stacked ensembles are built from these base learners — the
