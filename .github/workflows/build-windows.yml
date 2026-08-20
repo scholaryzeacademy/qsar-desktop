@@ -20,6 +20,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write   # needed for softprops/action-gh-release below to create/attach to a release
     steps:
       - uses: actions/checkout@v4
 
