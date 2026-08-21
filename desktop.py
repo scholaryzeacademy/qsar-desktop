@@ -278,6 +278,10 @@ def main():
     url = f"http://{HOST}:{port}/"
     try:
         import webview
+        # Off by default in pywebview — the embedded browser (WebView2 on
+        # Windows) otherwise silently cancels every download, including the
+        # frontend's Blob/<a download> CSV and PDB export buttons.
+        webview.settings["ALLOW_DOWNLOADS"] = True
         window = webview.create_window("PhytoScreen", url, width=1280, height=860, min_size=(1000, 700))
         webview.start()          # blocks until the window closes
         return
