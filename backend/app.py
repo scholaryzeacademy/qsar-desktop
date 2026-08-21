@@ -851,11 +851,20 @@ def docking_submit(body: DockBody):
     # and a plain KeyError/500 for a GENE_ target_id, which has no registry
     # entry at all).
     receptor_pdb_path = profile.get("receptor_pdb")
+    # Captured now, same reason as receptor_pdb_path above: job["profile"]
+    # gets nulled out once done, but the redocking-validation banner needs
+    # to reflect whatever structure THIS job actually ran against (which,
+    # for a manual Advanced Settings override, isn't the registry default).
+    dock_validated = bool(profile.get("validated"))
+    reference_rmsd = profile.get("reference_rmsd")
+    pdb_source = profile.get("pdb_source")
     _DOCK_JOBS[jid] = {"status": "queued", "total": len(smiles), "done": 0, "results": [], "caveat": caveat,
                        "profile": profile, "smiles": smiles, "engine": engine, "rescorer": rescorer, "n_poses": n_poses,
-                       "receptor_pdb_path": receptor_pdb_path}
+                       "receptor_pdb_path": receptor_pdb_path, "dock_validated": dock_validated,
+                       "reference_rmsd": reference_rmsd, "pdb_source": pdb_source}
     _run_docking_job(jid)      # background thread
-    return {"job_id": jid, "total": len(smiles), "caveat": caveat}
+    return {"job_id": jid, "total": len(smiles), "caveat": caveat, "validated": dock_validated,
+            "reference_rmsd": reference_rmsd, "pdb_source": pdb_source}
 
 
 def _run_docking_job(jid):
@@ -902,7 +911,9 @@ def docking_job(jid: str):
     job = _DOCK_JOBS.get(jid)
     if not job:
         raise HTTPException(404, "unknown job")
-    r = {"status": job["status"], "done": job["done"], "total": job["total"], "caveat": job.get("caveat")}
+    r = {"status": job["status"], "done": job["done"], "total": job["total"], "caveat": job.get("caveat"),
+         "validated": job.get("dock_validated"), "reference_rmsd": job.get("reference_rmsd"),
+         "pdb_source": job.get("pdb_source")}
     if job["status"] in ("done", "cancelled"):
         # Cancelled still returns whatever compounds finished docking
         # before the stop request landed, rather than throwing that work

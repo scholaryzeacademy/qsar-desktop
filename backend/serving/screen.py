@@ -280,4 +280,11 @@ def run(target_id, smiles_list, make_diagram=True, progress=None, advanced=None)
         # complex PDB" button — mirrors /api/docking/submit's job dict,
         # which already carries this for the plain Docking tab.
         "receptor_pdb_path": dprofile.get("receptor_pdb") if dock_ran and dprofile else None,
+        # Same redocking-validation numbers /api/docking/submit's job dict
+        # carries — methods_note already says "redocking+enrichment-
+        # validated" in prose, this gives the UI the actual RMSD to show
+        # in a summary banner instead of it being buried in that sentence.
+        "dock_validated": dock_validated if dock_ran else None,
+        "reference_rmsd": dprofile.get("reference_rmsd") if dock_ran and dprofile else None,
+        "pdb_source": dprofile.get("pdb_source") if dock_ran and dprofile else None,
     }

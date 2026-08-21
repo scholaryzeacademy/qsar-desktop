@@ -11,7 +11,7 @@ import { WhyThisButton } from "../components/RecommendationPanel";
 import { SectionIntro, ResultHeader, ResultName, Stat } from "../components/Shell";
 import { ConfidenceDot, Disclaimer, EmptyState, ErrorBox, Notice } from "../components/Feedback";
 import { LeafLattice } from "../components/Icons";
-import { DownloadComplexButton, EnrichmentChip, FreshDecoyButton } from "../components/DockingPieces";
+import { DownloadComplexButton, EnrichmentChip, FreshDecoyButton, RedockingBanner } from "../components/DockingPieces";
 import { tierClass } from "../lib/tierClass";
 import type { AdvancedDockingBody, DockResultRow, ScreenResult } from "../lib/types";
 
@@ -34,7 +34,18 @@ type FlowState =
   | { kind: "error"; message: string }
   | { kind: "cancelled" }
   | { kind: "screen-done"; result: ScreenResult; jobId: string; targetId: string; advanced: AdvancedDockingBody | null }
-  | { kind: "dock-done"; results: DockResultRow[]; receptorPdbPath: string | null; targetId: string; advanced: AdvancedDockingBody | null; caveat: string | null; cancelled?: boolean };
+  | {
+      kind: "dock-done";
+      results: DockResultRow[];
+      receptorPdbPath: string | null;
+      targetId: string;
+      advanced: AdvancedDockingBody | null;
+      caveat: string | null;
+      cancelled?: boolean;
+      validated?: boolean | null;
+      referenceRmsd?: number | null;
+      pdbSource?: string | null;
+    };
 
 export function ScreenTab() {
   const { dockingStatus } = useAppData();
@@ -72,6 +83,9 @@ export function ScreenTab() {
               advanced: advBody,
               caveat: r.caveat || null,
               cancelled: s.status === "cancelled",
+              validated: r.validated ?? null,
+              referenceRmsd: r.reference_rmsd ?? null,
+              pdbSource: r.pdb_source ?? null,
             });
             return;
           }
@@ -154,7 +168,16 @@ export function ScreenTab() {
         {flow.kind === "dock-done" && (
           <>
             {flow.cancelled && <Notice>Stopped — showing the {flow.results.length} compound(s) that finished docking before the stop request.</Notice>}
-            <GeneOnlyDockResults results={flow.results} receptorPdbPath={flow.receptorPdbPath} targetId={flow.targetId} advanced={flow.advanced} caveat={flow.caveat} />
+            <GeneOnlyDockResults
+              results={flow.results}
+              receptorPdbPath={flow.receptorPdbPath}
+              targetId={flow.targetId}
+              advanced={flow.advanced}
+              caveat={flow.caveat}
+              validated={flow.validated}
+              referenceRmsd={flow.referenceRmsd}
+              pdbSource={flow.pdbSource}
+            />
           </>
         )}
       </main>
@@ -214,6 +237,7 @@ function ScreenResults({ d, jobId, advanced }: { d: ScreenResult; jobId: string;
         <Stat label="Docking">{d.docking_used ? "used" : "skipped"}</Stat>
       </ResultHeader>
       <Disclaimer>{d.methods_note}</Disclaimer>
+      {d.docking_used && <RedockingBanner validated={d.dock_validated} referenceRmsd={d.reference_rmsd} pdbSource={d.pdb_source} />}
       {d.docking_note && !d.docking_used && <Notice>{d.docking_note}</Notice>}
       {!d.shortlist.length ? (
         <div className="px-8 py-16 text-center text-inkmut">No molecules could be parsed.</div>
@@ -327,12 +351,18 @@ function GeneOnlyDockResults({
   targetId,
   advanced,
   caveat,
+  validated,
+  referenceRmsd,
+  pdbSource,
 }: {
   results: DockResultRow[];
   receptorPdbPath: string | null;
   targetId: string;
   advanced: AdvancedDockingBody | null;
   caveat: string | null;
+  validated?: boolean | null;
+  referenceRmsd?: number | null;
+  pdbSource?: string | null;
 }) {
   const [openRows, setOpenRows] = useState<Set<number>>(new Set());
   const toggle = (i: number) =>
@@ -343,6 +373,7 @@ function GeneOnlyDockResults({
     });
   return (
     <div>
+      <RedockingBanner validated={validated} referenceRmsd={referenceRmsd} pdbSource={pdbSource} />
       {caveat && <Notice>{caveat}</Notice>}
       <div className="max-h-[calc(100vh-260px)] overflow-auto">
         <table className="w-full border-collapse text-[13px]">

@@ -152,7 +152,10 @@ export const autoValidateJob = (jid: string) =>
 
 // ---------- docking submit / poll ----------
 export const submitDocking = (target_id: string, smiles: string[], advanced: AdvancedDockingBody | null) =>
-  api<{ job_id: string; total: number; caveat?: string | null }>("/api/docking/submit", json({ target_id, smiles, advanced }));
+  api<{ job_id: string; total: number; caveat?: string | null; validated?: boolean | null; reference_rmsd?: number | null; pdb_source?: string | null }>(
+    "/api/docking/submit",
+    json({ target_id, smiles, advanced })
+  );
 export const dockingJob = (jid: string) => api<DockJobStatus>(`/api/docking/job/${jid}`);
 export const cancelDocking = (jid: string) => api<{ ok: boolean }>(`/api/docking/cancel/${jid}`, { method: "POST" });
 

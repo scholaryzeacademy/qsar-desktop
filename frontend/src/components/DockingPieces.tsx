@@ -4,6 +4,42 @@ import { apiUrl } from "../lib/api";
 import { combinePdbText, fetchTextCached } from "../lib/mol3d";
 import type { AdvancedDockingBody, DockResultRow } from "../lib/types";
 import { PoseViewer } from "./PoseViewer";
+import { Notice } from "./Feedback";
+
+/** Summarises the redocking-validation status of the receptor a batch of
+    compounds was actually docked against — shown once above the results
+    table/shortlist rather than per-row (validation is a property of the
+    STRUCTURE, not of any one compound). Renders nothing when docking
+    didn't run for this batch at all (validated == null/undefined), same
+    as the rest of the docking UI already does for that case. */
+export function RedockingBanner({
+  validated,
+  referenceRmsd,
+  pdbSource,
+}: {
+  validated?: boolean | null;
+  referenceRmsd?: number | null;
+  pdbSource?: string | null;
+}) {
+  if (validated == null) return null;
+  const rmsdText = referenceRmsd != null ? `${referenceRmsd} Å` : "—";
+  return (
+    <Notice tone={validated ? "brand" : "amber"}>
+      {validated ? (
+        <>
+          ✓ Redocking-validated{pdbSource ? ` (${pdbSource})` : ""} — the receptor's own co-crystallized ligand
+          redocks to within {rmsdText} of its crystal pose.
+        </>
+      ) : (
+        <>
+          ⚠ NOT redocking-validated{pdbSource ? ` (${pdbSource})` : ""}
+          {referenceRmsd != null ? ` — redocking RMSD ${rmsdText} exceeds the 2 Å pass threshold` : ""}. Pose
+          geometry for this structure is unconfirmed; treat Vina scores here with real caution.
+        </>
+      )}
+    </Notice>
+  );
+}
 
 /** Downloads the receptor+pose "complex" PDB for one docked compound —
     the same two structures PoseViewer already renders together in 3D,

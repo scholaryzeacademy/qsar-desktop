@@ -8,7 +8,7 @@ import { AdvancedSettingsPanel } from "../components/AdvancedSettingsPanel";
 import { SectionIntro } from "../components/Shell";
 import { EmptyState, ErrorBox, Notice } from "../components/Feedback";
 import { ConfidenceDot } from "../components/Feedback";
-import { DockDetailPanel, EnrichmentChip, FreshDecoyButton } from "../components/DockingPieces";
+import { DockDetailPanel, EnrichmentChip, FreshDecoyButton, RedockingBanner } from "../components/DockingPieces";
 import type { AdvancedDockingBody, DockResultRow } from "../lib/types";
 
 const DOCK_CONF_COLOR: Record<string, string> = { high: "bg-brand-500", medium: "bg-amber", low: "bg-clay", none: "bg-slateout" };
@@ -75,6 +75,9 @@ function DockingReady() {
   const [jobId, setJobId] = useState<string | null>(null);
   const [cancelled, setCancelled] = useState(false);
   const [submittedAdvanced, setSubmittedAdvanced] = useState<AdvancedDockingBody | null>(null);
+  const [validated, setValidated] = useState<boolean | null>(null);
+  const [referenceRmsd, setReferenceRmsd] = useState<number | null>(null);
+  const [pdbSource, setPdbSource] = useState<string | null>(null);
 
   const run = async () => {
     setError("");
@@ -104,6 +107,9 @@ function DockingReady() {
     try {
       const r = await api.submitDocking(targetId, smilesList, advBody);
       setCaveat(r.caveat || null);
+      setValidated(r.validated ?? null);
+      setReferenceRmsd(r.reference_rmsd ?? null);
+      setPdbSource(r.pdb_source ?? null);
       setJobId(r.job_id);
       setState("polling");
       while (true) {
@@ -182,7 +188,16 @@ function DockingReady() {
         {state === "done" && results && (
           <>
             {cancelled && <Notice>Stopped — showing the {results.length} compound(s) that finished docking before the stop request.</Notice>}
-            <DockResultsTable results={results} caveat={caveat} receptorPdbPath={receptorPdbPath} targetId={targetId} advanced={submittedAdvanced} />
+            <DockResultsTable
+              results={results}
+              caveat={caveat}
+              receptorPdbPath={receptorPdbPath}
+              targetId={targetId}
+              advanced={submittedAdvanced}
+              validated={validated}
+              referenceRmsd={referenceRmsd}
+              pdbSource={pdbSource}
+            />
           </>
         )}
       </main>
@@ -196,12 +211,18 @@ function DockResultsTable({
   receptorPdbPath,
   targetId,
   advanced,
+  validated,
+  referenceRmsd,
+  pdbSource,
 }: {
   results: DockResultRow[];
   caveat: string | null;
   receptorPdbPath: string | null;
   targetId: string;
   advanced: AdvancedDockingBody | null;
+  validated?: boolean | null;
+  referenceRmsd?: number | null;
+  pdbSource?: string | null;
 }) {
   const [openRows, setOpenRows] = useState<Set<number>>(new Set());
   const toggle = (i: number) =>
@@ -215,6 +236,7 @@ function DockResultsTable({
 
   return (
     <div>
+      <RedockingBanner validated={validated} referenceRmsd={referenceRmsd} pdbSource={pdbSource} />
       {caveat && <Notice>{caveat}</Notice>}
       <div className="max-h-[calc(100vh-260px)] overflow-y-auto overflow-x-hidden">
         <table className="w-full table-fixed border-collapse text-[13px]">

@@ -193,12 +193,18 @@ export interface DockJobDone {
   caveat?: string | null;
   results: DockResultRow[];
   receptor_pdb_path?: string | null;
+  validated?: boolean | null;
+  reference_rmsd?: number | null;
+  pdb_source?: string | null;
 }
 export interface DockJobPending {
   status: "queued" | "running";
   done: number;
   total: number;
   caveat?: string | null;
+  validated?: boolean | null;
+  reference_rmsd?: number | null;
+  pdb_source?: string | null;
 }
 export interface DockJobError {
   status: "error";
@@ -225,6 +231,9 @@ export interface ScreenResult {
   shortlist: ScreenShortlistRow[];
   skipped: string[];
   receptor_pdb_path?: string | null;
+  dock_validated?: boolean | null;
+  reference_rmsd?: number | null;
+  pdb_source?: string | null;
 }
 
 export interface ScreenJobStatus {
