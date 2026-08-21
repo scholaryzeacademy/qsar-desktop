@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { fetchTextCached, get3Dmol } from "../lib/mol3d";
+import { applyProteinStyle, clearSurfaces, fetchTextCached, get3Dmol, type ProteinStyle } from "../lib/mol3d";
 import { apiUrl } from "../lib/api";
+import { StyleSelect } from "./StyleSelect";
 
 export function PoseViewer({
   posePdb,
@@ -13,10 +14,21 @@ export function PoseViewer({
 }) {
   const [show, setShow] = useState(false);
   const [spin, setSpin] = useState(false);
+  const [style, setStyle] = useState<ProteinStyle>("cartoon");
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<any>(null);
   const ligIdxRef = useRef(0);
+  const [hasReceptor, setHasReceptor] = useState(false);
+  const resiListRef = useRef<number[]>([]);
+  const surfaceIdsRef = useRef<number[]>([]);
   const initedRef = useRef(false);
+
+  const applyReceptorLook = (viewer: any, s: ProteinStyle) => {
+    surfaceIdsRef.current = clearSurfaces(viewer, surfaceIdsRef.current);
+    applyProteinStyle(viewer, { model: 0 }, s, (ids) => (surfaceIdsRef.current = ids));
+    if (s === "cartoon") viewer.setStyle({ model: 0 }, { cartoon: { color: "lightgrey", opacity: 0.55 } });
+    if (resiListRef.current.length) viewer.addStyle({ model: 0, resi: resiListRef.current }, { stick: { radius: 0.12, colorscheme: "grayCarbon" } });
+  };
 
   useEffect(() => {
     if (!show || initedRef.current) return;
@@ -32,10 +44,10 @@ export function PoseViewer({
       if (!containerRef.current) return;
       const viewer = $3Dmol.createViewer(containerRef.current, { backgroundColor: "white" });
       viewerRef.current = viewer;
+      setHasReceptor(!!receptorPdb);
       if (receptorPdb) {
         viewer.addModel(receptorPdb, "pdb");
-        viewer.setStyle({ model: 0 }, { cartoon: { color: "lightgrey", opacity: 0.55 } });
-        const resiList = [
+        resiListRef.current = [
           ...new Set(
             (interactions || [])
               .map((h) => {
@@ -45,7 +57,7 @@ export function PoseViewer({
               .filter((n): n is number => n != null)
           ),
         ];
-        if (resiList.length) viewer.addStyle({ model: 0, resi: resiList }, { stick: { radius: 0.12, colorscheme: "grayCarbon" } });
+        applyReceptorLook(viewer, style);
       }
       viewer.addModel(posePdb, "pdb");
       const ligIdx = receptorPdb ? 1 : 0;
@@ -54,11 +66,23 @@ export function PoseViewer({
       viewer.zoomTo({ model: ligIdx });
       viewer.render();
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, posePdb, receptorPdbPath, interactions]);
 
   useEffect(() => {
     viewerRef.current?.spin(spin ? "y" : false);
   }, [spin]);
+
+  // Style-only change: reapply on the already-loaded receptor model
+  // (including the pocket-residue stick overlay, which layers on top of
+  // whatever the base style is).
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer || !hasReceptor) return;
+    applyReceptorLook(viewer, style);
+    viewer.render();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [style, hasReceptor]);
 
   return (
     <div className="mt-2.5">
@@ -82,6 +106,7 @@ export function PoseViewer({
           <input type="checkbox" checked={spin} onChange={(e) => setSpin(e.target.checked)} />
           spin
         </label>
+        {show && hasReceptor && <StyleSelect value={style} onChange={setStyle} />}
         <span className="text-[11px] text-inkmut">
           All atoms shown incl. hydrogens (nonpolar H positions are geometry-estimated, not Vina's own placement).
         </span>

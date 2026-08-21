@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
-import { fetchTextCached, get3Dmol } from "../lib/mol3d";
+import { useEffect, useRef, useState } from "react";
+import { applyProteinStyle, clearSurfaces, fetchTextCached, get3Dmol, type ProteinStyle } from "../lib/mol3d";
+import { StyleSelect } from "./StyleSelect";
 
 /** Lightweight, read-only receptor preview — auto-rendered as soon as a
     target with docking data is picked (see TargetBrowser.tsx), so the
@@ -10,12 +11,19 @@ import { fetchTextCached, get3Dmol } from "../lib/mol3d";
     the box; this is just "here's what got auto-picked." */
 export function ReceptorPreview({ receptorUrl, ligandUrl }: { receptorUrl?: string | null; ligandUrl?: string | null }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const viewerRef = useRef<any>(null);
+  const surfaceIdsRef = useRef<number[]>([]);
+  const [style, setStyle] = useState<ProteinStyle>("cartoon");
 
+  // Full rebuild: new structure. Style itself is applied by the effect
+  // below so switching styles doesn't refetch/re-parse the PDB/SDF.
   useEffect(() => {
     let cancelled = false;
     const container = containerRef.current;
     if (!container) return;
     container.innerHTML = "";
+    viewerRef.current = null;
+    surfaceIdsRef.current = [];
     if (!receptorUrl) return;
     (async () => {
       const $3Dmol = get3Dmol();
@@ -27,7 +35,6 @@ export function ReceptorPreview({ receptorUrl, ligandUrl }: { receptorUrl?: stri
       if (cancelled || !container || !pdb) return;
       const viewer = $3Dmol.createViewer(container, { backgroundColor: "white" });
       viewer.addModel(pdb, "pdb");
-      viewer.setStyle({ model: 0 }, { cartoon: { color: "lightgrey" } });
       let ligModel = 0;
       if (ligandUrl) {
         try {
@@ -42,6 +49,8 @@ export function ReceptorPreview({ receptorUrl, ligandUrl }: { receptorUrl?: stri
           /* optional */
         }
       }
+      viewerRef.current = viewer;
+      applyProteinStyle(viewer, { model: 0 }, style, (ids) => (surfaceIdsRef.current = ids));
       if (ligModel) viewer.zoomTo({ model: ligModel });
       else viewer.zoomTo();
       viewer.render();
@@ -49,8 +58,26 @@ export function ReceptorPreview({ receptorUrl, ligandUrl }: { receptorUrl?: stri
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [receptorUrl, ligandUrl]);
 
+  // Style-only change: reuse the already-loaded models.
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+    surfaceIdsRef.current = clearSurfaces(viewer, surfaceIdsRef.current);
+    applyProteinStyle(viewer, { model: 0 }, style, (ids) => (surfaceIdsRef.current = ids));
+    viewer.render();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [style]);
+
   if (!receptorUrl) return null;
-  return <div ref={containerRef} className="relative h-[240px] w-full rounded-lg border border-line bg-white" />;
+  return (
+    <div className="relative">
+      <div ref={containerRef} className="relative h-[240px] w-full rounded-lg border border-line bg-white" />
+      <div className="absolute right-1.5 top-1.5 z-10">
+        <StyleSelect value={style} onChange={setStyle} />
+      </div>
+    </div>
+  );
 }

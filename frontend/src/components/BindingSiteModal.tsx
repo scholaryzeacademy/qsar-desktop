@@ -3,7 +3,17 @@ import { createPortal } from "react-dom";
 import { Modal } from "./Modal";
 import type { AdvancedDockingState } from "../lib/useAdvancedDocking";
 import { residueKey } from "../lib/useAdvancedDocking";
-import { drawBoxShapes, fetchTextCached, get3Dmol, HANDLE_SPECS, MIN_BOX_DIM } from "../lib/mol3d";
+import {
+  applyProteinStyle,
+  clearSurfaces,
+  drawBoxShapes,
+  fetchTextCached,
+  get3Dmol,
+  HANDLE_SPECS,
+  MIN_BOX_DIM,
+  type ProteinStyle,
+} from "../lib/mol3d";
+import { StyleSelect } from "./StyleSelect";
 
 type HandleKind = "move" | "resize";
 interface HandleVM {
@@ -35,6 +45,24 @@ export function BindingSiteModal({
   const [gizmoOn, setGizmoOn] = useState(false);
   const [handles, setHandles] = useState<HandleVM[]>([]);
   const [readout, setReadout] = useState<{ center: number[]; size: number[] } | null>(null);
+  const [style, setStyle] = useState<ProteinStyle>("cartoon");
+  const surfaceIdsRef = useRef<number[]>([]);
+
+  /** The receptor's base representation, plus whatever residue highlight
+      is currently selected layered on top — shared by the full rebuild,
+      the cheap re-highlight, and the style switcher so all three agree
+      on what "the current look" is instead of drifting out of sync. */
+  const applyReceptorLook = useCallback(
+    (viewer: any, s: ProteinStyle) => {
+      if (!site?.receptorUrl) return;
+      surfaceIdsRef.current = clearSurfaces(viewer, surfaceIdsRef.current);
+      applyProteinStyle(viewer, { model: 0 }, s, (ids) => (surfaceIdsRef.current = ids));
+      if (s === "cartoon") viewer.setStyle({ model: 0 }, { cartoon: { color: "lightgrey", opacity: 0.5 } });
+      const selResi = [...new Set(site.residues.filter((r) => selected.has(residueKey(r))).map((r) => r.resnum))];
+      if (selResi.length) viewer.addStyle({ model: 0, resi: selResi }, { stick: { radius: 0.18, colorscheme: "yellowCarbon" } });
+    },
+    [site, selected]
+  );
 
   const positionHandles = useCallback(() => {
     const viewer = viewerRef.current;
@@ -85,15 +113,14 @@ export function BindingSiteModal({
 
       let modelIdx = 0;
       let resiList: number[] = [];
+      surfaceIdsRef.current = [];
       if (site.receptorUrl) {
         const pdb = await fetchTextCached(site.receptorUrl);
         if (cancelled) return;
         if (pdb) {
           viewer.addModel(pdb, "pdb");
-          viewer.setStyle({ model: modelIdx }, { cartoon: { color: "lightgrey", opacity: 0.5 } });
+          applyReceptorLook(viewer, style);
           resiList = [...new Set(site.residues.map((r) => r.resnum))];
-          const selResi = [...new Set(site.residues.filter((r) => selected.has(residueKey(r))).map((r) => r.resnum))];
-          if (selResi.length) viewer.addStyle({ model: modelIdx, resi: selResi }, { stick: { radius: 0.18, colorscheme: "yellowCarbon" } });
           modelIdx++;
         }
       }
@@ -139,13 +166,10 @@ export function BindingSiteModal({
     // whole React tree, not just this modal. Only touch models once the
     // rebuild has actually finished adding them.
     if (!viewer || !site || !ready) return;
-    const allResi = [...new Set(site.residues.map((r) => r.resnum))];
-    const selResi = [...new Set(site.residues.filter((r) => selected.has(residueKey(r))).map((r) => r.resnum))];
-    if (allResi.length) viewer.setStyle({ model: 0, resi: allResi }, { cartoon: { color: "lightgrey", opacity: 0.5 } });
-    if (selResi.length) viewer.addStyle({ model: 0, resi: selResi }, { stick: { radius: 0.18, colorscheme: "yellowCarbon" } });
+    applyReceptorLook(viewer, style);
     viewer.render();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, ready]);
+  }, [selected, ready, style]);
 
   // ---- box-only redraw: mode / override changes ----
   useEffect(() => {
@@ -250,7 +274,11 @@ export function BindingSiteModal({
       onClose={onClose}
     >
       <div className="flex h-full">
-        <div className="relative flex-1 bg-white" ref={containerRef} />
+        <div className="relative flex-1 bg-white" ref={containerRef}>
+          <div className="absolute right-1.5 top-1.5 z-10">
+            <StyleSelect value={style} onChange={setStyle} />
+          </div>
+        </div>
         <div className="w-[240px] shrink-0 overflow-y-auto border-l border-line bg-canvas/70 p-3.5">
           {!blind && (
             <label className="mb-3 flex cursor-pointer items-center gap-2 text-[13px] font-medium text-ink">
