@@ -74,6 +74,7 @@ function DockingReady() {
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
   const [cancelled, setCancelled] = useState(false);
+  const [submittedAdvanced, setSubmittedAdvanced] = useState<AdvancedDockingBody | null>(null);
 
   const run = async () => {
     setError("");
@@ -99,6 +100,7 @@ function DockingReady() {
     }
     setState("submitting");
     setCancelled(false);
+    setSubmittedAdvanced(advBody);
     try {
       const r = await api.submitDocking(targetId, smilesList, advBody);
       setCaveat(r.caveat || null);
@@ -180,7 +182,7 @@ function DockingReady() {
         {state === "done" && results && (
           <>
             {cancelled && <Notice>Stopped — showing the {results.length} compound(s) that finished docking before the stop request.</Notice>}
-            <DockResultsTable results={results} caveat={caveat} receptorPdbPath={receptorPdbPath} targetId={targetId} advanced={adv.getAdvanced()} />
+            <DockResultsTable results={results} caveat={caveat} receptorPdbPath={receptorPdbPath} targetId={targetId} advanced={submittedAdvanced} />
           </>
         )}
       </main>
