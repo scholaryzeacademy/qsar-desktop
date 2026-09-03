@@ -61,8 +61,10 @@ export function TargetBrowser({
   const [diseaseId, setDiseaseId] = useState("");
   const [diseaseOpen, setDiseaseOpen] = useState(false);
   const [targetQuery, setTargetQuery] = useState("");
+  const [targetOpen, setTargetOpen] = useState(false);
   const [ranked, setRanked] = useState<DiseaseTarget[] | null>(null);
   const diseaseBoxRef = useRef<HTMLDivElement>(null);
+  const targetBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!diseaseId) {
@@ -82,6 +84,7 @@ export function TargetBrowser({
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
       if (diseaseBoxRef.current && !diseaseBoxRef.current.contains(e.target as Node)) setDiseaseOpen(false);
+      if (targetBoxRef.current && !targetBoxRef.current.contains(e.target as Node)) setTargetOpen(false);
     };
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
@@ -89,8 +92,8 @@ export function TargetBrowser({
 
   const diseaseMatches = useMemo(() => {
     const q = diseaseQuery.trim().toLowerCase();
-    const pool = q ? diseases.filter((d) => d.name.toLowerCase().includes(q)) : diseases;
-    return pool.slice(0, 12);
+    if (!q) return []; // don't dump all ~2400 diseases just from focusing the box — require a query first
+    return diseases.filter((d) => d.name.toLowerCase().includes(q)).slice(0, 12);
   }, [diseases, diseaseQuery]);
 
   const clearDisease = () => {
@@ -111,10 +114,9 @@ export function TargetBrowser({
           return { value, label, marker, sub: `score ${t.disease_score}${t.has_qsar_model ? "" : " · docking only, no QSAR model"}` };
         });
     }
-    if (!q) return [];
     const detailsById = new Map((dockingStatus?.target_details || []).map((d: any) => [d.target_id, d]));
     const installed: Row[] = targets
-      .filter((t) => t.target_id.toLowerCase().includes(q))
+      .filter((t) => !q || t.target_id.toLowerCase().includes(q))
       .map((t) => {
         const det = detailsById.get(t.target_id) as any;
         const marker: Row["marker"] = det ? (det.validated ? "validated" : "unvalidated") : "validated";
@@ -125,6 +127,11 @@ export function TargetBrowser({
           sub: `${t.n_compounds ?? "?"} compounds · test R² ${t.test_r2 ?? "—"}`,
         };
       });
+    // The registry's full ~600 targets (downloadable + docking-only) stay
+    // hidden until the user actually types — only `installed` (bounded to
+    // whatever's already downloaded, typically a handful) is safe to show
+    // just from focusing the box.
+    if (!q) return installed.slice(0, 30);
     const installedIds = new Set(installed.map((r) => r.value));
     const downloadable: Row[] = gateApi.downloadableExtraIds
       .filter((id) => !installedIds.has(id) && id.toLowerCase().includes(q))
@@ -204,36 +211,49 @@ export function TargetBrowser({
       <label className="field-label" style={{ marginTop: 12 }}>
         Target
       </label>
-      <input
-        className="field-input"
-        placeholder={diseaseId ? "Filter this disease's targets…" : "Search targets by id…"}
-        value={targetQuery}
-        onChange={(e) => setTargetQuery(e.target.value)}
-      />
-      {!diseaseId && !targetQuery.trim() && (
-        <div className="field-hint">Pick a disease above, or type a target id to search.</div>
-      )}
-      {(diseaseId || targetQuery.trim()) && (
-        <div className="mt-1.5 max-h-[260px] overflow-y-auto rounded-lg border border-line">
-          {!rows.length && <div className="p-2 text-[12.5px] text-inkmut">No matching targets.</div>}
-          {rows.map((r) => {
-            const on = r.value === targetId || r.value === gateApi.pendingId;
-            return (
-              <div
-                key={r.value}
-                onClick={() => gateApi.select(r.value)}
-                className={`flex cursor-pointer items-center gap-2 border-b border-line/70 px-2.5 py-1.5 text-[12.5px] last:border-0 hover:bg-surface2/60 ${on ? "bg-brand-500/[0.08]" : ""}`}
-              >
-                <span className={`w-4 text-center font-bold ${MARKER_CLS[r.marker]}`}>{MARKER_ICON[r.marker]}</span>
-                <span className="flex-1">
-                  <span className="font-semibold text-ink">{r.label}</span>
-                  <span className="ml-1.5 text-inkmut">{r.sub}</span>
-                </span>
+      <div className="relative" ref={targetBoxRef}>
+        <input
+          className="field-input"
+          placeholder={diseaseId ? "Filter this disease's targets…" : "Search targets by id…"}
+          value={targetQuery}
+          onFocus={() => setTargetOpen(true)}
+          onChange={(e) => {
+            setTargetQuery(e.target.value);
+            setTargetOpen(true);
+          }}
+        />
+        {!diseaseId && !targetQuery.trim() && !targets.length && (
+          <div className="field-hint">Pick a disease above, or type a target id to search.</div>
+        )}
+        {(diseaseId || targetQuery.trim() || targetOpen) && (
+          <div className="absolute z-20 mt-1.5 max-h-[260px] w-full overflow-y-auto rounded-lg border border-line bg-surface shadow-card">
+            {!rows.length && (
+              <div className="p-2 text-[12.5px] text-inkmut">
+                {diseaseId || targetQuery.trim() ? "No matching targets." : "No targets downloaded yet — type an id to search all targets."}
               </div>
-            );
-          })}
-        </div>
-      )}
+            )}
+            {rows.map((r) => {
+              const on = r.value === targetId || r.value === gateApi.pendingId;
+              return (
+                <div
+                  key={r.value}
+                  onClick={() => {
+                    gateApi.select(r.value);
+                    setTargetOpen(false);
+                  }}
+                  className={`flex cursor-pointer items-center gap-2 border-b border-line/70 px-2.5 py-1.5 text-[12.5px] last:border-0 hover:bg-surface2/60 ${on ? "bg-brand-500/[0.08]" : ""}`}
+                >
+                  <span className={`w-4 text-center font-bold ${MARKER_CLS[r.marker]}`}>{MARKER_ICON[r.marker]}</span>
+                  <span className="flex-1">
+                    <span className="font-semibold text-ink">{r.label}</span>
+                    <span className="ml-1.5 text-inkmut">{r.sub}</span>
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
       <DownloadGateBar gate={gateApi.gate} onRetry={gateApi.retry} onStop={gateApi.stop} />
 
       {targetId && !gateApi.gate.active && (
