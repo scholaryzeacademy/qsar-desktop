@@ -1,7 +1,11 @@
-"""Batch-run 'Find best validated structure automatically' (see app.py's
-/api/docking/receptor/auto_validate) for EVERY protein target in
+"""Batch-run 'find the best validated structure' for EVERY protein target in
 panel_results_v2.csv that has no QSAR model — the GENE_<symbol> targets the
-UI previously always required a manual Advanced Settings structure pick for.
+UI otherwise always requires a manual Advanced Settings structure pick for.
+(This used to also be exposed live, per-target, as an app.py endpoint the
+UI called from an Advanced Settings button; that was removed since it's an
+expensive multi-candidate redocking search better run offline once here and
+baked into docking_registry.json, not repeated per-user for a target that
+has no automatic default.)
 
 Reuses scripts/batch_validate.py's run_one() unchanged (candidate ranking,
 redocking, accept-or-revert) — this script's only job is building the

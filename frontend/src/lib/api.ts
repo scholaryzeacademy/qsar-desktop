@@ -127,28 +127,11 @@ export const receptorForTarget = (targetId: string) =>
 export const referenceLigandSdf = (targetId: string) =>
   fetch(apiUrl(`/api/targets/${targetId}/reference_ligand.sdf`)).then((r) => r.text());
 
-// ---------- custom receptor + auto-validate (async jobs) ----------
+// ---------- custom receptor (async job) ----------
 export const submitCustomReceptor = (body: { target_id: string; pdb_id: string; ligand_resname?: string }) =>
   api<{ job_id: string }>("/api/docking/receptor/custom", json(body));
 export const customReceptorJob = (jid: string) =>
   api<{ status: string; profile?: ReceptorProfile; error?: string }>(`/api/docking/receptor/custom/job/${jid}`);
-
-export const submitAutoValidate = (target_id: string) =>
-  api<{ job_id: string }>("/api/docking/receptor/auto_validate", json({ target_id }));
-export const autoValidateJob = (jid: string) =>
-  api<{
-    status: string;
-    error?: string;
-    result?: {
-      was_already_validated: boolean;
-      prior_pdb_source?: string | null;
-      prior_reference_rmsd?: number | null;
-      validated: boolean;
-      pdb_source?: string | null;
-      reference_rmsd?: number | null;
-      changed: boolean;
-    };
-  }>(`/api/docking/receptor/auto_validate/job/${jid}`);
 
 // ---------- docking submit / poll ----------
 export const submitDocking = (target_id: string, smiles: string[], advanced: AdvancedDockingBody | null) =>

@@ -90,10 +90,6 @@ export function AdvancedSettingsPanel({
                 })}
             </div>
             {adv.structureStatus && <div className={`field-hint ${STATUS_CLS[adv.structureStatus.kind]}`}>{adv.structureStatus.text}</div>}
-            <button type="button" className="btn-link mt-2" disabled={adv.autoValidateBusy} onClick={() => adv.runAutoValidate()}>
-              {adv.autoValidateBusy ? "Testing candidate structures…" : "Find best validated structure automatically"}
-            </button>
-            {adv.autoValidateStatus && <div className={`field-hint ${STATUS_CLS[adv.autoValidateStatus.kind]}`}>{adv.autoValidateStatus.text}</div>}
           </div>
 
           <div className="mb-3">

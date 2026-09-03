@@ -47,8 +47,6 @@ export function useAdvancedDocking(targetId: string) {
   const [structureStatus, setStructureStatus] = useState<{ kind: "muted" | "ok" | "warn" | "err"; text: string } | null>(null);
   const [preparingStructure, setPreparingStructure] = useState(false);
 
-  const [autoValidateBusy, setAutoValidateBusy] = useState(false);
-  const [autoValidateStatus, setAutoValidateStatus] = useState<{ kind: "muted" | "ok" | "err"; text: string } | null>(null);
 
   const residueTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -204,51 +202,6 @@ export function useAdvancedDocking(targetId: string) {
     [targetId, applyBindingSiteFromProfile]
   );
 
-  const runAutoValidate = useCallback(async () => {
-    if (!targetId) {
-      setAutoValidateStatus({ kind: "err", text: "Pick a target first." });
-      return;
-    }
-    setAutoValidateBusy(true);
-    setAutoValidateStatus({ kind: "muted", text: "Redocking ranked candidates in order, keeping the first that passes and is at least as good as any existing default — can take a few minutes." });
-    try {
-      const sub = await api.submitAutoValidate(targetId);
-      let j;
-      while (true) {
-        await api.sleep(4000);
-        j = await api.pollRetry(() => api.autoValidateJob(sub.job_id));
-        if (j.status === "done" || j.status === "error") break;
-      }
-      if (j.status === "error") {
-        setAutoValidateStatus({ kind: "err", text: j.error || "failed" });
-        return;
-      }
-      const r = j.result!;
-      if (!r.validated) {
-        setAutoValidateStatus({
-          kind: "muted",
-          text: r.was_already_validated
-            ? `No candidate matched or beat the existing default (${r.prior_pdb_source}, RMSD ${r.prior_reference_rmsd} Å) — kept as-is.`
-            : `No candidate passed redocking validation (RMSD < 2 Å) for this target — still no automatic default. Pick a structure manually above, or use "Run Fresh Decoy Validation" per compound after docking.`,
-        });
-      } else if (r.changed) {
-        setAutoValidateStatus({
-          kind: "ok",
-          text: r.was_already_validated
-            ? `Found a better structure: ${r.pdb_source} (RMSD ${r.reference_rmsd} Å), replacing ${r.prior_pdb_source} (RMSD ${r.prior_reference_rmsd} Å). This is now the automatic default.`
-            : `Found and set a new automatic default: ${r.pdb_source} (RMSD ${r.reference_rmsd} Å) — Automatic mode now works for this target without picking a manual structure.`,
-        });
-      } else {
-        setAutoValidateStatus({ kind: "muted", text: `Already using the best validated structure (${r.pdb_source}, RMSD ${r.reference_rmsd} Å) — nothing changed.` });
-      }
-      loadBindingSite(targetId);
-    } catch (e: any) {
-      setAutoValidateStatus({ kind: "err", text: e.message || "Error" });
-    } finally {
-      setAutoValidateBusy(false);
-    }
-  }, [targetId, loadBindingSite]);
-
   const resetToAutomatic = useCallback(() => {
     setExhaustiveness("");
     setNPoses("");
@@ -309,9 +262,6 @@ export function useAdvancedDocking(targetId: string) {
     structureStatus,
     preparingStructure,
     pickStructure,
-    autoValidateBusy,
-    autoValidateStatus,
-    runAutoValidate,
     resetToAutomatic,
     effectiveBox,
     getAdvanced,
