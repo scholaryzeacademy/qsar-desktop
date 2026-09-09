@@ -17,7 +17,15 @@
 AppId={{B6E2B9A0-6E6D-4C2D-9E3E-8B7B7B7C1A11}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-DefaultDirName={autopf}\{#MyAppName}
+; Per-user, always-writable location — NOT {autopf} (Program Files).
+; models/ and docking_targets/ are written next to the exe at runtime
+; (see desktop.py's os.chdir + downloads.py), and Program Files is
+; admin/UAC-protected: a normal (non-elevated) launch of the installed
+; app can't write there at all, so every on-demand download fails with
+; a WinError (PermissionError/WinError 5) for every user, every time.
+; {localappdata} needs no elevation for either the installer or the app.
+DefaultDirName={localappdata}\{#MyAppName}
+PrivilegesRequired=lowest
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputBaseFilename=PhytoScreenSetup
