@@ -190,7 +190,15 @@ jobs:
             $done = $false
             for ($i = 0; $i -lt 90; $i++) {
               Start-Sleep -Seconds 1
-              $p = Invoke-RestMethod "$base/api/downloads/progress/$($job.job_id)" -TimeoutSec 10
+              # A single stray HTTP timeout here (seen once: CI runner I/O
+              # contention while the download thread is mid-write/hashing a
+              # chunk) must not kill the whole verification — this endpoint
+              # just reads an in-memory dict under a lock, so a transient
+              # failure means "try again next second," not "something's
+              # actually wrong." Only running out of iterations, or the job
+              # itself reporting state=="error", is a real failure.
+              try { $p = Invoke-RestMethod "$base/api/downloads/progress/$($job.job_id)" -TimeoutSec 10 }
+              catch { continue }
               if ($p.state -eq "done") { $done = $true; break }
               if ($p.state -eq "error") { Fail "Model download failed: $($p.error)" }
             }
