@@ -27,15 +27,27 @@ const MARKER_CLS: Record<Row["marker"], string> = {
   "not-downloaded": "text-brand-600",
 };
 
+const DISEASE_PAGE = 50;
+const TARGET_PAGE = 30;
+
 /** Disease-first target browser, shared by Screen and Docking:
-      1. an optional, searchable disease combobox
-      2. a target search box + result list (never a giant always-expanded
-         list of every target — nothing renders until you either pick a
-         disease or type a query)
+      1. an optional, searchable disease combobox — opens on focus with a
+         browsable (capped) list, narrows as you type
+      2. a target search box + result list — opens on focus (showing
+         already-downloaded targets, or a disease's ranked targets once
+         one is picked), narrows/expands as you type
       3. once a target is picked, its structure loads and previews
          automatically (no extra "View binding site in 3D" click needed
          for the default view — that modal still exists for deeper
          pocket-residue editing, this is just "here's what got picked")
+
+    Both dropdowns render in normal document flow (not position:absolute)
+    deliberately — this component sits inside a sidebar with its own
+    independent scroll (see ScreenTab/DockingTab's <aside overflow-y-auto>),
+    and an absolutely-positioned panel gets silently clipped by that
+    ancestor depending on scroll position. Pushing the layout down while
+    open is a small, well-understood tradeoff for a panel that reliably
+    shows up every time.
 
     Replaces the old TargetPicker component's UI; the manifest-aware
     auto-download gating (useDownloadGate) is unchanged, just re-skinned
@@ -63,23 +75,39 @@ export function TargetBrowser({
   const [targetQuery, setTargetQuery] = useState("");
   const [targetOpen, setTargetOpen] = useState(false);
   const [ranked, setRanked] = useState<DiseaseTarget[] | null>(null);
+  const [rankedLoading, setRankedLoading] = useState(false);
   const diseaseBoxRef = useRef<HTMLDivElement>(null);
   const targetBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!diseaseId) {
       setRanked(null);
+      setRankedLoading(false);
       return;
     }
     let cancelled = false;
+    setRankedLoading(true);
     api
       .targetsForDisease(diseaseId)
       .then((d) => !cancelled && setRanked(d.targets))
-      .catch(() => !cancelled && setRanked([]));
+      .catch(() => !cancelled && setRanked([]))
+      .finally(() => !cancelled && setRankedLoading(false));
     return () => {
       cancelled = true;
     };
   }, [diseaseId]);
+
+  // A target picked outside this component (e.g. this tab remembers the
+  // last-used target, or a sibling control changed it) needs its label
+  // reflected in the search box too — otherwise the box shows blank even
+  // though something real is selected. Only fires when the box doesn't
+  // already have text, so it never clobbers what the user is typing.
+  useEffect(() => {
+    if (!targetId || targetQuery) return;
+    const installed = targets.find((t) => t.target_id === targetId);
+    setTargetQuery(installed ? installed.target_id : targetId.startsWith("GENE_") ? targetId.slice(5) : targetId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetId]);
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -92,9 +120,18 @@ export function TargetBrowser({
 
   const diseaseMatches = useMemo(() => {
     const q = diseaseQuery.trim().toLowerCase();
-    if (!q) return []; // don't dump all ~2400 diseases just from focusing the box — require a query first
-    return diseases.filter((d) => d.name.toLowerCase().includes(q)).slice(0, 12);
+    const pool = q ? diseases.filter((d) => d.name.toLowerCase().includes(q)) : diseases;
+    return pool.slice(0, DISEASE_PAGE);
   }, [diseases, diseaseQuery]);
+  const diseaseTruncated = diseaseMatches.length === DISEASE_PAGE && diseases.length > DISEASE_PAGE;
+
+  const selectDisease = (d: { disease_id: string; name: string }) => {
+    setDiseaseId(d.disease_id);
+    setDiseaseQuery(d.name);
+    setDiseaseOpen(false);
+    setTargetQuery("");
+    setTargetOpen(true); // jump straight to this disease's ranked targets, no extra click
+  };
 
   const clearDisease = () => {
     setDiseaseId("");
@@ -131,7 +168,7 @@ export function TargetBrowser({
     // hidden until the user actually types — only `installed` (bounded to
     // whatever's already downloaded, typically a handful) is safe to show
     // just from focusing the box.
-    if (!q) return installed.slice(0, 30);
+    if (!q) return installed.slice(0, TARGET_PAGE);
     const installedIds = new Set(installed.map((r) => r.value));
     const downloadable: Row[] = gateApi.downloadableExtraIds
       .filter((id) => !installedIds.has(id) && id.toLowerCase().includes(q))
@@ -152,8 +189,14 @@ export function TargetBrowser({
         marker: "docking-only" as const,
         sub: `docking only, no QSAR model · ${d.validated ? "✓ structure validated" : "⚠ structure not yet validated"}`,
       }));
-    return [...installed, ...downloadable, ...dockingOnly].slice(0, 30);
+    return [...installed, ...downloadable, ...dockingOnly].slice(0, TARGET_PAGE);
   }, [diseaseId, ranked, targetQuery, targets, gateApi.downloadableExtraIds, dockingStatus]);
+
+  const selectTarget = (r: Row) => {
+    gateApi.select(r.value);
+    setTargetQuery(r.label);
+    setTargetOpen(false);
+  };
 
   const selectedRow = rows.find((r) => r.value === targetId);
   const dockDetail = dockingStatus?.target_details?.find((d: any) => d.target_id === targetId) ?? null;
@@ -162,7 +205,7 @@ export function TargetBrowser({
   return (
     <div>
       <label className="field-label">Disease (optional)</label>
-      <div className="relative" ref={diseaseBoxRef}>
+      <div ref={diseaseBoxRef}>
         <div className="flex gap-1.5">
           <input
             className="field-input"
@@ -188,22 +231,24 @@ export function TargetBrowser({
             </button>
           )}
         </div>
-        {diseaseOpen && diseaseMatches.length > 0 && (
-          <div className="absolute z-20 mt-1 max-h-[220px] w-full overflow-y-auto rounded-lg border border-line bg-surface shadow-card">
+        {diseaseOpen && (
+          <div className="mt-1.5 max-h-[240px] overflow-y-auto rounded-lg border border-line bg-surface">
+            {!diseaseMatches.length && <div className="p-2.5 text-[12.5px] text-inkmut">No matching diseases.</div>}
             {diseaseMatches.map((d) => (
               <div
                 key={d.disease_id}
                 className="cursor-pointer border-b border-line/70 px-2.5 py-1.5 text-[12.5px] last:border-0 hover:bg-surface2/60"
-                onClick={() => {
-                  setDiseaseId(d.disease_id);
-                  setDiseaseQuery(d.name);
-                  setDiseaseOpen(false);
-                }}
+                onClick={() => selectDisease(d)}
               >
                 {d.name}
                 {d.is_therapeutic_area ? <span className="ml-1.5 text-inkmut">(therapeutic area)</span> : null}
               </div>
             ))}
+            {diseaseTruncated && (
+              <div className="border-t border-line px-2.5 py-1.5 text-[11px] text-inkmut">
+                Showing the first {DISEASE_PAGE} — keep typing to narrow.
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -211,7 +256,7 @@ export function TargetBrowser({
       <label className="field-label" style={{ marginTop: 12 }}>
         Target
       </label>
-      <div className="relative" ref={targetBoxRef}>
+      <div ref={targetBoxRef}>
         <input
           className="field-input"
           placeholder={diseaseId ? "Filter this disease's targets…" : "Search targets by id…"}
@@ -222,14 +267,18 @@ export function TargetBrowser({
             setTargetOpen(true);
           }}
         />
-        {!diseaseId && !targetQuery.trim() && !targets.length && (
+        {!diseaseId && !targetQuery.trim() && !targetOpen && !targets.length && (
           <div className="field-hint">Pick a disease above, or type a target id to search.</div>
         )}
-        {(diseaseId || targetQuery.trim() || targetOpen) && (
-          <div className="absolute z-20 mt-1.5 max-h-[260px] w-full overflow-y-auto rounded-lg border border-line bg-surface shadow-card">
+        {targetOpen && (
+          <div className="mt-1.5 max-h-[280px] overflow-y-auto rounded-lg border border-line bg-surface">
             {!rows.length && (
-              <div className="p-2 text-[12.5px] text-inkmut">
-                {diseaseId || targetQuery.trim() ? "No matching targets." : "No targets downloaded yet — type an id to search all targets."}
+              <div className="p-2.5 text-[12.5px] text-inkmut">
+                {diseaseId && rankedLoading
+                  ? "Loading targets for this disease…"
+                  : diseaseId || targetQuery.trim()
+                  ? "No matching targets."
+                  : "No targets downloaded yet — type an id to search all targets."}
               </div>
             )}
             {rows.map((r) => {
@@ -237,10 +286,7 @@ export function TargetBrowser({
               return (
                 <div
                   key={r.value}
-                  onClick={() => {
-                    gateApi.select(r.value);
-                    setTargetOpen(false);
-                  }}
+                  onClick={() => selectTarget(r)}
                   className={`flex cursor-pointer items-center gap-2 border-b border-line/70 px-2.5 py-1.5 text-[12.5px] last:border-0 hover:bg-surface2/60 ${on ? "bg-brand-500/[0.08]" : ""}`}
                 >
                   <span className={`w-4 text-center font-bold ${MARKER_CLS[r.marker]}`}>{MARKER_ICON[r.marker]}</span>
